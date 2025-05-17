@@ -1,88 +1,91 @@
 
-import React, { useEffect, useState } from "react";
-import { Autocomplete } from "@/components/ui/autocomplete";
-import { getCityOptions, getCitiesByCountry } from "@/lib/location-data";
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FormDescription } from "@/components/ui/form";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface CityAutocompleteProps {
-  value?: string;
-  onChange: (city: string) => void;
+  onCitySelect: (city: { value: string; label: string }) => void;
+  selectedCity?: string;
   label?: string;
-  description?: string;
+  placeholder?: string;
   required?: boolean;
-  countryFilter?: string;
-  disabled?: boolean;
 }
 
-const CityAutocomplete = ({
-  value,
-  onChange,
+export function CityAutocomplete({
+  onCitySelect,
+  selectedCity = "",
   label = "Ville",
-  description,
-  required = false,
-  countryFilter,
-  disabled = false
-}: CityAutocompleteProps) => {
-  const [cityOptions, setCityOptions] = useState(getCityOptions());
+  placeholder = "Sélectionner une ville...",
+  required = false
+}: CityAutocompleteProps) {
+  const [open, setOpen] = useState(false);
   
-  // Filter cities by country when countryFilter changes
-  useEffect(() => {
-    if (countryFilter) {
-      setCityOptions(getCitiesByCountry(countryFilter).map(city => ({
-        value: `${city.name}, ${countryFilter}`,
-        label: `${city.name}, ${countryFilter}`
-      })));
-    } else {
-      setCityOptions(getCityOptions());
-    }
-  }, [countryFilter]);
-  
-  // Enhanced filter function for better search experience
-  const filterCityOptions = (option: { label: string; value: string }, query: string) => {
-    if (!query) return true;
-    
-    const normalizedQuery = query.toLowerCase().trim();
-    const normalizedLabel = option.label.toLowerCase();
-    
-    // Check if the city name starts with the query (prioritize this)
-    const cityName = normalizedLabel.split(',')[0].trim();
-    if (cityName.startsWith(normalizedQuery)) {
-      return true;
-    }
-    
-    // Check for matches at the beginning of words
-    const words = cityName.split(/\s+/);
-    for (const word of words) {
-      if (word.startsWith(normalizedQuery)) {
-        return true;
-      }
-    }
-    
-    // Finally check for partial matches anywhere
-    return normalizedLabel.includes(normalizedQuery);
-  };
+  // This is a simplified list of cities for demonstration
+  const cities = [
+    { value: "paris", label: "Paris" },
+    { value: "marseille", label: "Marseille" },
+    { value: "lyon", label: "Lyon" },
+    { value: "toulouse", label: "Toulouse" },
+    { value: "nice", label: "Nice" },
+    { value: "nantes", label: "Nantes" },
+    { value: "strasbourg", label: "Strasbourg" },
+    { value: "montpellier", label: "Montpellier" },
+    { value: "bordeaux", label: "Bordeaux" },
+    { value: "lille", label: "Lille" }
+  ];
+
+  const selectedCityName = selectedCity 
+    ? cities.find(city => city.value === selectedCity)?.label || selectedCity
+    : "";
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor="city" className={required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""}>
-        {label}
-      </Label>
-      
-      <Autocomplete
-        options={cityOptions}
-        value={value}
-        onChange={onChange}
-        placeholder="Saisissez le nom de la ville..."
-        emptyMessage="Aucune ville trouvée."
-        filterFunction={filterCityOptions}
-        groupBy={countryFilter ? undefined : (option) => option.label.split(', ')[1]} // Group by country if not filtered
-        disabled={disabled}
-      />
-      
-      {description && <FormDescription>{description}</FormDescription>}
+    <div className="w-full space-y-2">
+      {label && <Label htmlFor="city-select">{label}{required && <span className="text-red-500 ml-1">*</span>}</Label>}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between"
+            id="city-select"
+          >
+            {selectedCityName || placeholder}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput placeholder="Rechercher une ville..." />
+            <CommandEmpty>Aucune ville trouvée.</CommandEmpty>
+            <CommandGroup>
+              {cities.map((city) => (
+                <CommandItem
+                  key={city.value}
+                  value={city.value}
+                  onSelect={() => {
+                    onCitySelect(city);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedCity === city.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {city.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
     </div>
   );
-};
-
-export default CityAutocomplete;
+}
