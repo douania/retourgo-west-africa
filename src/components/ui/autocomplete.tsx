@@ -21,6 +21,8 @@ interface AutocompleteProps {
   className?: string;
   disabled?: boolean;
   name?: string;
+  groupBy?: (option: AutocompleteOption) => string;
+  filterFunction?: (option: AutocompleteOption, searchQuery: string) => boolean;
 }
 
 export function Autocomplete({
@@ -31,12 +33,49 @@ export function Autocomplete({
   emptyMessage = "Aucun résultat trouvé.",
   className,
   disabled = false,
-  name
+  name,
+  groupBy,
+  filterFunction
 }: AutocompleteProps) {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const selectedOption = options.find(option => option.value === value);
+
+  // Default filter function that checks if label or value includes search query
+  const defaultFilterFunction = (option: AutocompleteOption, query: string) => {
+    if (!query) return true;
+    const normalizedQuery = query.toLowerCase();
+    return (
+      option.label.toLowerCase().includes(normalizedQuery) || 
+      option.value.toLowerCase().includes(normalizedQuery)
+    );
+  };
+
+  // Use custom filter function if provided, otherwise use default
+  const filterOptions = (options: AutocompleteOption[], query: string) => {
+    return options.filter(option => 
+      filterFunction ? filterFunction(option, query) : defaultFilterFunction(option, query)
+    );
+  };
+
+  // Group options if groupBy function is provided
+  const groupedOptions = React.useMemo(() => {
+    const filteredOptions = filterOptions(options, searchQuery);
+    
+    if (!groupBy) {
+      return { ungrouped: filteredOptions };
+    }
+
+    return filteredOptions.reduce<Record<string, AutocompleteOption[]>>((groups, option) => {
+      const groupKey = groupBy(option);
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(option);
+      return groups;
+    }, {});
+  }, [options, searchQuery, groupBy, filterFunction]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -60,16 +99,37 @@ export function Autocomplete({
             placeholder={placeholder} 
             value={searchQuery}
             onValueChange={setSearchQuery}
+            className="h-9"
           />
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>
-            <CommandGroup>
-              {options
-                .filter(option => 
-                  option.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                  option.value.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .map(option => (
+            {Object.entries(groupedOptions).map(([group, groupOptions]) => (
+              <React.Fragment key={group}>
+                {group !== 'ungrouped' && groupOptions.length > 0 && (
+                  <CommandGroup heading={group}>
+                    {groupOptions.map(option => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={(currentValue) => {
+                          onChange(currentValue);
+                          setOpen(false);
+                          setSearchQuery("");
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            value === option.value ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {option.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+                
+                {group === 'ungrouped' && groupOptions.map(option => (
                   <CommandItem
                     key={option.value}
                     value={option.value}
@@ -88,7 +148,8 @@ export function Autocomplete({
                     {option.label}
                   </CommandItem>
                 ))}
-            </CommandGroup>
+              </React.Fragment>
+            ))}
           </CommandList>
         </Command>
       </PopoverContent>

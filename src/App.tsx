@@ -18,6 +18,7 @@ import FreightMarketplace from "./pages/FreightMarketplace";
 import NewFreight from "./pages/NewFreight";
 import FreightDetails from "./pages/FreightDetails";
 import FreightOffers from "./pages/FreightOffers";
+import VehicleRegistration from "./pages/VehicleRegistration";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/new-freight" element={<NewFreight />} />
             <Route path="/freight/:id" element={<FreightDetails />} />
             <Route path="/freight/:id/offers" element={<FreightOffers />} />
+            <Route path="/vehicles/new" element={<VehicleRegistration />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
