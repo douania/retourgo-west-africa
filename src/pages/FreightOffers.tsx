@@ -72,18 +72,20 @@ const FreightOffers = () => {
         setFreight(freightData as Freight);
 
         // Fetch all offers for this freight with transporter profiles
+        // La requête ci-dessous a été corrigée pour résoudre l'erreur
         const { data: offersData, error: offersError } = await supabase
           .from("transport_offers")
           .select(`
             *,
-            transporter:profiles(first_name, last_name, user_type, phone, rating)
+            transporter:profiles!transport_offers_transporter_id_fkey(first_name, last_name, user_type, phone, rating)
           `)
           .eq("freight_id", id)
           .order("price_offered", { ascending: true });
 
         if (offersError) throw offersError;
         
-        setOffers(offersData as TransportOffer[]);
+        // Safe casting to the correct type
+        setOffers(offersData as unknown as TransportOffer[]);
       } catch (error: any) {
         console.error("Error fetching freight offers:", error);
         toast({
