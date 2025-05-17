@@ -2,30 +2,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, User, Calendar, TruckIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Freight } from "@/components/freight/FreightCard";
-
-interface TransportOffer {
-  id: string;
-  freight_id: string;
-  transporter_id: string;
-  price_offered: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  transporter?: {
-    first_name: string | null;
-    last_name: string | null;
-    user_type: string;
-    phone: string | null;
-    rating: number | null;
-  };
-}
+import { FreightOfferHeader } from "@/components/freight/FreightOfferHeader";
+import { FreightOfferList } from "@/components/freight/FreightOfferList";
+import { TransportOffer } from "@/components/freight/FreightOfferItem";
 
 const FreightOffers = () => {
   const { id } = useParams<{ id: string }>();
@@ -72,7 +57,6 @@ const FreightOffers = () => {
         setFreight(freightData as Freight);
 
         // Fetch all offers for this freight with transporter profiles
-        // La requête ci-dessous a été corrigée pour résoudre l'erreur
         const { data: offersData, error: offersError } = await supabase
           .from("transport_offers")
           .select(`
@@ -193,83 +177,16 @@ const FreightOffers = () => {
           <ArrowLeft className="h-4 w-4" /> Retour au détail du fret
         </Button>
 
-        <Card className="mb-6">
-          <CardHeader className="border-b">
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-2xl font-bold text-gray-800">
-                  Offres pour {freight.title}
-                </CardTitle>
-                <p className="text-gray-600 mt-1">
-                  {freight.origin} → {freight.destination}
-                </p>
-              </div>
-              <Badge variant={freight.status === "available" ? "success" : "secondary"}>
-                {freight.status === "available" ? "Disponible" : "Attribué"}
-              </Badge>
-            </div>
-          </CardHeader>
+        <FreightOfferHeader freight={freight} />
+        
+        <Card>
           <CardContent className="pt-6">
-            {offers.length === 0 ? (
-              <div className="text-center py-12">
-                <h3 className="text-xl font-semibold text-gray-700">Aucune offre</h3>
-                <p className="text-gray-500 mt-2">
-                  Votre fret n'a pas encore reçu d'offres de transporteurs.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-2 border-b text-sm font-medium text-gray-500">
-                  <div className="w-1/4">Transporteur</div>
-                  <div className="w-1/4 text-center">Date de l'offre</div>
-                  <div className="w-1/4 text-center">Prix offert</div>
-                  <div className="w-1/4"></div>
-                </div>
-
-                {offers.map((offer) => (
-                  <div 
-                    key={offer.id} 
-                    className="flex justify-between items-center p-4 border rounded-md bg-white hover:shadow-sm transition-shadow"
-                  >
-                    <div className="w-1/4">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-retourgo-green" />
-                        <span className="font-medium">
-                          {offer.transporter?.first_name || ''} {offer.transporter?.last_name || ''}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="w-1/4 text-center text-gray-600">
-                      <div className="flex items-center justify-center gap-2">
-                        <Calendar className="h-4 w-4 text-retourgo-orange" />
-                        {new Date(offer.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="w-1/4 text-center">
-                      <span className="text-lg font-bold text-retourgo-orange">
-                        {offer.price_offered} €
-                      </span>
-                    </div>
-                    <div className="w-1/4 flex justify-end">
-                      {offer.status === 'pending' && freight.status === 'available' ? (
-                        <Button
-                          className="bg-retourgo-green hover:bg-retourgo-green/90"
-                          onClick={() => handleAcceptOffer(offer.id)}
-                          disabled={Boolean(processingId)}
-                        >
-                          <TruckIcon className="mr-2 h-4 w-4" />
-                          {processingId === offer.id ? "En cours..." : "Accepter"}
-                        </Button>
-                      ) : (
-                        <Badge variant={offer.status === 'accepted' ? 'success' : 'secondary'}>
-                          {offer.status === 'accepted' ? 'Accepté' : 'Refusé'}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <FreightOfferList 
+              offers={offers}
+              freightStatus={freight.status}
+              onAcceptOffer={handleAcceptOffer}
+              processingId={processingId}
+            />
           </CardContent>
         </Card>
       </div>
