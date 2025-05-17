@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { CityAutocomplete } from "./CityAutocomplete";
+import CityAutocomplete from "./CityAutocomplete";
 import CountryAutocomplete from "./CountryAutocomplete";
 import { parseCityString } from "@/lib/location-data";
 import { Button } from "@/components/ui/button";
