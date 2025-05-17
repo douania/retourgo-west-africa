@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  calculatePrice,
+  estimateDistance,
+  VehicleType,
+  AdditionalFeeType,
+} from "@/lib/pricing";
+import PriceEstimation from "./PriceEstimation";
+import PricingOptions from "./PricingOptions";
 
 interface FreightFormData {
   title: string;
@@ -33,12 +41,55 @@ interface FreightFormData {
 }
 
 const FreightForm = () => {
-  const { register, handleSubmit, control, formState: { errors } } = useForm<FreightFormData>();
+  const { register, handleSubmit, control, formState: { errors }, setValue, watch } = useForm<FreightFormData>({
+    defaultValues: {
+      price: 0
+    }
+  });
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const cityOptions = getCityOptions();
+  
+  // Nouvelles variables pour le système de tarification
+  const [vehicleType, setVehicleType] = useState<VehicleType>('truck');
+  const [additionalFees, setAdditionalFees] = useState<AdditionalFeeType[]>([]);
+  const [emptyReturn, setEmptyReturn] = useState(false);
+  const [priceEstimation, setPriceEstimation] = useState({
+    total: 0,
+    breakdown: {
+      baseFee: 0,
+      distanceFee: 0,
+      additionalFees: [] as { type: string; amount: number }[],
+      emptyReturnDiscount: 0
+    }
+  });
+  const [distance, setDistance] = useState(0);
+  
+  // Surveiller les changements des champs origine et destination
+  const origin = watch("origin");
+  const destination = watch("destination");
+  
+  // Recalculer le prix lorsque les paramètres changent
+  useEffect(() => {
+    if (origin && destination) {
+      const calculatedDistance = estimateDistance(origin, destination);
+      setDistance(calculatedDistance);
+      
+      const pricing = calculatePrice({
+        distance: calculatedDistance,
+        vehicleType,
+        additionalFees,
+        emptyReturn
+      });
+      
+      setPriceEstimation(pricing);
+      
+      // Mettre à jour le champ de prix dans le formulaire
+      setValue("price", pricing.total);
+    }
+  }, [origin, destination, vehicleType, additionalFees, emptyReturn, setValue]);
 
   const onSubmit = async (data: FreightFormData) => {
     if (!user) {
@@ -173,7 +224,7 @@ const FreightForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <Label htmlFor="weight">Poids (kg)</Label>
               <Input
@@ -204,22 +255,36 @@ const FreightForm = () => {
               />
               {errors.volume && <p className="text-sm text-red-500 mt-1">{errors.volume.message}</p>}
             </div>
-
-            <div>
-              <Label htmlFor="price">Prix (€)</Label>
-              <Input
-                id="price"
-                type="number"
-                {...register("price", { 
-                  required: "Le prix est requis",
-                  valueAsNumber: true,
-                  min: { value: 1, message: "Le prix minimum est 1 €" }
-                })}
-                placeholder="Ex: 350"
-              />
-              {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price.message}</p>}
-            </div>
           </div>
+          
+          {/* Options de tarification */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <PricingOptions
+              vehicleType={vehicleType}
+              additionalFees={additionalFees}
+              emptyReturn={emptyReturn}
+              onVehicleTypeChange={setVehicleType}
+              onAdditionalFeesChange={setAdditionalFees}
+              onEmptyReturnChange={setEmptyReturn}
+            />
+            
+            {origin && destination && (
+              <PriceEstimation
+                baseFee={priceEstimation.breakdown.baseFee}
+                distanceFee={priceEstimation.breakdown.distanceFee}
+                distance={distance}
+                origin={origin}
+                destination={destination}
+                vehicleType={vehicleType}
+                additionalFees={priceEstimation.breakdown.additionalFees}
+                emptyReturnDiscount={priceEstimation.breakdown.emptyReturnDiscount}
+                total={priceEstimation.total}
+              />
+            )}
+          </div>
+          
+          {/* Champ de prix caché mis à jour automatiquement */}
+          <input type="hidden" {...register("price", { valueAsNumber: true })} />
         </CardContent>
 
         <CardFooter className="flex justify-between">
