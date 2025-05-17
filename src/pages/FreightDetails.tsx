@@ -1,16 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Package, TruckIcon, MapPin, Calendar, ArrowLeft } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Freight } from "@/components/freight/FreightCard";
+import { FreightDetailsHeader } from "@/components/freight/FreightDetailsHeader";
+import { FreightDetailsCard } from "@/components/freight/FreightDetailsCard";
+import { FreightOfferForm } from "@/components/freight/FreightOfferForm";
+import { Button } from "@/components/ui/button";
 
 const FreightDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -157,6 +156,10 @@ const FreightDetails = () => {
     }
   };
 
+  const handleViewOffers = () => {
+    navigate(`/freight/${freight?.id}/offers`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -189,117 +192,28 @@ const FreightDetails = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <Button 
-          variant="ghost" 
-          className="mb-6 flex items-center gap-2"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-4 w-4" /> Retour
-        </Button>
+        <FreightDetailsHeader 
+          onBack={() => navigate(-1)} 
+          title={freight.title}
+        />
 
-        <Card className="mb-6">
-          <CardHeader className="border-b pb-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-2xl font-bold text-gray-800">{freight.title}</CardTitle>
-                <p className="text-gray-600 mt-1">
-                  Publié par {shipper ? `${shipper.first_name || ''} ${shipper.last_name || ''}` : 'Transporteur'}
-                </p>
-              </div>
-              <Badge variant={freight.status === "available" ? "success" : "secondary"}>
-                {freight.status === "available" ? "Disponible" : "Attribué"}
-              </Badge>
-            </div>
-          </CardHeader>
+        <FreightDetailsCard 
+          freight={freight} 
+          shipper={shipper}
+        />
+
+        <Card>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Détails du fret</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-retourgo-orange mt-0.5" />
-                    <div>
-                      <p className="font-medium">Itinéraire:</p>
-                      <p className="text-lg font-semibold text-retourgo-green">
-                        {freight.origin} → {freight.destination}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <Calendar className="h-5 w-5 text-retourgo-orange mt-0.5" />
-                    <div>
-                      <p className="font-medium">Dates:</p>
-                      <p>Chargement: {new Date(freight.pickup_date).toLocaleDateString()}</p>
-                      <p>Livraison: {new Date(freight.delivery_date).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3">
-                    <Package className="h-5 w-5 text-retourgo-orange mt-0.5" />
-                    <div>
-                      <p className="font-medium">Dimensions:</p>
-                      <p>Poids: {freight.weight} kg</p>
-                      <p>Volume: {freight.volume} m³</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Description</h3>
-                <p className="text-gray-700 whitespace-pre-line">{freight.description}</p>
-
-                <div className="mt-6 pt-6 border-t">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-bold">Prix demandé:</span>
-                    <span className="text-2xl font-bold text-retourgo-orange">{freight.price} €</span>
-                  </div>
-
-                  {!isOwnFreight && freight.status === "available" && (
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="offerPrice">Votre offre (€)</Label>
-                        <Input
-                          id="offerPrice"
-                          type="number"
-                          value={offerPrice}
-                          onChange={(e) => setOfferPrice(e.target.value)}
-                          placeholder="Saisir votre offre"
-                          min={1}
-                        />
-                      </div>
-                      <Button
-                        onClick={handleMakeOffer}
-                        className="w-full bg-retourgo-green hover:bg-retourgo-green/90"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting 
-                          ? "Envoi en cours..." 
-                          : userOffer 
-                            ? "Mettre à jour mon offre" 
-                            : "Faire une offre"}
-                      </Button>
-                      {userOffer && (
-                        <p className="text-sm text-gray-500 text-center">
-                          Vous avez déjà fait une offre de {userOffer.price_offered}€ pour ce fret.
-                          {userOffer.status !== 'pending' && ` (Statut: ${userOffer.status === 'accepted' ? 'Acceptée' : 'Refusée'})`}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {isOwnFreight && (
-                    <Button
-                      onClick={() => navigate(`/freight/${freight.id}/offers`)}
-                      className="w-full bg-retourgo-green hover:bg-retourgo-green/90"
-                    >
-                      <TruckIcon className="mr-2 h-4 w-4" /> Voir les offres de transport
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
+            <FreightOfferForm
+              freight={freight}
+              isOwnFreight={isOwnFreight}
+              userOffer={userOffer}
+              offerPrice={offerPrice}
+              isSubmitting={isSubmitting}
+              onOfferPriceChange={setOfferPrice}
+              onMakeOffer={handleMakeOffer}
+              onViewOffers={handleViewOffers}
+            />
           </CardContent>
         </Card>
       </div>
