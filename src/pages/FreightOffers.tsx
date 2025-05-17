@@ -18,7 +18,7 @@ interface TransportOffer {
   status: string;
   created_at: string;
   updated_at: string;
-  profiles?: {
+  transporter?: {
     first_name: string | null;
     last_name: string | null;
     user_type: string;
@@ -76,14 +76,14 @@ const FreightOffers = () => {
           .from("transport_offers")
           .select(`
             *,
-            profiles:transporter_id(first_name, last_name, user_type, phone, rating)
+            transporter:profiles(first_name, last_name, user_type, phone, rating)
           `)
           .eq("freight_id", id)
           .order("price_offered", { ascending: true });
 
         if (offersError) throw offersError;
         
-        setOffers(offersData);
+        setOffers(offersData as TransportOffer[]);
       } catch (error: any) {
         console.error("Error fetching freight offers:", error);
         toast({
@@ -233,7 +233,7 @@ const FreightOffers = () => {
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-retourgo-green" />
                         <span className="font-medium">
-                          {offer.profiles?.first_name || ''} {offer.profiles?.last_name || ''}
+                          {offer.transporter?.first_name || ''} {offer.transporter?.last_name || ''}
                         </span>
                       </div>
                     </div>
