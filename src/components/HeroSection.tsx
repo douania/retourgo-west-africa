@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
+import { Truck, Package } from 'lucide-react';
 
 const HeroSection = () => {
   return (
@@ -42,6 +43,16 @@ const HeroSection = () => {
                     </Button>
                   </Link>
                 </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-4 sm:justify-center lg:justify-start">
+                <Link to="/vehicles" className="inline-flex items-center text-retourgo-orange font-medium">
+                  <Truck className="h-5 w-5 mr-1" />
+                  Enregistrer un véhicule
+                </Link>
+                <Link to="/new-freight" className="inline-flex items-center text-retourgo-orange font-medium">
+                  <Package className="h-5 w-5 mr-1" />
+                  Publier un fret
+                </Link>
               </div>
             </div>
           </main>

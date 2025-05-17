@@ -1,7 +1,7 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Autocomplete } from "@/components/ui/autocomplete";
-import { getCityOptions } from "@/lib/location-data";
+import { getCityOptions, getCitiesByCountry } from "@/lib/location-data";
 import { Label } from "@/components/ui/label";
 import { FormDescription } from "@/components/ui/form";
 
@@ -11,6 +11,8 @@ interface CityAutocompleteProps {
   label?: string;
   description?: string;
   required?: boolean;
+  countryFilter?: string;
+  disabled?: boolean;
 }
 
 const CityAutocomplete = ({
@@ -18,26 +20,46 @@ const CityAutocomplete = ({
   onChange,
   label = "Ville",
   description,
-  required = false
+  required = false,
+  countryFilter,
+  disabled = false
 }: CityAutocompleteProps) => {
-  const cityOptions = getCityOptions();
+  const [cityOptions, setCityOptions] = useState(getCityOptions());
+  
+  // Filter cities by country when countryFilter changes
+  useEffect(() => {
+    if (countryFilter) {
+      setCityOptions(getCitiesByCountry(countryFilter).map(city => ({
+        value: `${city.name}, ${countryFilter}`,
+        label: `${city.name}, ${countryFilter}`
+      })));
+    } else {
+      setCityOptions(getCityOptions());
+    }
+  }, [countryFilter]);
   
   // Enhanced filter function for better search experience
   const filterCityOptions = (option: { label: string; value: string }, query: string) => {
     if (!query) return true;
     
-    const normalizedQuery = query.toLowerCase();
+    const normalizedQuery = query.toLowerCase().trim();
     const normalizedLabel = option.label.toLowerCase();
     
-    // Start with exact matches at the beginning of words
-    const words = normalizedLabel.split(/[, ]+/);
+    // Check if the city name starts with the query (prioritize this)
+    const cityName = normalizedLabel.split(',')[0].trim();
+    if (cityName.startsWith(normalizedQuery)) {
+      return true;
+    }
+    
+    // Check for matches at the beginning of words
+    const words = cityName.split(/\s+/);
     for (const word of words) {
       if (word.startsWith(normalizedQuery)) {
         return true;
       }
     }
     
-    // Then check for partial matches
+    // Finally check for partial matches anywhere
     return normalizedLabel.includes(normalizedQuery);
   };
 
@@ -54,7 +76,8 @@ const CityAutocomplete = ({
         placeholder="Saisissez le nom de la ville..."
         emptyMessage="Aucune ville trouvée."
         filterFunction={filterCityOptions}
-        groupBy={(option) => option.label.split(', ')[1]} // Group by country
+        groupBy={countryFilter ? undefined : (option) => option.label.split(', ')[1]} // Group by country if not filtered
+        disabled={disabled}
       />
       
       {description && <FormDescription>{description}</FormDescription>}

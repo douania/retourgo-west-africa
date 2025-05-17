@@ -11,6 +11,7 @@ interface CountryAutocompleteProps {
   label?: string;
   description?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 const CountryAutocomplete = ({
@@ -18,23 +19,32 @@ const CountryAutocomplete = ({
   onChange,
   label = "Pays",
   description,
-  required = false
+  required = false,
+  disabled = false
 }: CountryAutocompleteProps) => {
   const countryOptions = getCountryOptions();
   
-  // Improved filtering for countries
+  // Enhanced filtering for countries
   const filterCountryOptions = (option: { label: string; value: string }, query: string) => {
     if (!query) return true;
     
-    const normalizedQuery = query.toLowerCase();
+    const normalizedQuery = query.toLowerCase().trim();
     const normalizedLabel = option.label.toLowerCase();
     
-    // Prioritize matches at the beginning of the country name
+    // Prioritize exact matches at the beginning of the name
     if (normalizedLabel.startsWith(normalizedQuery)) {
       return true;
     }
     
-    // Then check for partial matches anywhere in the name
+    // Match parts of the name (improved for diacritics and partial matches)
+    const words = normalizedLabel.split(/\s+/);
+    for (const word of words) {
+      if (word.startsWith(normalizedQuery)) {
+        return true;
+      }
+    }
+    
+    // Finally check for partial matches anywhere
     return normalizedLabel.includes(normalizedQuery);
   };
 
@@ -51,6 +61,7 @@ const CountryAutocomplete = ({
         placeholder="Sélectionnez un pays..."
         emptyMessage="Aucun pays trouvé."
         filterFunction={filterCountryOptions}
+        disabled={disabled}
       />
       
       {description && <FormDescription>{description}</FormDescription>}

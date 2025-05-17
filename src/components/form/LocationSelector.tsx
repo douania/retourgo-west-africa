@@ -3,9 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import CityAutocomplete from "./CityAutocomplete";
 import CountryAutocomplete from "./CountryAutocomplete";
-import { parseCityString, getCitiesByCountry } from "@/lib/location-data";
+import { parseCityString } from "@/lib/location-data";
 import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface LocationSelectorProps {
   onLocationSelect: (location: {
@@ -16,17 +17,20 @@ interface LocationSelectorProps {
   initialLocation?: string;
   title?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 const LocationSelector = ({
   onLocationSelect,
   initialLocation = "",
   title = "Localisation",
-  required = false
+  required = false,
+  disabled = false
 }: LocationSelectorProps) => {
   const [selectedCity, setSelectedCity] = useState(initialLocation);
   const [selectedCountry, setSelectedCountry] = useState("");
   const [usingLocationApi, setUsingLocationApi] = useState(false);
+  const { toast } = useToast();
 
   // Parse initial location if provided
   useEffect(() => {
@@ -60,19 +64,31 @@ const LocationSelector = ({
     
     if (countryName && countryName !== countryValue) {
       setSelectedCity("");
+      onLocationSelect({
+        city: "",
+        country: countryValue,
+        fullLocation: ""
+      });
     }
   };
 
-  // Handle getting current location (placeholder for now)
+  // Handle getting current location with improved feedback
   const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Géolocalisation non supportée",
+        description: "Votre navigateur ne supporte pas la géolocalisation.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setUsingLocationApi(true);
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
         // In a real implementation, we would use reverse geocoding to get the city/country
-        // For now, just show a toast message with coordinates
         console.log(`Location found: ${position.coords.latitude}, ${position.coords.longitude}`);
-        setUsingLocationApi(false);
         
         // For demo purposes, just set a hardcoded location
         // In production, this would come from a geocoding API
@@ -85,10 +101,42 @@ const LocationSelector = ({
           country: "Sénégal",
           fullLocation: demoCity
         });
+        
+        toast({
+          title: "Position localisée",
+          description: "Votre position a été détectée: Dakar, Sénégal",
+        });
+        
+        setUsingLocationApi(false);
       },
       (error) => {
         console.error("Error getting location:", error);
+        let errorMessage = "Une erreur est survenue lors de la détection de votre position.";
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Vous avez refusé l'accès à votre position.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Les informations de position ne sont pas disponibles.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "La demande de localisation a expiré.";
+            break;
+        }
+        
+        toast({
+          title: "Erreur de localisation",
+          description: errorMessage,
+          variant: "destructive"
+        });
+        
         setUsingLocationApi(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
     );
   };
@@ -104,12 +152,15 @@ const LocationSelector = ({
           value={selectedCountry}
           onChange={handleCountrySelect}
           required={required}
+          disabled={disabled || usingLocationApi}
         />
         
         <CityAutocomplete
           value={selectedCity}
           onChange={handleCitySelect}
           required={required}
+          countryFilter={selectedCountry}
+          disabled={disabled || usingLocationApi}
         />
       </div>
       
@@ -119,10 +170,19 @@ const LocationSelector = ({
           variant="outline"
           className="w-full flex items-center justify-center gap-2"
           onClick={handleGetLocation}
-          disabled={usingLocationApi}
+          disabled={disabled || usingLocationApi}
         >
-          <MapPin className="h-4 w-4" />
-          {usingLocationApi ? "Recherche en cours..." : "Utiliser ma position actuelle"}
+          {usingLocationApi ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Recherche en cours...
+            </>
+          ) : (
+            <>
+              <MapPin className="h-4 w-4" />
+              Utiliser ma position actuelle
+            </>
+          )}
         </Button>
       </div>
     </div>
