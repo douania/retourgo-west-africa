@@ -21,7 +21,11 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength) + '...';
 }
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number, currency: 'FCFA' | 'EUR' = 'FCFA'): string {
+  if (currency === 'FCFA') {
+    return new Intl.NumberFormat('fr-SN').format(amount) + ' FCFA';
+  }
+  
   return new Intl.NumberFormat('fr-FR', { 
     style: 'currency', 
     currency: 'EUR',

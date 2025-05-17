@@ -37,13 +37,13 @@ export const FreightOfferForm = ({
     <div className="mt-6 pt-6 border-t">
       <div className="flex justify-between items-center mb-4">
         <span className="text-lg font-bold">Prix demandé:</span>
-        <span className="text-2xl font-bold text-retourgo-orange">{freight.price} €</span>
+        <span className="text-2xl font-bold text-retourgo-orange">{freight.price} FCFA</span>
       </div>
 
       {!isOwnFreight && freight.status === "available" && (
         <div className="space-y-4">
           <div>
-            <Label htmlFor="offerPrice">Votre offre (€)</Label>
+            <Label htmlFor="offerPrice">Votre offre (FCFA)</Label>
             <Input
               id="offerPrice"
               type="number"
@@ -66,7 +66,7 @@ export const FreightOfferForm = ({
           </Button>
           {userOffer && (
             <p className="text-sm text-gray-500 text-center">
-              Vous avez déjà fait une offre de {userOffer.price_offered}€ pour ce fret.
+              Vous avez déjà fait une offre de {userOffer.price_offered} FCFA pour ce fret.
               {userOffer.status !== 'pending' && ` (Statut: ${userOffer.status === 'accepted' ? 'Acceptée' : 'Refusée'})`}
             </p>
           )}

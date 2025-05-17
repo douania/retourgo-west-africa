@@ -148,7 +148,7 @@ export function estimateDistance(origin: string, destination: string): number {
 
 // Fonction utilitaire pour formater les prix en FCFA
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
+  return new Intl.NumberFormat('fr-SN').format(price) + ' FCFA';
 }
 
 // Obtenir les libellés des types de véhicules
