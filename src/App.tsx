@@ -14,6 +14,9 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import FreightMarketplace from "./pages/FreightMarketplace";
+import NewFreight from "./pages/NewFreight";
+import FreightDetails from "./pages/FreightDetails";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +36,9 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/marketplace" element={<FreightMarketplace />} />
+            <Route path="/new-freight" element={<NewFreight />} />
+            <Route path="/freight/:id" element={<FreightDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
