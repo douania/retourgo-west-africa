@@ -1,17 +1,16 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { FileType } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import DocumentTips from "./DocumentTips";
 import DocumentProcessingIndicator from "./DocumentProcessingIndicator";
 import { 
   DocumentType, 
-  extractDocumentData, 
   getDocumentTitle, 
   getDocumentDescription 
 } from "@/utils/document-utils";
+import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
 
 interface DocumentScannerProps {
   onDocumentCaptured: (file: File, extractedData?: any) => void;
@@ -30,36 +29,10 @@ const DocumentScanner = ({
   previewUrl,
   onDocumentRemove
 }: DocumentScannerProps) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { toast } = useToast();
-
-  const handleImageCapture = async (file: File) => {
-    setIsProcessing(true);
-    
-    try {
-      // Extract document data using our utility function
-      const extractedData = await extractDocumentData(file, documentType);
-      
-      // Pass the file and extracted data to the parent component
-      onDocumentCaptured(file, extractedData);
-      
-      // Show success toast
-      toast({
-        title: "Document traité",
-        description: extractedData ? "Les informations ont été extraites avec succès." : "Le document a été enregistré.",
-      });
-      
-    } catch (error) {
-      console.error("Error processing document:", error);
-      toast({
-        title: "Erreur de traitement",
-        description: "Une erreur est survenue lors du traitement du document.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+  const { isProcessing, processDocument } = useDocumentProcessor({
+    documentType,
+    onDocumentCaptured
+  });
 
   const documentTitle = getDocumentTitle(documentType, title);
   const documentDesc = getDocumentDescription(documentType, description);
@@ -77,7 +50,7 @@ const DocumentScanner = ({
           <DocumentProcessingIndicator />
         ) : (
           <ImageUpload
-            onImageCapture={handleImageCapture}
+            onImageCapture={processDocument}
             onImageRemove={onDocumentRemove}
             previewUrl={previewUrl}
             allowCapture={true}

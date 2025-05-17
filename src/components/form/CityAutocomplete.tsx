@@ -1,91 +1,97 @@
 
-import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandGroup, CommandItem, CommandInput } from '@/components/ui/command';
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { cities } from '@/lib/location-data';
 
-interface CityAutocompleteProps {
-  onCitySelect: (city: { value: string; label: string }) => void;
-  selectedCity?: string;
-  label?: string;
-  placeholder?: string;
+export interface CityAutocompleteProps {
+  onChange: (value: string) => void;
   required?: boolean;
+  countryFilter?: string;
+  disabled?: boolean;
+  value?: string;
 }
 
-export function CityAutocomplete({
-  onCitySelect,
-  selectedCity = "",
-  label = "Ville",
-  placeholder = "Sélectionner une ville...",
-  required = false
-}: CityAutocompleteProps) {
+const CityAutocomplete = ({
+  onChange,
+  value = '',
+  required = false,
+  countryFilter,
+  disabled = false
+}: CityAutocompleteProps) => {
   const [open, setOpen] = useState(false);
-  
-  // This is a simplified list of cities for demonstration
-  const cities = [
-    { value: "paris", label: "Paris" },
-    { value: "marseille", label: "Marseille" },
-    { value: "lyon", label: "Lyon" },
-    { value: "toulouse", label: "Toulouse" },
-    { value: "nice", label: "Nice" },
-    { value: "nantes", label: "Nantes" },
-    { value: "strasbourg", label: "Strasbourg" },
-    { value: "montpellier", label: "Montpellier" },
-    { value: "bordeaux", label: "Bordeaux" },
-    { value: "lille", label: "Lille" }
-  ];
+  const [inputValue, setInputValue] = useState(value);
 
-  const selectedCityName = selectedCity 
-    ? cities.find(city => city.value === selectedCity)?.label || selectedCity
-    : "";
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const filteredCities = useMemo(() => {
+    return cities.filter(city => {
+      if (countryFilter && city.country !== countryFilter) {
+        return false;
+      }
+      return city.name.toLowerCase().includes(inputValue.toLowerCase());
+    }).slice(0, 10); // Limit to 10 results
+  }, [inputValue, countryFilter]);
+
+  const handleSelect = (currentValue: string) => {
+    setInputValue(currentValue);
+    onChange(currentValue);
+    setOpen(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    onChange(value);
+  };
 
   return (
-    <div className="w-full space-y-2">
-      {label && <Label htmlFor="city-select">{label}{required && <span className="text-red-500 ml-1">*</span>}</Label>}
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between"
-            id="city-select"
-          >
-            {selectedCityName || placeholder}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
-          <Command>
-            <CommandInput placeholder="Rechercher une ville..." />
-            <CommandEmpty>Aucune ville trouvée.</CommandEmpty>
-            <CommandGroup>
-              {cities.map((city) => (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div className="flex w-full relative">
+          <Input
+            value={inputValue}
+            onChange={handleInputChange}
+            className="w-full"
+            required={required}
+            disabled={disabled}
+            onFocus={() => setOpen(true)}
+          />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-full" align="start">
+        <Command>
+          <CommandInput placeholder="Rechercher une ville..." />
+          <CommandGroup>
+            {filteredCities.length > 0 ? (
+              filteredCities.map(city => (
                 <CommandItem
-                  key={city.value}
-                  value={city.value}
-                  onSelect={() => {
-                    onCitySelect(city);
-                    setOpen(false);
-                  }}
+                  key={`${city.name}-${city.country}`}
+                  onSelect={() => handleSelect(city.name)}
+                  className="flex items-center"
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selectedCity === city.value ? "opacity-100" : "opacity-0"
+                      inputValue === city.name ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {city.label}
+                  {city.name}
                 </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+              ))
+            ) : (
+              <CommandItem disabled>Aucune ville trouvée</CommandItem>
+            )}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
-}
+};
+
+export default CityAutocomplete;
