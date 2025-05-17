@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MapPin } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,12 +12,23 @@ import { useToast } from "@/hooks/use-toast";
 import FreightCard, { Freight } from "@/components/freight/FreightCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+interface TransportOffer {
+  id: string;
+  freight_id: string;
+  transporter_id: string;
+  price_offered: number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  freights: Freight;
+}
+
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [myFreights, setMyFreights] = useState<Freight[]>([]);
-  const [myOffers, setMyOffers] = useState<any[]>([]);
+  const [myOffers, setMyOffers] = useState<TransportOffer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,6 +76,7 @@ const Dashboard = () => {
           description: "Impossible de charger vos données",
           variant: "destructive",
         });
+        console.error("Error fetching user data:", error);
       } finally {
         setLoading(false);
       }

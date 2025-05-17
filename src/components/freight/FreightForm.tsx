@@ -50,16 +50,13 @@ const FreightForm = () => {
     setIsSubmitting(true);
 
     try {
-      const { data: freight, error } = await supabase
+      const { error } = await supabase
         .from('freights')
-        .insert([
-          {
-            ...data,
-            user_id: user.id,
-            status: 'available'
-          }
-        ])
-        .select();
+        .insert({
+          ...data,
+          user_id: user.id,
+          status: 'available'
+        });
 
       if (error) throw error;
 

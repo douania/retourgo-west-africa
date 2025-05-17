@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      freights: {
+        Row: {
+          created_at: string
+          delivery_date: string
+          description: string
+          destination: string
+          id: string
+          origin: string
+          pickup_date: string
+          price: number
+          status: string
+          title: string
+          user_id: string
+          volume: number
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          delivery_date: string
+          description: string
+          destination: string
+          id?: string
+          origin: string
+          pickup_date: string
+          price: number
+          status?: string
+          title: string
+          user_id: string
+          volume: number
+          weight: number
+        }
+        Update: {
+          created_at?: string
+          delivery_date?: string
+          description?: string
+          destination?: string
+          id?: string
+          origin?: string
+          pickup_date?: string
+          price?: number
+          status?: string
+          title?: string
+          user_id?: string
+          volume?: number
+          weight?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -47,6 +95,44 @@ export type Database = {
           user_type?: string
         }
         Relationships: []
+      }
+      transport_offers: {
+        Row: {
+          created_at: string
+          freight_id: string
+          id: string
+          price_offered: number
+          status: string
+          transporter_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          freight_id: string
+          id?: string
+          price_offered: number
+          status?: string
+          transporter_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          freight_id?: string
+          id?: string
+          price_offered?: number
+          status?: string
+          transporter_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transport_offers_freight_id_fkey"
+            columns: ["freight_id"]
+            isOneToOne: false
+            referencedRelation: "freights"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
