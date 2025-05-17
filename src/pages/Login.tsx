@@ -1,30 +1,29 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, isLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    // Simulate API request
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur RetourGo!",
-      });
-    }, 1500);
+    
+    try {
+      await signIn(email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Login error:", error);
+    }
   };
 
   return (

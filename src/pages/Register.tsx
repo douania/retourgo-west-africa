@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -20,8 +21,11 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userType, setUserType] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const { signUp, isLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,16 +39,19 @@ const Register = () => {
       return;
     }
     
-    setIsLoading(true);
-
-    // Simulate API request
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Inscription réussie",
-        description: "Bienvenue sur RetourGo! Vérifiez votre email pour confirmer votre compte.",
+    try {
+      await signUp(email, password, {
+        firstName,
+        lastName,
+        phone,
+        userType,
       });
-    }, 1500);
+      
+      // Navigate to login page after successful registration
+      navigate("/login");
+    } catch (error) {
+      console.error("Registration error:", error);
+    }
   };
 
   return (
@@ -72,6 +79,36 @@ const Register = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <Card className="py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <Label htmlFor="first-name">Prénom</Label>
+                <div className="mt-1">
+                  <Input
+                    id="first-name"
+                    name="first-name"
+                    type="text"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="last-name">Nom</Label>
+                <div className="mt-1">
+                  <Input
+                    id="last-name"
+                    name="last-name"
+                    type="text"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="email">Adresse email</Label>
               <div className="mt-1">
