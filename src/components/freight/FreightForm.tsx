@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Autocomplete } from "@/components/ui/autocomplete";
+import { getCityOptions } from "@/lib/location-data";
 import {
   Card,
   CardContent,
@@ -31,11 +33,12 @@ interface FreightFormData {
 }
 
 const FreightForm = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<FreightFormData>();
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FreightFormData>();
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const cityOptions = getCityOptions();
 
   const onSubmit = async (data: FreightFormData) => {
     if (!user) {
@@ -113,20 +116,36 @@ const FreightForm = () => {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <Label htmlFor="origin">Origine</Label>
-              <Input
-                id="origin"
-                {...register("origin", { required: "L'origine est requise" })}
-                placeholder="Ville d'origine"
+              <Controller
+                name="origin"
+                control={control}
+                rules={{ required: "L'origine est requise" }}
+                render={({ field }) => (
+                  <Autocomplete
+                    options={cityOptions}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Ville d'origine"
+                  />
+                )}
               />
               {errors.origin && <p className="text-sm text-red-500 mt-1">{errors.origin.message}</p>}
             </div>
 
             <div>
               <Label htmlFor="destination">Destination</Label>
-              <Input
-                id="destination"
-                {...register("destination", { required: "La destination est requise" })}
-                placeholder="Ville de destination"
+              <Controller
+                name="destination"
+                control={control}
+                rules={{ required: "La destination est requise" }}
+                render={({ field }) => (
+                  <Autocomplete
+                    options={cityOptions}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Ville de destination"
+                  />
+                )}
               />
               {errors.destination && <p className="text-sm text-red-500 mt-1">{errors.destination.message}</p>}
             </div>
