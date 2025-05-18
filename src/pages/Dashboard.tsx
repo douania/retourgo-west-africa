@@ -64,7 +64,8 @@ const Dashboard = () => {
             .order('created_at', { ascending: false });
 
           if (offersError) throw offersError;
-          setMyOffers(offers || []);
+          // Ensure we cast the offers to the correct type
+          setMyOffers(offers as unknown as TransportOffer[]);
 
           // Fetch nearby freights (all available freights for now)
           const { data: nearby, error: nearbyError } = await supabase

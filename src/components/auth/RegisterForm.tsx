@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +27,7 @@ const RegisterForm = ({ preselectedUserType }: RegisterFormProps) => {
   const navigate = useNavigate();
 
   // Update userType when preselectedUserType changes
-  useState(() => {
+  useEffect(() => {
     if (preselectedUserType) {
       setUserType(preselectedUserType);
     }
