@@ -31,7 +31,7 @@ const BottomNavigation = () => {
         )}
       >
         <Package className="h-6 w-6" style={{ color: isActive("/marketplace") ? iconColor : undefined }} />
-        <span className="text-xs mt-1">Frets</span>
+        <span className="text-xs mt-1">Marchandises</span>
       </Link>
       
       {userType === 'transporter' ? (

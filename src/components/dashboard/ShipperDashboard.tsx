@@ -24,7 +24,7 @@ const ShipperDashboard = ({ myFreights }: ShipperDashboardProps) => {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Card className="p-6 bg-white shadow-md col-span-2">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Gérer vos frets</h2>
+            <h2 className="text-xl font-semibold">Gérer vos marchandises</h2>
             <Package className="h-5 w-5 text-retourgo-orange" />
           </div>
           <p className="text-gray-600 mb-6">
@@ -34,7 +34,7 @@ const ShipperDashboard = ({ myFreights }: ShipperDashboardProps) => {
             className="bg-retourgo-orange hover:bg-retourgo-orange/90"
             onClick={() => navigate("/new-freight")}
           >
-            Publier un nouveau fret
+            Publier une nouvelle marchandise
           </Button>
         </Card>
 
@@ -42,7 +42,7 @@ const ShipperDashboard = ({ myFreights }: ShipperDashboardProps) => {
           <h2 className="text-xl font-semibold mb-4">Résumé</h2>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Frets actifs:</span>
+              <span className="text-gray-600">Marchandises actives:</span>
               <Badge variant="default" className="bg-blue-500">
                 {activeFreights.length}
               </Badge>
@@ -75,16 +75,16 @@ const ShipperDashboard = ({ myFreights }: ShipperDashboardProps) => {
 
       <Tabs defaultValue="active" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="active">Actifs</TabsTrigger>
+          <TabsTrigger value="active">Actives</TabsTrigger>
           <TabsTrigger value="in-progress">En cours</TabsTrigger>
-          <TabsTrigger value="completed">Terminés</TabsTrigger>
+          <TabsTrigger value="completed">Terminées</TabsTrigger>
         </TabsList>
         
         <TabsContent value="active">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <MapPin className="h-5 w-5 text-retourgo-orange" />
-              Frets en attente de transporteur
+              Marchandises en attente de transporteur
             </h3>
             <Button 
               variant="outline" 
@@ -98,13 +98,13 @@ const ShipperDashboard = ({ myFreights }: ShipperDashboardProps) => {
           </div>
           {activeFreights.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-700">Aucun fret actif</h3>
-              <p className="text-gray-500 mt-2">Publiez un fret pour trouver un transporteur.</p>
+              <h3 className="text-xl font-semibold text-gray-700">Aucune marchandise active</h3>
+              <p className="text-gray-500 mt-2">Publiez une marchandise pour trouver un transporteur.</p>
               <Button 
                 onClick={() => navigate("/new-freight")} 
                 className="mt-6 bg-retourgo-orange hover:bg-retourgo-orange/90"
               >
-                Publier un fret
+                Publier une marchandise
               </Button>
             </div>
           ) : (
@@ -119,11 +119,11 @@ const ShipperDashboard = ({ myFreights }: ShipperDashboardProps) => {
         <TabsContent value="in-progress">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Truck className="h-5 w-5 text-retourgo-orange" />
-            Frets en cours de livraison
+            Marchandises en cours de livraison
           </h3>
           {inProgressFreights.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-700">Aucun fret en cours</h3>
+              <h3 className="text-xl font-semibold text-gray-700">Aucune marchandise en cours</h3>
               <p className="text-gray-500 mt-2">Vous n'avez pas de livraison en cours.</p>
             </div>
           ) : (
@@ -138,11 +138,11 @@ const ShipperDashboard = ({ myFreights }: ShipperDashboardProps) => {
         <TabsContent value="completed">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Package className="h-5 w-5 text-retourgo-orange" />
-            Frets livrés
+            Marchandises livrées
           </h3>
           {completedFreights.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-700">Aucun fret livré</h3>
+              <h3 className="text-xl font-semibold text-gray-700">Aucune marchandise livrée</h3>
               <p className="text-gray-500 mt-2">Votre historique de livraisons sera affiché ici.</p>
             </div>
           ) : (

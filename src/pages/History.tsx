@@ -76,13 +76,13 @@ const History = () => {
     <div className="min-h-screen pt-20 pb-20 px-4 sm:px-6 lg:px-8">
       <div className={`${gradientClass} text-white p-6 rounded-xl mb-6`}>
         <h1 className="text-2xl font-bold">Historique de mes activités</h1>
-        <p className="text-white/80">Consultez l'historique de vos frets et transports</p>
+        <p className="text-white/80">Consultez l'historique de vos marchandises et transports</p>
       </div>
 
       <Tabs defaultValue="completed" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="completed">
-            {userType === 'transporter' ? 'Transports effectués' : 'Frets expédiés'}
+            {userType === 'transporter' ? 'Transports effectués' : 'Marchandises expédiées'}
           </TabsTrigger>
           <TabsTrigger value="payments">Paiements</TabsTrigger>
         </TabsList>
@@ -139,7 +139,7 @@ const History = () => {
           ) : (
             <div className="text-center py-12">
               <Package className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-              <h3 className="text-lg font-medium text-gray-700">Aucun fret expédié</h3>
+              <h3 className="text-lg font-medium text-gray-700">Aucune marchandise expédiée</h3>
               <p className="text-gray-500">Votre historique apparaîtra ici</p>
             </div>
           )}

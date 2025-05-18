@@ -37,7 +37,7 @@ const Navbar = () => {
                 <Link to="/marketplace" className="flex items-center gap-2 mr-4">
                   <Truck className="h-4 w-4" style={{ color: iconColor }} />
                   <Badge variant="outline" className={`${badgeClass} animate-pulse-light`}>
-                    Frets à proximité
+                    Marchandises à proximité
                   </Badge>
                 </Link>
               )}

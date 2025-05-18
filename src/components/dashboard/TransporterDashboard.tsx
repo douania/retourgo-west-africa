@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
@@ -83,8 +82,8 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
       toast({
         title: newStatus ? "Disponible" : "Non disponible",
         description: newStatus 
-          ? "Vous êtes maintenant disponible pour des frets retour" 
-          : "Vous n'êtes plus disponible pour des frets retour",
+          ? "Vous êtes maintenant disponible pour des marchandises retour" 
+          : "Vous n'êtes plus disponible pour des marchandises retour",
       });
     } catch (err) {
       console.error("Erreur lors de la mise à jour de la disponibilité:", err);
@@ -153,11 +152,11 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
               onCheckedChange={handleAvailabilityChange}
             />
             <Label htmlFor="availability" className="font-medium text-lg">
-              Je suis disponible pour des frets retour
+              Je suis disponible pour des marchandises retour
             </Label>
           </div>
           <p className="text-gray-600 mb-4">
-            Activez votre disponibilité pour être visible par les expéditeurs et recevoir des propositions de fret.
+            Activez votre disponibilité pour être visible par les expéditeurs et recevoir des propositions de transport.
             {hasReturnRoute && (
               <span className="block mt-2">
                 Trajet retour défini: <span className="font-medium">{returnOrigin}</span> → <span className="font-medium">{returnDestination}</span>
@@ -190,7 +189,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
             <Bell className="h-5 w-5 text-retourgo-orange" />
           </div>
           <p className="text-gray-600 mb-2">
-            Nouvelles offres de fret: <span className="font-semibold">3</span>
+            Nouvelles offres de transport: <span className="font-semibold">3</span>
           </p>
           <p className="text-gray-600 mb-2">
             Messages: <span className="font-semibold">1</span>
@@ -202,7 +201,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
             className="w-full bg-retourgo-green hover:bg-retourgo-green/90"
             onClick={() => navigate("/marketplace")}
           >
-            Voir les frets disponibles
+            Voir les marchandises disponibles
           </Button>
         </Card>
       </div>
@@ -240,7 +239,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  Le système vous notifiera des frets compatibles avec ce trajet.
+                  Le système vous notifiera des marchandises compatibles avec ce trajet.
                 </p>
                 <Button
                   variant="outline"
@@ -257,7 +256,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
                   Vous n'avez pas encore défini de trajet retour. Utilisez le formulaire sur la carte pour le définir.
                 </p>
                 <p className="text-xs text-gray-500 mt-2">
-                  Cela vous permettra de recevoir des suggestions de frets compatibles avec votre itinéraire.
+                  Cela vous permettra de recevoir des suggestions de marchandises compatibles avec votre itinéraire.
                 </p>
               </div>
             )}
@@ -265,7 +264,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
             <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
               <h4 className="font-medium mb-2">Suivi en temps réel</h4>
               <p className="text-sm text-gray-600">
-                Activez le suivi de position pour être alerté des frets à proximité de votre localisation actuelle.
+                Activez le suivi de position pour être alerté des marchandises à proximité de votre localisation actuelle.
               </p>
               <ul className="text-xs text-gray-500 mt-2 list-disc list-inside space-y-1">
                 <li>Optimisez vos trajets retour</li>
@@ -279,19 +278,19 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
 
       <Tabs defaultValue="nearby" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="nearby">Frets à proximité</TabsTrigger>
+          <TabsTrigger value="nearby">Marchandises à proximité</TabsTrigger>
           <TabsTrigger value="my-offers">Mes offres</TabsTrigger>
         </TabsList>
         
         <TabsContent value="nearby">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <MapPin className="h-5 w-5 text-retourgo-orange" />
-            Frets disponibles autour de vous
+            Marchandises disponibles autour de vous
           </h3>
           {nearbyFreights.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-700">Aucun fret à proximité</h3>
-              <p className="text-gray-500 mt-2">Activez votre disponibilité pour être notifié des nouveaux frets.</p>
+              <h3 className="text-xl font-semibold text-gray-700">Aucune marchandise à proximité</h3>
+              <p className="text-gray-500 mt-2">Activez votre disponibilité pour être notifié des nouvelles marchandises.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -315,12 +314,12 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
           {offers.length === 0 ? (
             <div className="text-center py-12">
               <h3 className="text-xl font-semibold text-gray-700">Aucune offre</h3>
-              <p className="text-gray-500 mt-2">Vous n'avez pas encore fait d'offre sur un fret.</p>
+              <p className="text-gray-500 mt-2">Vous n'avez pas encore fait d'offre sur une marchandise.</p>
               <Button 
                 onClick={() => navigate("/marketplace")} 
                 className="mt-6 bg-retourgo-green hover:bg-retourgo-green/90"
               >
-                Voir les frets disponibles
+                Voir les marchandises disponibles
               </Button>
             </div>
           ) : (
@@ -339,7 +338,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
                       >
                         {offer.status === 'pending' ? 'En attente' : 
                          offer.status === 'accepted' ? 'Acceptée' : 
-                         'Refusée'}
+                         offer.status === 'rejected' ? 'Refusée' : ''}
                       </Badge>
                     </div>
                   </div>
@@ -355,7 +354,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
                         size="sm"
                         onClick={() => navigate(`/freight/${offer.freight_id}`)}
                       >
-                        Voir le fret
+                        Voir la marchandise
                       </Button>
                     </div>
                   </div>

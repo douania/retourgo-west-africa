@@ -61,7 +61,7 @@ const FreightMarketplace = () => {
                 Place de marché <span style={{ color: primaryColor }}>RetourGo</span>
               </h1>
               <p className="mt-2 text-gray-600">
-                Trouvez des frets disponibles et optimisez vos trajets retour
+                Trouvez des marchandises disponibles et optimisez vos trajets retour
               </p>
             </div>
             
@@ -70,7 +70,7 @@ const FreightMarketplace = () => {
                 onClick={() => navigate("/new-freight")}
                 className={isTransporter ? "transporter-accent" : "shipper-accent"}
               >
-                Publier un fret
+                Publier une marchandise
               </Button>
             )}
           </div>
@@ -88,7 +88,7 @@ const FreightMarketplace = () => {
                     />
                     <Label htmlFor="nearby-filter" className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" style={{ color: primaryColor }} />
-                      <span>Frets à proximité</span>
+                      <span>Marchandises à proximité</span>
                     </Label>
                   </div>
                   
