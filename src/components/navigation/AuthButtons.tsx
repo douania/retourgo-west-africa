@@ -18,30 +18,28 @@ const AuthButtons = () => {
     if (!user) return;
 
     const fetchUserType = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_type')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Erreur lors de la récupération du type d\'utilisateur:', error);
-        return;
-      }
-
-      setIsTransporter(data.user_type === 'transporter');
-      
-      // Si l'utilisateur est un transporteur, récupérer son statut de disponibilité
-      if (data.user_type === 'transporter') {
-        const { data: availabilityData, error: availabilityError } = await supabase
+      try {
+        const { data, error } = await supabase
           .from('profiles')
-          .select('is_available')
+          .select('user_type, is_available')
           .eq('id', user.id)
           .single();
 
-        if (!availabilityError && availabilityData) {
-          setIsAvailable(availabilityData.is_available || false);
+        if (error) {
+          console.error('Erreur lors de la récupération du type d\'utilisateur:', error);
+          return;
         }
+
+        if (data) {
+          setIsTransporter(data.user_type === 'transporter');
+          
+          // Si l'utilisateur est un transporteur, récupérer son statut de disponibilité
+          if (data.user_type === 'transporter') {
+            setIsAvailable(data.is_available || false);
+          }
+        }
+      } catch (err) {
+        console.error("Erreur lors de la récupération des données:", err);
       }
     };
 
@@ -54,27 +52,37 @@ const AuthButtons = () => {
     const newStatus = !isAvailable;
     setIsAvailable(newStatus);
     
-    const { error } = await supabase
-      .from('profiles')
-      .update({ is_available: newStatus })
-      .eq('id', user.id);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_available: newStatus })
+        .eq('id', user.id);
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de mettre à jour votre disponibilité",
+          variant: "destructive",
+        });
+        setIsAvailable(!newStatus); // Revenir à l'état précédent
+        return;
+      }
+      
+      toast({
+        title: newStatus ? "Disponible" : "Non disponible",
+        description: newStatus 
+          ? "Vous êtes maintenant disponible pour des frets retour" 
+          : "Vous n'êtes plus disponible pour des frets retour",
+      });
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour de la disponibilité:", err);
+      setIsAvailable(!newStatus);
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour votre disponibilité",
+        description: "Une erreur est survenue lors de la mise à jour",
         variant: "destructive",
       });
-      setIsAvailable(!newStatus); // Revenir à l'état précédent
-      return;
     }
-    
-    toast({
-      title: newStatus ? "Disponible" : "Non disponible",
-      description: newStatus 
-        ? "Vous êtes maintenant disponible pour des frets retour" 
-        : "Vous n'êtes plus disponible pour des frets retour",
-    });
   };
 
   return (

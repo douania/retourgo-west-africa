@@ -33,21 +33,27 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
     if (!user) return;
     
     const fetchUserData = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('is_available, return_origin, return_destination')
-        .eq('id', user.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('is_available, return_origin, return_destination')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) {
+          console.error('Erreur lors de la récupération des données utilisateur:', error);
+          return;
+        }
         
-      if (error) {
-        console.error('Erreur lors de la récupération des données utilisateur:', error);
-        return;
+        if (data) {
+          setIsAvailable(data.is_available || false);
+          setReturnOrigin(data.return_origin || "");
+          setReturnDestination(data.return_destination || "");
+          setHasReturnRoute(!!(data.return_origin && data.return_destination));
+        }
+      } catch (err) {
+        console.error("Erreur lors de la récupération des données utilisateur:", err);
       }
-      
-      setIsAvailable(data.is_available || false);
-      setReturnOrigin(data.return_origin || "");
-      setReturnDestination(data.return_destination || "");
-      setHasReturnRoute(!!(data.return_origin && data.return_destination));
     };
     
     fetchUserData();
@@ -58,57 +64,76 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
     
     setIsAvailable(newStatus);
     
-    const { error } = await supabase
-      .from('profiles')
-      .update({ is_available: newStatus })
-      .eq('id', user.id);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_available: newStatus })
+        .eq('id', user.id);
+        
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de mettre à jour votre disponibilité",
+          variant: "destructive",
+        });
+        setIsAvailable(!newStatus); // Revenir à l'état précédent
+        return;
+      }
       
-    if (error) {
+      toast({
+        title: newStatus ? "Disponible" : "Non disponible",
+        description: newStatus 
+          ? "Vous êtes maintenant disponible pour des frets retour" 
+          : "Vous n'êtes plus disponible pour des frets retour",
+      });
+    } catch (err) {
+      console.error("Erreur lors de la mise à jour de la disponibilité:", err);
+      setIsAvailable(!newStatus);
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour votre disponibilité",
+        description: "Une erreur est survenue lors de la mise à jour",
         variant: "destructive",
       });
-      setIsAvailable(!newStatus); // Revenir à l'état précédent
-      return;
     }
-    
-    toast({
-      title: newStatus ? "Disponible" : "Non disponible",
-      description: newStatus 
-        ? "Vous êtes maintenant disponible pour des frets retour" 
-        : "Vous n'êtes plus disponible pour des frets retour",
-    });
   };
   
   const handleDefineReturnRoute = async (origin: string, destination: string) => {
     if (!user) return;
     
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        return_origin: origin,
-        return_destination: destination
-      })
-      .eq('id', user.id);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          return_origin: origin,
+          return_destination: destination
+        })
+        .eq('id', user.id);
+        
+      if (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible d'enregistrer votre trajet retour",
+          variant: "destructive",
+        });
+        return;
+      }
       
-    if (error) {
+      setReturnOrigin(origin);
+      setReturnDestination(destination);
+      setHasReturnRoute(true);
+      
+      toast({
+        title: "Trajet retour enregistré",
+        description: `De ${origin} à ${destination}`,
+      });
+    } catch (err) {
+      console.error("Erreur lors de l'enregistrement du trajet retour:", err);
       toast({
         title: "Erreur",
-        description: "Impossible d'enregistrer votre trajet retour",
+        description: "Une erreur est survenue lors de l'enregistrement du trajet retour",
         variant: "destructive",
       });
-      return;
     }
-    
-    setReturnOrigin(origin);
-    setReturnDestination(destination);
-    setHasReturnRoute(true);
-    
-    toast({
-      title: "Trajet retour enregistré",
-      description: `De ${origin} à ${destination}`,
-    });
   };
 
   return (

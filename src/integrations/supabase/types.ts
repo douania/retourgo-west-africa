@@ -61,36 +61,51 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string | null
+          current_latitude: number | null
+          current_longitude: number | null
           first_name: string | null
           id: string
+          is_available: boolean | null
           last_name: string | null
           phone: string | null
           rating: number | null
           rating_count: number | null
+          return_destination: string | null
+          return_origin: string | null
           updated_at: string | null
           user_type: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string | null
+          current_latitude?: number | null
+          current_longitude?: number | null
           first_name?: string | null
           id: string
+          is_available?: boolean | null
           last_name?: string | null
           phone?: string | null
           rating?: number | null
           rating_count?: number | null
+          return_destination?: string | null
+          return_origin?: string | null
           updated_at?: string | null
           user_type: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string | null
+          current_latitude?: number | null
+          current_longitude?: number | null
           first_name?: string | null
           id?: string
+          is_available?: boolean | null
           last_name?: string | null
           phone?: string | null
           rating?: number | null
           rating_count?: number | null
+          return_destination?: string | null
+          return_origin?: string | null
           updated_at?: string | null
           user_type?: string
         }

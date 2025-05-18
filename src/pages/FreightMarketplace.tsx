@@ -7,9 +7,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { MapPin, TruckIcon, FilterIcon } from "lucide-react";
+import { MapPin, TruckIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const FreightMarketplace = () => {
   const { user } = useAuth();
@@ -23,19 +22,25 @@ const FreightMarketplace = () => {
     if (!user) return;
 
     const fetchUserType = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_type, return_destination')
-        .eq('id', user.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('user_type, return_destination')
+          .eq('id', user.id)
+          .single();
 
-      if (error) {
-        console.error('Erreur lors de la récupération du type d\'utilisateur:', error);
-        return;
+        if (error) {
+          console.error('Erreur lors de la récupération du type d\'utilisateur:', error);
+          return;
+        }
+
+        if (data) {
+          setIsTransporter(data.user_type === 'transporter');
+          setHasReturnRoute(!!data.return_destination);
+        }
+      } catch (err) {
+        console.error("Erreur lors de la récupération des données:", err);
       }
-
-      setIsTransporter(data.user_type === 'transporter');
-      setHasReturnRoute(!!data.return_destination);
     };
 
     fetchUserType();

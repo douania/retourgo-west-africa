@@ -1,14 +1,12 @@
-
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import FreightCard, { Freight } from "./FreightCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, MapPin } from "lucide-react";
+import { Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { estimateDistance } from "@/lib/pricing";
 
 interface FreightListProps {
   showNearbyOnly?: boolean;
@@ -56,18 +54,24 @@ const FreightList = ({
     if (!user || !showReturnOnly) return;
 
     const fetchReturnRoute = async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('return_destination')
-        .eq('id', user.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('return_destination')
+          .eq('id', user.id)
+          .single();
 
-      if (error) {
-        console.error('Erreur lors de la récupération du trajet retour:', error);
-        return;
+        if (error) {
+          console.error('Erreur lors de la récupération du trajet retour:', error);
+          return;
+        }
+
+        if (data) {
+          setReturnDestination(data.return_destination);
+        }
+      } catch (err) {
+        console.error("Erreur lors de la récupération du trajet retour:", err);
       }
-
-      setReturnDestination(data.return_destination);
     };
 
     fetchReturnRoute();
@@ -90,19 +94,23 @@ const FreightList = ({
         
         // Appliquer la réduction pour le retour à vide si demandé
         if (showReturnPricing && user) {
-          const { data: userProfile } = await supabase
-            .from('profiles')
-            .select('is_available')
-            .eq('id', user.id)
-            .single();
-            
-          if (userProfile?.is_available) {
-            filteredFreights = filteredFreights.map(freight => ({
-              ...freight,
-              isReturnTrip: true,
-              originalPrice: freight.price,
-              price: Math.round(freight.price * 0.7) // 30% de réduction
-            }));
+          try {
+            const { data: userProfile } = await supabase
+              .from('profiles')
+              .select('is_available')
+              .eq('id', user.id)
+              .single();
+              
+            if (userProfile && userProfile.is_available) {
+              filteredFreights = filteredFreights.map(freight => ({
+                ...freight,
+                isReturnTrip: true,
+                originalPrice: freight.price,
+                price: Math.round(freight.price * 0.7) // 30% de réduction
+              }));
+            }
+          } catch (err) {
+            console.error("Erreur lors de la vérification de la disponibilité:", err);
           }
         }
         
