@@ -10,18 +10,29 @@ import UserTypeSelect from "./UserTypeSelect";
 import SocialSignUp from "./SocialSignUp";
 import TermsCheckbox from "./TermsCheckbox";
 
-const RegisterForm = () => {
+interface RegisterFormProps {
+  preselectedUserType?: string;
+}
+
+const RegisterForm = ({ preselectedUserType }: RegisterFormProps) => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [userType, setUserType] = useState("");
+  const [userType, setUserType] = useState(preselectedUserType || "");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const { signUp, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Update userType when preselectedUserType changes
+  useState(() => {
+    if (preselectedUserType) {
+      setUserType(preselectedUserType);
+    }
+  }, [preselectedUserType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +123,10 @@ const RegisterForm = () => {
         </div>
       </div>
 
-      <UserTypeSelect value={userType} onChange={setUserType} />
+      {/* Only show user type select if no preselected type */}
+      {!preselectedUserType && (
+        <UserTypeSelect value={userType} onChange={setUserType} />
+      )}
 
       <div>
         <Label htmlFor="password">Mot de passe</Label>
