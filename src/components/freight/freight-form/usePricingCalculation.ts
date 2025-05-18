@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { 
   VehicleType, 
   AdditionalFeeType, 
   calculatePrice, 
-  estimateDistance 
+  estimateDistance,
+  getVehicleWeightCapacity
 } from "@/lib/pricing";
 
 interface UsePricingCalculationProps {
@@ -15,7 +15,7 @@ interface UsePricingCalculationProps {
 }
 
 export const usePricingCalculation = ({ origin, destination, weight, setValue }: UsePricingCalculationProps) => {
-  // Pour les charges lourdes, sélectionner un véhicule plus approprié par défaut
+  // For heavy loads, select a more appropriate vehicle by default
   const getDefaultVehicleType = (weight: number): VehicleType => {
     if (weight > 22000) return 'semi';
     if (weight > 5000) return 'truck';
@@ -38,7 +38,7 @@ export const usePricingCalculation = ({ origin, destination, weight, setValue }:
   const [distance, setDistance] = useState(0);
   const [pricingError, setPricingError] = useState<string | null>(null);
   
-  // Recalculer le prix lorsque les paramètres changent
+  // Recalculate price when parameters change
   useEffect(() => {
     if (origin && destination) {
       const calculatedDistance = estimateDistance(origin, destination);
@@ -56,10 +56,10 @@ export const usePricingCalculation = ({ origin, destination, weight, setValue }:
         
         setPriceEstimation(pricing);
         
-        // Mettre à jour le champ de prix dans le formulaire
+        // Update price field in the form
         setValue("price", pricing.total);
       } catch (error: any) {
-        // Capturer l'erreur si le véhicule ne peut pas transporter ce poids
+        // Capture error if vehicle cannot carry this weight
         setPricingError(error.message);
         setPriceEstimation({
           total: 0,
@@ -75,12 +75,12 @@ export const usePricingCalculation = ({ origin, destination, weight, setValue }:
     }
   }, [origin, destination, vehicleType, additionalFees, emptyReturn, weight, setValue]);
   
-  // Mise à jour du véhicule par défaut lorsque le poids change
+  // Update default vehicle when weight changes
   useEffect(() => {
     if (weight > 0) {
       const recommendedVehicle = getDefaultVehicleType(weight);
       setVehicleType(prev => {
-        // Ne changer automatiquement que si l'utilisateur n'a pas déjà fait une sélection manuelle
+        // Only change automatically if user hasn't already made a manual selection
         if (prev === 'car' && recommendedVehicle !== 'car') {
           return recommendedVehicle;
         }
