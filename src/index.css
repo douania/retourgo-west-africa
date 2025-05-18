@@ -152,6 +152,24 @@
     @apply outline-[#FF6B00] border-[#FF6B00];
   }
 
+  /* Style Wave/Orange Money */
+  .action-card {
+    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-1 cursor-pointer;
+  }
+  
+  .action-icon {
+    @apply rounded-full p-3 flex items-center justify-center mb-2;
+  }
+
+  .action-button {
+    @apply flex flex-col items-center justify-center rounded-xl p-4 transition-all hover:-translate-y-1;
+  }
+
+  /* Bouton QR Code style Wave/Orange Money */
+  .qr-button {
+    @apply bg-white/10 backdrop-blur-sm rounded-xl p-4 flex flex-col items-center gap-2 cursor-pointer;
+  }
+
   /* Amélioration de l'interface */
   .card-hover {
     @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
@@ -168,5 +186,22 @@
   .nav-item-active::before {
     content: '';
     @apply absolute left-0 top-0 bottom-0 w-1 bg-current rounded-full;
+  }
+  
+  /* Style de menu de navigation comme Wave/Orange Money */
+  .bottom-nav-item {
+    @apply flex flex-col items-center justify-center w-1/5 py-1;
+  }
+  
+  .bottom-nav-icon {
+    @apply h-6 w-6;
+  }
+  
+  .bottom-nav-text {
+    @apply text-xs mt-1;
+  }
+  
+  .bottom-nav-action {
+    @apply bg-gradient-to-r rounded-full p-3 -mt-8 shadow-lg;
   }
 }

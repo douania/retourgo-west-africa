@@ -11,7 +11,7 @@ import TransporterDashboard from "@/components/dashboard/TransporterDashboard";
 import ShipperDashboard from "@/components/dashboard/ShipperDashboard";
 import { Freight, TransportOffer } from "@/types/freight";
 import { useUserTheme } from "@/hooks/useUserTheme";
-import { Truck, Package } from "lucide-react";
+import { Truck, Package, QrCode, Bell, History } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -22,7 +22,7 @@ const Dashboard = () => {
   const [nearbyFreights, setNearbyFreights] = useState<Freight[]>([]);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string | null>(null);
-  const { themeClass, iconColor, userType: themeUserType } = useUserTheme();
+  const { themeClass, primaryColor, iconColor, userType: themeUserType } = useUserTheme();
 
   // Icon based on user type
   const UserIcon = themeUserType === 'transporter' ? Truck : Package;
@@ -102,30 +102,105 @@ const Dashboard = () => {
   if (!user) return null;
 
   return (
-    <div className={`min-h-screen py-12 px-4 sm:px-6 lg:px-8 ${themeClass}`}>
+    <div className={`min-h-screen pt-20 pb-20 px-4 sm:px-6 lg:px-8 ${themeClass}`}>
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
-            <UserIcon className="h-10 w-10" style={{ color: iconColor }} />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Tableau de Bord <span style={{ color: iconColor }}>RetourGo</span>
-          </h1>
-          <p className="mt-2 text-lg text-gray-600">
-            {themeUserType === 'transporter' 
-              ? 'Gérez vos trajets et maximisez votre rentabilité' 
-              : 'Gérez vos expéditions et trouvez des transporteurs fiables'}
-          </p>
+        {/* En-tête inspiré par Wave/Orange Money */}
+        <div className="text-center mb-6">
+          {themeUserType === 'transporter' ? (
+            <div className="bg-gradient-to-r from-transporter to-transporter/80 rounded-xl p-6 mb-6 text-white shadow-lg">
+              <div className="flex justify-between items-center">
+                <div className="text-left">
+                  <h1 className="text-2xl font-bold">Bonjour, {user?.user_metadata?.name || 'Transporteur'}</h1>
+                  <p className="opacity-90">Transporteur RetourGo</p>
+                </div>
+                <div className="bg-white/20 p-2 rounded-full">
+                  <UserIcon className="h-10 w-10" />
+                </div>
+              </div>
+              <div className="mt-4 flex justify-center">
+                <div 
+                  className="bg-white/10 backdrop-blur-sm rounded-xl p-4 w-full max-w-xs flex flex-col items-center gap-2"
+                  onClick={() => navigate("/profile")}
+                >
+                  <QrCode className="h-8 w-8" />
+                  <span className="text-sm font-medium">Voir mon QR Code</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-r from-shipper to-shipper/80 rounded-xl p-6 mb-6 text-white shadow-lg">
+              <div className="flex justify-between items-center">
+                <div className="text-left">
+                  <h1 className="text-2xl font-bold">Bonjour, {user?.user_metadata?.name || 'Expéditeur'}</h1>
+                  <p className="opacity-90">Expéditeur RetourGo</p>
+                </div>
+                <div className="bg-white/20 p-2 rounded-full">
+                  <UserIcon className="h-10 w-10" />
+                </div>
+              </div>
+              <div className="mt-4 flex justify-center">
+                <div 
+                  className="bg-white/10 backdrop-blur-sm rounded-xl p-4 w-full max-w-xs flex flex-col items-center gap-2"
+                  onClick={() => navigate("/profile")}
+                >
+                  <QrCode className="h-8 w-8" />
+                  <span className="text-sm font-medium">Voir mon QR Code</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <Alert className="mb-6 shadow-md border border-l-4" style={{ borderLeftColor: iconColor }}>
-          <AlertTitle style={{ color: iconColor }}>Bienvenue sur RetourGo!</AlertTitle>
-          <AlertDescription>
-            {themeUserType === 'transporter' 
-              ? 'Trouvez des frets pour optimiser vos trajets retour et réduire les retours à vide.'
-              : 'Publiez vos frets et trouvez rapidement des transporteurs fiables pour vos marchandises.'}
-          </AlertDescription>
-        </Alert>
+        {/* Actions rapides inspirées de Wave/Orange Money */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <Card 
+            className="p-4 text-center hover:shadow-md transition-all cursor-pointer bg-white"
+            onClick={() => navigate("/marketplace")}
+          >
+            <div className="flex flex-col items-center">
+              <div className="bg-blue-100 p-3 rounded-full mb-2">
+                <Package className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-sm font-medium">Trouver un fret</h3>
+            </div>
+          </Card>
+          
+          <Card 
+            className="p-4 text-center hover:shadow-md transition-all cursor-pointer bg-white"
+            onClick={() => navigate("/new-freight")}
+          >
+            <div className="flex flex-col items-center">
+              <div className="bg-green-100 p-3 rounded-full mb-2">
+                <Truck className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="text-sm font-medium">Publier un fret</h3>
+            </div>
+          </Card>
+          
+          <Card 
+            className="p-4 text-center hover:shadow-md transition-all cursor-pointer bg-white"
+            onClick={() => navigate("/history")}
+          >
+            <div className="flex flex-col items-center">
+              <div className="bg-amber-100 p-3 rounded-full mb-2">
+                <History className="h-6 w-6 text-amber-600" />
+              </div>
+              <h3 className="text-sm font-medium">Historique</h3>
+            </div>
+          </Card>
+          
+          <Card 
+            className="p-4 text-center hover:shadow-md transition-all cursor-pointer bg-white"
+            onClick={() => navigate("/notifications")}
+          >
+            <div className="flex flex-col items-center">
+              <div className="bg-purple-100 p-3 rounded-full mb-2">
+                <Bell className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-sm font-medium">Notifications</h3>
+            </div>
+          </Card>
+        </div>
 
         {loading ? (
           <div className="text-center py-12">
