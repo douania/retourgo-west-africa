@@ -13,6 +13,7 @@ export interface Freight {
   price: number;
   status: 'available' | 'in-progress' | 'completed';
   created_at: string;
+  updated_at: string; // Adding this missing property
 }
 
 export interface TransportOffer {

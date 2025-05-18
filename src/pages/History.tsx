@@ -34,7 +34,7 @@ const History = () => {
             .select('*')
             .eq('user_id', user.id)
             .eq('status', 'completed')
-            .order('updated_at', { ascending: false });
+            .order('created_at', { ascending: false });
 
           if (error) throw error;
           setCompletedFreights(data as Freight[] || []);
@@ -48,7 +48,7 @@ const History = () => {
             `)
             .eq('transporter_id', user.id)
             .eq('status', 'completed')
-            .order('updated_at', { ascending: false });
+            .order('created_at', { ascending: false });
 
           if (error) throw error;
           setCompletedOffers(data as unknown as TransportOffer[] || []);
@@ -128,7 +128,7 @@ const History = () => {
                     <div>
                       <h3 className="font-medium">{freight.title}</h3>
                       <p className="text-sm text-gray-500">
-                        {new Date(freight.updated_at || '').toLocaleDateString('fr-FR')}
+                        {new Date(freight.created_at || '').toLocaleDateString('fr-FR')}
                       </p>
                     </div>
                   </div>
