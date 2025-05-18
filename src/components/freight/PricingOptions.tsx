@@ -49,6 +49,9 @@ export const PricingOptions = ({
   const vehicleCapacity = getVehicleWeightCapacity(vehicleType);
   const isWeightCompatible = weight >= vehicleCapacity.minWeight && weight <= vehicleCapacity.maxWeight;
   
+  // Define available vehicle types
+  const availableVehicleTypes: VehicleType[] = ['car', 'van', 'truck', 'semi', 'refrigerated'];
+  
   return (
     <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
@@ -91,7 +94,7 @@ export const PricingOptions = ({
                 <SelectValue placeholder="Sélectionner un type de véhicule" />
               </SelectTrigger>
               <SelectContent>
-                {(Object.keys(getVehicleTypeLabel({} as VehicleType)) as VehicleType[]).map((type) => {
+                {availableVehicleTypes.map((type) => {
                   const capacity = getVehicleWeightCapacity(type);
                   const isCompatible = weight >= capacity.minWeight && weight <= capacity.maxWeight;
                   
