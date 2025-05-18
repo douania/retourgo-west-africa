@@ -15,7 +15,15 @@ interface UsePricingCalculationProps {
 }
 
 export const usePricingCalculation = ({ origin, destination, weight, setValue }: UsePricingCalculationProps) => {
-  const [vehicleType, setVehicleType] = useState<VehicleType>('truck');
+  // Pour les charges lourdes, sélectionner un véhicule plus approprié par défaut
+  const getDefaultVehicleType = (weight: number): VehicleType => {
+    if (weight > 22000) return 'semi';
+    if (weight > 5000) return 'truck';
+    if (weight > 1000) return 'van';
+    return 'car';
+  };
+
+  const [vehicleType, setVehicleType] = useState<VehicleType>(() => getDefaultVehicleType(weight));
   const [additionalFees, setAdditionalFees] = useState<AdditionalFeeType[]>([]);
   const [emptyReturn, setEmptyReturn] = useState(false);
   const [priceEstimation, setPriceEstimation] = useState({
@@ -66,6 +74,20 @@ export const usePricingCalculation = ({ origin, destination, weight, setValue }:
       }
     }
   }, [origin, destination, vehicleType, additionalFees, emptyReturn, weight, setValue]);
+  
+  // Mise à jour du véhicule par défaut lorsque le poids change
+  useEffect(() => {
+    if (weight > 0) {
+      const recommendedVehicle = getDefaultVehicleType(weight);
+      setVehicleType(prev => {
+        // Ne changer automatiquement que si l'utilisateur n'a pas déjà fait une sélection manuelle
+        if (prev === 'car' && recommendedVehicle !== 'car') {
+          return recommendedVehicle;
+        }
+        return prev;
+      });
+    }
+  }, [weight]);
 
   return {
     vehicleType,

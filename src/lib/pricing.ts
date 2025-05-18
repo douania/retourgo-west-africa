@@ -1,40 +1,46 @@
-
 // Types pour le système de tarification
 export type VehicleType = 'car' | 'van' | 'truck' | 'semi' | 'refrigerated';
 export type AdditionalFeeType = 'manual_loading' | 'fragile' | 'urgent';
 
 // Configuration de base des tarifs
-export const BASE_FEE = 2000; // FCFA
+export const BASE_FEE = 15000; // FCFA - Augmentation du frais de base
 
 // Ajustement des tarifs par km selon le poids et le type de véhicule
-// Basé sur les données réelles du marché sénégalais
+// Basé sur les données réelles du marché sénégalais pour conteneurs
 export const COST_PER_KM: Record<VehicleType, { 
   base: number,           // Pour poids légers < 5 tonnes
   medium: number,         // Pour poids moyens 5-22 tonnes
   heavy: number           // Pour poids lourds > 22 tonnes
 }> = {
-  car: { base: 80, medium: 0, heavy: 0 },              // Voiture: uniquement pour petits colis
-  van: { base: 90, medium: 100, heavy: 0 },            // Camionnette: jusqu'à 3.5t environ
-  truck: { base: 120, medium: 150, heavy: 180 },       // Camion: pour charges moyennes et lourdes
-  semi: { base: 0, medium: 180, heavy: 220 },          // Semi-remorque: uniquement pour charges lourdes
-  refrigerated: { base: 150, medium: 200, heavy: 250 } // Réfrigéré: prix premium
+  car: { base: 250, medium: 0, heavy: 0 },              // Voiture: uniquement pour petits colis
+  van: { base: 350, medium: 450, heavy: 0 },            // Camionnette: jusqu'à 3.5t environ
+  truck: { base: 500, medium: 800, heavy: 1200 },       // Camion: pour charges moyennes et lourdes
+  semi: { base: 0, medium: 1000, heavy: 1500 },          // Semi-remorque: uniquement pour charges lourdes
+  refrigerated: { base: 700, medium: 1200, heavy: 1800 } // Réfrigéré: prix premium
 };
 
 export const ADDITIONAL_FEES: Record<AdditionalFeeType, number | string> = {
-  manual_loading: 3000,
-  fragile: '10%',
-  urgent: '20%'
+  manual_loading: 25000,   // Augmentation du coût de chargement manuel
+  fragile: '15%',          // Augmentation du pourcentage pour cargaison fragile
+  urgent: '25%'            // Augmentation du pourcentage pour urgence
 };
 
 export const EMPTY_RETURN_DISCOUNT = {
-  min: 0.25, // 25%
-  max: 0.50  // 50%
+  min: 0.15, // 15%
+  max: 0.30  // 30%
 };
 
 // Seuils de poids pour déterminer la catégorie de tarification
 export const WEIGHT_THRESHOLDS = {
   MEDIUM: 5000, // 5 tonnes
   HEAVY: 22000  // 22 tonnes (basé sur la grille tarifaire fournie)
+};
+
+// Facteur d'ajustement pour les longues distances
+export const LONG_DISTANCE_FACTORS = {
+  ZIGUINCHOR_FACTOR: 1.2,  // Facteur spécial pour Ziguinchor (routes difficiles)
+  TAMBACOUNDA_FACTOR: 1.1, // Facteur pour Tambacounda
+  DEFAULT_FACTOR: 1.0      // Facteur par défaut
 };
 
 export interface PricingOptions {
@@ -80,9 +86,21 @@ export function calculatePrice(options: PricingOptions): {
     throw new Error(`Ce type de véhicule (${getVehicleTypeLabel(vehicleType)}) ne peut pas transporter ${weight}kg`);
   }
   
-  // Calcul du prix de base + distance
+  // Calcul du prix de base
   const baseFee = BASE_FEE;
-  const distanceFee = distance * ratePerKm;
+  
+  // Appliquer le multiplicateur spécial pour certaines destinations
+  let distanceFactor = LONG_DISTANCE_FACTORS.DEFAULT_FACTOR;
+  
+  // Vérifier si la destination est Ziguinchor (ajout d'un multiplicateur spécial)
+  if (distance > 800) {
+    distanceFactor = LONG_DISTANCE_FACTORS.ZIGUINCHOR_FACTOR;
+  } else if (distance > 400) {
+    distanceFactor = LONG_DISTANCE_FACTORS.TAMBACOUNDA_FACTOR;
+  }
+  
+  // Calcul du prix kilométrique
+  const distanceFee = distance * ratePerKm * distanceFactor;
   
   // Calcul des frais supplémentaires
   let totalAdditionalFees = 0;
