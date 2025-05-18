@@ -10,9 +10,11 @@ import { useToast } from "@/hooks/use-toast";
 import TransporterDashboard from "@/components/dashboard/TransporterDashboard";
 import ShipperDashboard from "@/components/dashboard/ShipperDashboard";
 import { Freight, TransportOffer } from "@/types/freight";
+import { useUserTheme } from "@/hooks/useUserTheme";
+import { Truck, Package } from "lucide-react";
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [myFreights, setMyFreights] = useState<Freight[]>([]);
@@ -20,6 +22,10 @@ const Dashboard = () => {
   const [nearbyFreights, setNearbyFreights] = useState<Freight[]>([]);
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string | null>(null);
+  const { themeClass, iconColor, userType: themeUserType } = useUserTheme();
+
+  // Icon based on user type
+  const UserIcon = themeUserType === 'transporter' ? Truck : Package;
 
   useEffect(() => {
     if (!user) {
@@ -96,21 +102,28 @@ const Dashboard = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className={`min-h-screen py-12 px-4 sm:px-6 lg:px-8 ${themeClass}`}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center mb-4">
+            <UserIcon className="h-10 w-10" style={{ color: iconColor }} />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900">
-            Tableau de Bord <span className="text-retourgo-orange">RetourGo</span>
+            Tableau de Bord <span style={{ color: iconColor }}>RetourGo</span>
           </h1>
           <p className="mt-2 text-lg text-gray-600">
-            Gérez vos trajets et optimisez votre fret retour
+            {themeUserType === 'transporter' 
+              ? 'Gérez vos trajets et maximisez votre rentabilité' 
+              : 'Gérez vos expéditions et trouvez des transporteurs fiables'}
           </p>
         </div>
 
-        <Alert className="mb-6">
-          <AlertTitle className="text-retourgo-orange">Bienvenue sur RetourGo!</AlertTitle>
+        <Alert className="mb-6 shadow-md border border-l-4" style={{ borderLeftColor: iconColor }}>
+          <AlertTitle style={{ color: iconColor }}>Bienvenue sur RetourGo!</AlertTitle>
           <AlertDescription>
-            Votre plateforme pour optimiser les trajets retour et réduire les retours à vide.
+            {themeUserType === 'transporter' 
+              ? 'Trouvez des frets pour optimiser vos trajets retour et réduire les retours à vide.'
+              : 'Publiez vos frets et trouvez rapidement des transporteurs fiables pour vos marchandises.'}
           </AlertDescription>
         </Alert>
 

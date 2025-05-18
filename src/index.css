@@ -20,6 +20,12 @@
     --secondary: 153 100% 33%; /* RetourGo Green */
     --secondary-foreground: 210 40% 98%;
 
+    /* Couleurs spécifiques aux rôles */
+    --transporter: 262 83% 74%; /* Violet pour transporteurs */
+    --transporter-light: 262 83% 95%;
+    --shipper: 25 100% 50%; /* Orange pour expéditeurs */
+    --shipper-light: 25 100% 95%;
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
@@ -111,5 +117,56 @@
   
   .map-point {
     @apply animate-pulse-light;
+  }
+
+  /* Classes pour les interfaces spécifiques aux rôles */
+  .transporter-theme {
+    @apply bg-gradient-to-b from-[#9b87f5]/5 to-white;
+  }
+
+  .shipper-theme {
+    @apply bg-gradient-to-b from-[#FF6B00]/5 to-white;
+  }
+
+  .transporter-accent {
+    @apply bg-[#9b87f5] text-white hover:bg-[#9b87f5]/90;
+  }
+
+  .shipper-accent {
+    @apply bg-[#FF6B00] text-white hover:bg-[#FF6B00]/90;
+  }
+
+  .transporter-badge {
+    @apply bg-[#9b87f5]/10 text-[#9b87f5] border-[#9b87f5];
+  }
+
+  .shipper-badge {
+    @apply bg-[#FF6B00]/10 text-[#FF6B00] border-[#FF6B00];
+  }
+
+  .transporter-focus {
+    @apply outline-[#9b87f5] border-[#9b87f5];
+  }
+
+  .shipper-focus {
+    @apply outline-[#FF6B00] border-[#FF6B00];
+  }
+
+  /* Amélioration de l'interface */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .nav-item {
+    @apply relative flex items-center gap-2 px-3 py-2 rounded-md transition-colors;
+  }
+
+  .nav-item-active {
+    @apply font-medium bg-black/5;
+  }
+
+  .nav-item-active::before {
+    content: '';
+    @apply absolute left-0 top-0 bottom-0 w-1 bg-current rounded-full;
   }
 }

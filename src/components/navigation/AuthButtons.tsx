@@ -6,12 +6,15 @@ import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useUserTheme } from "@/hooks/useUserTheme";
+import { Truck } from "lucide-react";
 
 const AuthButtons = () => {
   const { user, signOut } = useAuth();
   const [isTransporter, setIsTransporter] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
   const { toast } = useToast();
+  const { switchClass } = useUserTheme();
 
   // Vérifier si l'utilisateur est un transporteur
   useEffect(() => {
@@ -90,12 +93,13 @@ const AuthButtons = () => {
       {user ? (
         <>
           {isTransporter && (
-            <div className="flex items-center mr-2 gap-2">
+            <div className="flex items-center mr-2 gap-2 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border">
+              <Truck className="h-4 w-4 text-transporter" />
               <Switch 
                 id="availability-toggle" 
                 checked={isAvailable}
                 onCheckedChange={toggleAvailability}
-                className="data-[state=checked]:bg-retourgo-green"
+                className={switchClass}
               />
               <span className="text-sm font-medium text-gray-600">
                 {isAvailable ? 'Disponible' : 'Non disponible'}
@@ -103,23 +107,23 @@ const AuthButtons = () => {
             </div>
           )}
           <Link to="/dashboard">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="rounded-full">
               Tableau de bord
             </Button>
           </Link>
-          <Button variant="ghost" size="sm" onClick={() => signOut()}>
+          <Button variant="ghost" size="sm" onClick={() => signOut()} className="rounded-full">
             Déconnexion
           </Button>
         </>
       ) : (
         <>
           <Link to="/login">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="rounded-full">
               Connexion
             </Button>
           </Link>
           <Link to="/register">
-            <Button className="bg-retourgo-orange hover:bg-retourgo-orange/90" size="sm">
+            <Button className="bg-retourgo-orange hover:bg-retourgo-orange/90 rounded-full" size="sm">
               Inscription
             </Button>
           </Link>

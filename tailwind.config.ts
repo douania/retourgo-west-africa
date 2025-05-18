@@ -66,6 +66,15 @@ export default {
 				retourgo: {
 					orange: '#FF6B00',
 					green: '#00A859',
+					purple: '#9b87f5',
+				},
+				transporter: {
+					DEFAULT: '#9b87f5',
+					light: '#f0edfd',
+				},
+				shipper: {
+					DEFAULT: '#FF6B00',
+					light: '#fff1e6',
 				}
 			},
 			borderRadius: {
