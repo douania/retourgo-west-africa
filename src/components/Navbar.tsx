@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import RetourGoLogo from "@/assets/logo";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,7 +19,8 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/">
+              <Link to="/" className="flex items-center">
+                <RetourGoLogo className="h-8 w-8 mr-2" />
                 <span className="text-retourgo-orange font-bold text-2xl">
                   Retour<span className="text-retourgo-green">Go</span>
                 </span>
