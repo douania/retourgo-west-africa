@@ -79,9 +79,13 @@ export function calculatePrice(options: PricingOptions): PricingBreakdown {
   let discount = 0;
   if (emptyReturn) {
     // If specific percentage is provided, use it, otherwise use default value
+    // Modification: Augmentation de la réduction entre 30% et 50% (plus agressive)
+    const minDiscount = 0.30; // 30%
+    const maxDiscount = 0.50; // 50%
+    
     const discountRate = emptyReturnDiscount !== undefined 
-      ? Math.max(EMPTY_RETURN_DISCOUNT.min, Math.min(EMPTY_RETURN_DISCOUNT.max, emptyReturnDiscount))
-      : EMPTY_RETURN_DISCOUNT.min;
+      ? Math.max(minDiscount, Math.min(maxDiscount, emptyReturnDiscount))
+      : minDiscount;
     
     discount = subtotal * discountRate;
   }

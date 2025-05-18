@@ -6,9 +6,13 @@ import NavLinks from "@/components/navigation/NavLinks";
 import AuthButtons from "@/components/navigation/AuthButtons";
 import MobileMenu from "@/components/navigation/MobileMenu";
 import NavbarToggleButton from "@/components/navigation/NavbarToggleButton";
+import { useAuth } from "@/contexts/AuthContext";
+import { Badge } from "@/components/ui/badge";
+import { Truck } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -23,6 +27,16 @@ const Navbar = () => {
               <AppLogo />
             </div>
             <NavLinks />
+          </div>
+          <div className="hidden sm:flex sm:items-center">
+            {user && (
+              <Link to="/marketplace" className="flex items-center gap-2 mr-4">
+                <Truck className="h-4 w-4 text-retourgo-orange" />
+                <Badge variant="outline" className="bg-retourgo-green/10 text-retourgo-green border-retourgo-green">
+                  Frets à proximité
+                </Badge>
+              </Link>
+            )}
           </div>
           <AuthButtons />
           <div className="-mr-2 flex items-center sm:hidden">

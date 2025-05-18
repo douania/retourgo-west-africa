@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Calendar, TruckIcon, Package } from "lucide-react";
+import { MapPin, Calendar, TruckIcon, Package, ArrowDown } from "lucide-react";
 import { formatDistance } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
@@ -19,19 +19,31 @@ export interface Freight {
   price: number;
   status: string;
   user_id: string;
+  isReturnTrip?: boolean;
+  originalPrice?: number;
 }
 
 interface FreightCardProps {
   freight: Freight;
   showActions?: boolean;
+  showReturnDiscount?: boolean;
+  originalPrice?: number;
 }
 
-const FreightCard = ({ freight, showActions = true }: FreightCardProps) => {
+const FreightCard = ({ 
+  freight, 
+  showActions = true, 
+  showReturnDiscount = false,
+  originalPrice
+}: FreightCardProps) => {
   const navigate = useNavigate();
   
   const handleViewDetails = () => {
     navigate(`/freight/${freight.id}`);
   };
+
+  const discountPercentage = originalPrice ? 
+    Math.round(((originalPrice - freight.price) / originalPrice) * 100) : 0;
 
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
@@ -73,7 +85,17 @@ const FreightCard = ({ freight, showActions = true }: FreightCardProps) => {
           </div>
           
           <div className="flex justify-between items-center">
-            <span className="text-lg font-bold text-retourgo-orange">{freight.price} €</span>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold text-retourgo-orange">
+                {freight.price} FCFA
+              </span>
+              {showReturnDiscount && originalPrice && (
+                <div className="flex items-center text-xs text-retourgo-green">
+                  <ArrowDown className="h-3 w-3 mr-1" />
+                  <span className="font-medium">-{discountPercentage}% Retour à vide</span>
+                </div>
+              )}
+            </div>
             {showActions && (
               <Button 
                 onClick={handleViewDetails}
@@ -83,6 +105,14 @@ const FreightCard = ({ freight, showActions = true }: FreightCardProps) => {
               </Button>
             )}
           </div>
+          
+          {showReturnDiscount && (
+            <div className="bg-green-50 p-2 rounded-md border border-green-100 text-center">
+              <span className="text-xs font-medium text-retourgo-green">
+                Opportunité retour à vide – tarif réduit
+              </span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

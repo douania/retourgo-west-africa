@@ -5,18 +5,78 @@ import { supabase } from "@/integrations/supabase/client";
 import FreightCard, { Freight } from "./FreightCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
+import { estimateDistance } from "@/lib/pricing";
 
-const FreightList = () => {
+interface FreightListProps {
+  showNearbyOnly?: boolean;
+  showReturnOnly?: boolean;
+  showReturnPricing?: boolean;
+}
+
+const FreightList = ({ 
+  showNearbyOnly = false, 
+  showReturnOnly = false,
+  showReturnPricing = false
+}: FreightListProps) => {
   const [freights, setFreights] = useState<Freight[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPosition, setCurrentPosition] = useState<{lat: number; lng: number} | null>(null);
+  const [returnDestination, setReturnDestination] = useState<string | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Récupération de la position actuelle si nécessaire
+  useEffect(() => {
+    if (showNearbyOnly && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Erreur de géolocalisation:", error);
+          toast({
+            title: "Erreur de localisation",
+            description: "Impossible d'obtenir votre position actuelle. Veuillez l'autoriser dans les paramètres de votre navigateur.",
+            variant: "destructive",
+          });
+        }
+      );
+    }
+  }, [showNearbyOnly, toast]);
+
+  // Récupération du trajet retour si nécessaire
+  useEffect(() => {
+    if (!user || !showReturnOnly) return;
+
+    const fetchReturnRoute = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('return_destination')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Erreur lors de la récupération du trajet retour:', error);
+        return;
+      }
+
+      setReturnDestination(data.return_destination);
+    };
+
+    fetchReturnRoute();
+  }, [user, showReturnOnly]);
 
   useEffect(() => {
     const fetchFreights = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('freights')
           .select('*')
@@ -24,7 +84,29 @@ const FreightList = () => {
           .eq('status', 'available');
 
         if (error) throw error;
-        setFreights(data as Freight[]);
+        
+        // Filtrer les frets selon les critères
+        let filteredFreights = data as Freight[];
+        
+        // Appliquer la réduction pour le retour à vide si demandé
+        if (showReturnPricing && user) {
+          const { data: userProfile } = await supabase
+            .from('profiles')
+            .select('is_available')
+            .eq('id', user.id)
+            .single();
+            
+          if (userProfile?.is_available) {
+            filteredFreights = filteredFreights.map(freight => ({
+              ...freight,
+              isReturnTrip: true,
+              originalPrice: freight.price,
+              price: Math.round(freight.price * 0.7) // 30% de réduction
+            }));
+          }
+        }
+        
+        setFreights(filteredFreights);
       } catch (error: any) {
         toast({
           title: "Erreur lors du chargement des frets",
@@ -37,7 +119,7 @@ const FreightList = () => {
     };
 
     fetchFreights();
-  }, [toast]);
+  }, [toast, user, showReturnPricing, currentPosition, returnDestination]);
 
   const handleSearch = () => {
     if (!searchTerm) return;
@@ -115,7 +197,12 @@ const FreightList = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {freights.map((freight) => (
-                <FreightCard key={freight.id} freight={freight} />
+                <FreightCard 
+                  key={freight.id} 
+                  freight={freight} 
+                  showReturnDiscount={showReturnPricing && freight.isReturnTrip}
+                  originalPrice={freight.originalPrice}
+                />
               ))}
             </div>
           )}

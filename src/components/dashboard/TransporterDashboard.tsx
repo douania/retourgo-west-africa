@@ -1,15 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Truck, Star, Bell, Calendar } from "lucide-react";
+import { MapPin, Truck, Star, Bell, Calendar, Navigation } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import FreightCard from "@/components/freight/FreightCard";
 import { TransportOffer, Freight } from "@/types/freight";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import LocationMap from "@/components/map/LocationMap";
 
 interface TransporterDashboardProps {
   offers: TransportOffer[];
@@ -18,7 +22,94 @@ interface TransporterDashboardProps {
 
 const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardProps) => {
   const [isAvailable, setIsAvailable] = useState(false);
+  const [hasReturnRoute, setHasReturnRoute] = useState(false);
+  const [returnOrigin, setReturnOrigin] = useState("");
+  const [returnDestination, setReturnDestination] = useState("");
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchUserData = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('is_available, return_origin, return_destination')
+        .eq('id', user.id)
+        .single();
+        
+      if (error) {
+        console.error('Erreur lors de la récupération des données utilisateur:', error);
+        return;
+      }
+      
+      setIsAvailable(data.is_available || false);
+      setReturnOrigin(data.return_origin || "");
+      setReturnDestination(data.return_destination || "");
+      setHasReturnRoute(!!(data.return_origin && data.return_destination));
+    };
+    
+    fetchUserData();
+  }, [user]);
+
+  const handleAvailabilityChange = async (newStatus: boolean) => {
+    if (!user) return;
+    
+    setIsAvailable(newStatus);
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_available: newStatus })
+      .eq('id', user.id);
+      
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour votre disponibilité",
+        variant: "destructive",
+      });
+      setIsAvailable(!newStatus); // Revenir à l'état précédent
+      return;
+    }
+    
+    toast({
+      title: newStatus ? "Disponible" : "Non disponible",
+      description: newStatus 
+        ? "Vous êtes maintenant disponible pour des frets retour" 
+        : "Vous n'êtes plus disponible pour des frets retour",
+    });
+  };
+  
+  const handleDefineReturnRoute = async (origin: string, destination: string) => {
+    if (!user) return;
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        return_origin: origin,
+        return_destination: destination
+      })
+      .eq('id', user.id);
+      
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible d'enregistrer votre trajet retour",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setReturnOrigin(origin);
+    setReturnDestination(destination);
+    setHasReturnRoute(true);
+    
+    toast({
+      title: "Trajet retour enregistré",
+      description: `De ${origin} à ${destination}`,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -34,14 +125,19 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
             <Switch 
               id="availability" 
               checked={isAvailable}
-              onCheckedChange={setIsAvailable}
+              onCheckedChange={handleAvailabilityChange}
             />
             <Label htmlFor="availability" className="font-medium text-lg">
-              Je suis disponible
+              Je suis disponible pour des frets retour
             </Label>
           </div>
           <p className="text-gray-600 mb-4">
             Activez votre disponibilité pour être visible par les expéditeurs et recevoir des propositions de fret.
+            {hasReturnRoute && (
+              <span className="block mt-2">
+                Trajet retour défini: <span className="font-medium">{returnOrigin}</span> → <span className="font-medium">{returnDestination}</span>
+              </span>
+            )}
           </p>
           <div className="flex space-x-3">
             <Button 
@@ -85,6 +181,76 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
           </Button>
         </Card>
       </div>
+      
+      <Card className="p-6 bg-white shadow-md">
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Navigation className="h-5 w-5 text-retourgo-orange" />
+            Géolocalisation et trajets retour
+          </h2>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
+            <LocationMap 
+              showCurrentLocation={true}
+              onDefineReturnRoute={handleDefineReturnRoute}
+              title="Ma position actuelle"
+            />
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="font-medium text-lg">Mon trajet retour</h3>
+            {hasReturnRoute ? (
+              <div className="bg-green-50 p-4 rounded-md border border-green-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Truck className="h-5 w-5 text-retourgo-green" />
+                  <h4 className="font-medium">Trajet retour enregistré</h4>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-retourgo-orange" />
+                  <div className="flex flex-col">
+                    <span>Départ: {returnOrigin}</span>
+                    <span className="font-semibold text-retourgo-green">→ Destination: {returnDestination}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  Le système vous notifiera des frets compatibles avec ce trajet.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 w-full"
+                  onClick={() => setHasReturnRoute(false)}
+                >
+                  Modifier mon trajet retour
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-orange-50 p-4 rounded-md border border-orange-100">
+                <p className="text-sm text-gray-700">
+                  Vous n'avez pas encore défini de trajet retour. Utilisez le formulaire sur la carte pour le définir.
+                </p>
+                <p className="text-xs text-gray-500 mt-2">
+                  Cela vous permettra de recevoir des suggestions de frets compatibles avec votre itinéraire.
+                </p>
+              </div>
+            )}
+            
+            <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
+              <h4 className="font-medium mb-2">Suivi en temps réel</h4>
+              <p className="text-sm text-gray-600">
+                Activez le suivi de position pour être alerté des frets à proximité de votre localisation actuelle.
+              </p>
+              <ul className="text-xs text-gray-500 mt-2 list-disc list-inside space-y-1">
+                <li>Optimisez vos trajets retour</li>
+                <li>Réduisez les kilomètres à vide</li>
+                <li>Maximisez votre rentabilité</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <Tabs defaultValue="nearby" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
@@ -105,7 +271,12 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {nearbyFreights.map((freight) => (
-                <FreightCard key={freight.id} freight={freight} />
+                <FreightCard 
+                  key={freight.id} 
+                  freight={{...freight, isReturnTrip: isAvailable}}
+                  showReturnDiscount={isAvailable}
+                  originalPrice={isAvailable ? Math.round(freight.price / 0.7) : undefined}
+                />
               ))}
             </div>
           )}
@@ -153,7 +324,7 @@ const TransporterDashboard = ({ offers, nearbyFreights }: TransporterDashboardPr
                       <span>{offer.freights.origin} → {offer.freights.destination}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="font-medium">{offer.price_offered} €</span>
+                      <span className="font-medium">{offer.price_offered} FCFA</span>
                       <Button 
                         variant="outline" 
                         size="sm"
