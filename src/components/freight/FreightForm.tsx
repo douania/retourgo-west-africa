@@ -26,7 +26,9 @@ import {
 const FreightForm = () => {
   const { register, handleSubmit, control, formState: { errors }, setValue, watch } = useForm<FreightFormData>({
     defaultValues: {
-      price: 0
+      price: 0,
+      weight: 0,
+      volume: 0
     }
   });
   const navigate = useNavigate();
@@ -34,9 +36,10 @@ const FreightForm = () => {
   // Form submission hook
   const { handleSubmit: submitForm, isSubmitting } = useFreightFormSubmission();
   
-  // Watch origin and destination for price calculation
+  // Watch form fields for price calculation
   const origin = watch("origin");
   const destination = watch("destination");
+  const weight = watch("weight");
   
   // Pricing calculation hook
   const {
@@ -45,12 +48,14 @@ const FreightForm = () => {
     emptyReturn,
     priceEstimation,
     distance,
+    pricingError,
     setVehicleType,
     setAdditionalFees,
     setEmptyReturn
   } = usePricingCalculation({
     origin,
     destination,
+    weight,
     setValue
   });
 
@@ -89,7 +94,9 @@ const FreightForm = () => {
             distance={distance}
             origin={origin}
             destination={destination}
+            weight={weight}
             priceEstimation={priceEstimation}
+            pricingError={pricingError}
             onVehicleTypeChange={setVehicleType}
             onAdditionalFeesChange={setAdditionalFees}
             onEmptyReturnChange={setEmptyReturn}
@@ -106,7 +113,7 @@ const FreightForm = () => {
           <Button 
             type="submit" 
             className="bg-retourgo-orange hover:bg-retourgo-orange/90"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!pricingError}
           >
             {isSubmitting ? "Publication en cours..." : "Publier le fret"}
           </Button>

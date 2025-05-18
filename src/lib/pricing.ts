@@ -6,12 +6,18 @@ export type AdditionalFeeType = 'manual_loading' | 'fragile' | 'urgent';
 // Configuration de base des tarifs
 export const BASE_FEE = 2000; // FCFA
 
-export const COST_PER_KM: Record<VehicleType, number> = {
-  car: 100,
-  van: 150,
-  truck: 200,
-  semi: 250,
-  refrigerated: 300
+// Ajustement des tarifs par km selon le poids et le type de véhicule
+// Basé sur les données réelles du marché sénégalais
+export const COST_PER_KM: Record<VehicleType, { 
+  base: number,           // Pour poids légers < 5 tonnes
+  medium: number,         // Pour poids moyens 5-22 tonnes
+  heavy: number           // Pour poids lourds > 22 tonnes
+}> = {
+  car: { base: 80, medium: 0, heavy: 0 },              // Voiture: uniquement pour petits colis
+  van: { base: 90, medium: 100, heavy: 0 },            // Camionnette: jusqu'à 3.5t environ
+  truck: { base: 120, medium: 150, heavy: 180 },       // Camion: pour charges moyennes et lourdes
+  semi: { base: 0, medium: 180, heavy: 220 },          // Semi-remorque: uniquement pour charges lourdes
+  refrigerated: { base: 150, medium: 200, heavy: 250 } // Réfrigéré: prix premium
 };
 
 export const ADDITIONAL_FEES: Record<AdditionalFeeType, number | string> = {
@@ -25,9 +31,16 @@ export const EMPTY_RETURN_DISCOUNT = {
   max: 0.50  // 50%
 };
 
+// Seuils de poids pour déterminer la catégorie de tarification
+export const WEIGHT_THRESHOLDS = {
+  MEDIUM: 5000, // 5 tonnes
+  HEAVY: 22000  // 22 tonnes (basé sur la grille tarifaire fournie)
+};
+
 export interface PricingOptions {
   distance: number;
   vehicleType: VehicleType;
+  weight?: number;          // Poids en kg, optionnel
   additionalFees?: AdditionalFeeType[];
   emptyReturn?: boolean;
   emptyReturnDiscount?: number; // Entre 0.25 et 0.50
@@ -43,11 +56,33 @@ export function calculatePrice(options: PricingOptions): {
     emptyReturnDiscount: number;
   };
 } {
-  const { distance, vehicleType, additionalFees = [], emptyReturn = false, emptyReturnDiscount } = options;
+  const { 
+    distance, 
+    vehicleType, 
+    weight = 0, 
+    additionalFees = [], 
+    emptyReturn = false, 
+    emptyReturnDiscount 
+  } = options;
+  
+  // Déterminer la catégorie de tarification en fonction du poids
+  let weightCategory: 'base' | 'medium' | 'heavy' = 'base';
+  if (weight >= WEIGHT_THRESHOLDS.HEAVY) {
+    weightCategory = 'heavy';
+  } else if (weight >= WEIGHT_THRESHOLDS.MEDIUM) {
+    weightCategory = 'medium';
+  }
+  
+  // Vérifier si le véhicule peut transporter ce poids
+  const ratePerKm = COST_PER_KM[vehicleType][weightCategory];
+  if (ratePerKm === 0) {
+    // Si le taux est 0, cela signifie que ce véhicule ne peut pas transporter cette catégorie de poids
+    throw new Error(`Ce type de véhicule (${getVehicleTypeLabel(vehicleType)}) ne peut pas transporter ${weight}kg`);
+  }
   
   // Calcul du prix de base + distance
   const baseFee = BASE_FEE;
-  const distanceFee = distance * COST_PER_KM[vehicleType];
+  const distanceFee = distance * ratePerKm;
   
   // Calcul des frais supplémentaires
   let totalAdditionalFees = 0;
@@ -100,26 +135,32 @@ export function calculatePrice(options: PricingOptions): {
 // Fonction pour calculer la distance entre deux points (à remplacer par une API de calcul d'itinéraire)
 export function estimateDistance(origin: string, destination: string): number {
   // Cette fonction est un placeholder et devrait être remplacée par une vraie API de calcul d'itinéraire
-  // Pour l'instant, nous retournons des distances approximatives pour certaines villes au Sénégal
+  // Mise à jour avec des distances plus réalistes basées sur la grille tarifaire fournie
   
   const routes: Record<string, Record<string, number>> = {
     'Dakar': {
-      'Kaolack': 200,
-      'Saint-Louis': 260,
-      'Touba': 190,
-      'Thiès': 70,
-      'Mbour': 80,
-      'Ziguinchor': 450,
-      'Tambacounda': 470
+      'Kaolack': 189,
+      'Saint-Louis': 268,
+      'Touba': 186,
+      'Thiès': 71,
+      'Mbour': 83,
+      'Ziguinchor': 881,
+      'Tambacounda': 467,
+      'Kébémer': 155,
+      'Louga': 194,
+      'Mbacké': 186,
+      'Diourbel': 146,
+      'Tivaouane': 95,
+      'Richard Toll': 376
     },
     'Kaolack': {
-      'Dakar': 200,
-      'Saint-Louis': 300,
-      'Touba': 120,
-      'Thiès': 130,
-      'Mbour': 150,
-      'Ziguinchor': 250,
-      'Tambacounda': 270
+      'Dakar': 189,
+      'Saint-Louis': 320,
+      'Touba': 130,
+      'Thiès': 140,
+      'Mbour': 160,
+      'Ziguinchor': 650,
+      'Tambacounda': 290
     },
     // Ajouter plus de routes au besoin
   };
@@ -173,4 +214,44 @@ export function getAdditionalFeeLabel(type: AdditionalFeeType): string {
   };
   
   return labels[type] || type;
+}
+
+// Fonction pour obtenir la compatibilité des véhicules avec différentes catégories de poids
+export function getVehicleWeightCapacity(vehicleType: VehicleType): {
+  minWeight: number;
+  maxWeight: number;
+} {
+  const capacities: Record<VehicleType, {minWeight: number; maxWeight: number}> = {
+    car: { minWeight: 0, maxWeight: 500 },          // Jusqu'à 500kg
+    van: { minWeight: 0, maxWeight: 3500 },         // Jusqu'à 3.5 tonnes
+    truck: { minWeight: 0, maxWeight: 30000 },      // Jusqu'à 30 tonnes
+    semi: { minWeight: 5000, maxWeight: 40000 },    // De 5 à 40 tonnes
+    refrigerated: { minWeight: 0, maxWeight: 25000 } // Jusqu'à 25 tonnes
+  };
+  
+  return capacities[vehicleType];
+}
+
+// Fonction pour obtenir un prix estimé par kg-km selon la distance et le poids
+export function calculatePricePerKgKm(distance: number, weight: number): number {
+  if (distance <= 0 || weight <= 0) return 0;
+  
+  // Plus la distance est grande, plus le prix par kg-km diminue (économies d'échelle)
+  let scaleFactor = 1.0;
+  
+  if (distance > 800) scaleFactor = 0.7;
+  else if (distance > 500) scaleFactor = 0.75;
+  else if (distance > 300) scaleFactor = 0.8;
+  else if (distance > 200) scaleFactor = 0.85;
+  else if (distance > 100) scaleFactor = 0.9;
+  
+  // Plus le poids est important, plus le prix par kg-km diminue (économies d'échelle)
+  if (weight > 25000) scaleFactor *= 0.7;
+  else if (weight > 15000) scaleFactor *= 0.8;
+  else if (weight > 5000) scaleFactor *= 0.9;
+  
+  // Prix de base par kg-km en FCFA
+  const basePricePerKgKm = 0.15;
+  
+  return basePricePerKgKm * scaleFactor;
 }

@@ -12,6 +12,7 @@ interface PriceEstimationProps {
   origin: string;
   destination: string;
   vehicleType: VehicleType;
+  weight: number;
   additionalFees: { type: string; amount: number }[];
   emptyReturnDiscount: number;
   total: number;
@@ -25,6 +26,7 @@ export const PriceEstimation = ({
   origin,
   destination,
   vehicleType,
+  weight,
   additionalFees,
   emptyReturnDiscount,
   total,
@@ -56,9 +58,20 @@ export const PriceEstimation = ({
               <span className="font-medium">{formatPrice(distanceFee)}</span>
             </div>
             
-            <div className="flex justify-between">
-              <span className="text-gray-600">Véhicule : {getVehicleTypeLabel(vehicleType)}</span>
-              <span className="font-medium">{distanceFee > 0 && distance > 0 ? `${formatPrice(distanceFee / distance)} /km` : '-'}</span>
+            <div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Véhicule : {getVehicleTypeLabel(vehicleType)}</span>
+                <span className="font-medium">{distanceFee > 0 && distance > 0 ? `${formatPrice(distanceFee / distance)} /km` : '-'}</span>
+              </div>
+              
+              {weight > 0 && (
+                <div className="flex justify-between pl-4 text-xs text-gray-500">
+                  <span>Poids: {weight.toLocaleString('fr-SN')} kg</span>
+                  {distanceFee > 0 && weight > 0 ? (
+                    <span>{(distanceFee / (distance * weight)).toFixed(2)} FCFA/kg-km</span>
+                  ) : null}
+                </div>
+              )}
             </div>
             
             {additionalFees.length > 0 ? (
