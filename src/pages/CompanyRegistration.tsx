@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +25,14 @@ interface CompanyInfo {
 const CompanyRegistration = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Récupérer le type d'utilisateur du state de navigation
+  const userTypeFromState = (location.state as { userType?: string })?.userType;
+  const [isTransporter, setIsTransporter] = useState(
+    userTypeFromState === "company_transporter"
+  );
   
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     company_name: "",
@@ -39,7 +47,6 @@ const CompanyRegistration = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
-  const [isTransporter, setIsTransporter] = useState(false);
 
   // Check profile type on component mount
   React.useEffect(() => {
@@ -62,7 +69,10 @@ const CompanyRegistration = () => {
       
       if (data) {
         const userType = data.user_type;
-        setIsTransporter(userType === "company_transporter");
+        // Si le type d'utilisateur n'est pas défini par la navigation, utiliser celui de la base de données
+        if (!userTypeFromState) {
+          setIsTransporter(userType === "company_transporter");
+        }
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -103,6 +113,7 @@ const CompanyRegistration = () => {
             phone: companyInfo.logistics_contact_phone, // Téléphone du contact logistique
             return_origin: companyInfo.address, // Adresse du siège dans return_origin
             return_destination: companyInfo.recurrent_locations || null, // Lieux récurrents dans return_destination
+            user_type: isTransporter ? "company_transporter" : "company_shipper"
             // Stockons les autres informations dans des métadonnées qui seront ajoutées plus tard
           })
           .eq('id', user.id);

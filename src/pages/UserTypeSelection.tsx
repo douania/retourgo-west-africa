@@ -39,19 +39,15 @@ const UserTypeSelection = () => {
   const handleContinue = () => {
     if (!selectedType) return;
 
-    // Determine the next step based on user type
+    // Déterminer la prochaine page en fonction du type d'utilisateur
     switch (selectedType) {
       case "individual_transporter":
-        navigate("/register", { state: { userType: "individual_transporter" } });
-        break;
       case "individual_shipper":
-        navigate("/register", { state: { userType: "individual_shipper" } });
+        navigate("/individual-registration", { state: { userType: selectedType } });
         break;
       case "company_transporter":
-        navigate("/register", { state: { userType: "company_transporter" } });
-        break;
       case "company_shipper":
-        navigate("/register", { state: { userType: "company_shipper" } });
+        navigate("/company-registration", { state: { userType: selectedType } });
         break;
       default:
         navigate("/register");

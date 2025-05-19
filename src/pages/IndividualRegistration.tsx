@@ -1,5 +1,6 @@
+
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,14 @@ interface PersonalInfo {
 const IndividualRegistration = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  
+  // Récupérer le type d'utilisateur du state de navigation
+  const userTypeFromState = (location.state as { userType?: string })?.userType;
+  const [isTransporter, setIsTransporter] = useState(
+    userTypeFromState === "individual_transporter"
+  );
   
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
     full_name: "",
@@ -37,7 +45,6 @@ const IndividualRegistration = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
   const [idCardImage, setIdCardImage] = useState<string | null>(null);
-  const [isTransporter, setIsTransporter] = useState(false);
 
   // Check profile type on component mount
   React.useEffect(() => {
@@ -60,7 +67,10 @@ const IndividualRegistration = () => {
       
       if (data) {
         const userType = data.user_type;
-        setIsTransporter(userType === "individual_transporter");
+        // Si le type d'utilisateur n'est pas défini par la navigation, utiliser celui de la base de données
+        if (!userTypeFromState) {
+          setIsTransporter(userType === "individual_transporter");
+        }
         
         // Pre-fill form with existing data
         setPersonalInfo(prev => ({
@@ -130,7 +140,8 @@ const IndividualRegistration = () => {
             first_name: firstName,
             last_name: lastName,
             phone: personalInfo.phone,
-            return_origin: personalInfo.preferred_origin || null
+            return_origin: personalInfo.preferred_origin || null,
+            user_type: isTransporter ? "individual_transporter" : "individual_shipper"
           })
           .eq('id', user.id);
           
