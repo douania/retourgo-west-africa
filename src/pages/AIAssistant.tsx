@@ -21,12 +21,12 @@ const AIAssistant = () => {
           {t("ai.title")}
         </h1>
         
-        <Alert variant="warning" className="mb-6">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Fonctionnalités en mode démo</AlertTitle>
-          <AlertDescription>
-            Les fonctionnalités d'IA sont actuellement en mode démo et peuvent ne pas répondre correctement en raison de limites d'API. 
-            Nous travaillons à l'intégration d'alternatives gratuites pour améliorer la fiabilité.
+        <Alert className="mb-6 border-amber-500 bg-amber-50">
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertTitle className="text-amber-700">Fonctionnalités en mode démo</AlertTitle>
+          <AlertDescription className="text-amber-600">
+            Les fonctionnalités d'IA sont actuellement en cours de configuration avec l'API OpenAI.
+            Si vous rencontrez des problèmes, veuillez patienter quelques instants.
           </AlertDescription>
         </Alert>
         

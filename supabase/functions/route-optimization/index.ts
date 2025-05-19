@@ -21,11 +21,8 @@ serve(async (req) => {
       throw new Error('Origin, destination and userId are required');
     }
 
-    // Create a client for OpenAI
-    const openAIKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openAIKey) {
-      throw new Error("OPENAI_API_KEY is not set");
-    }
+    // Create a client for OpenAI - Using the API key provided by the user
+    const openAIKey = Deno.env.get("OPENAI_API_KEY") || "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";
 
     // Prompt for route optimization
     const prompt = `
@@ -60,6 +57,7 @@ serve(async (req) => {
       headers: {
         'Authorization': `Bearer ${openAIKey}`,
         'Content-Type': 'application/json',
+        'OpenAI-Beta': 'parallel_api_v2'
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
