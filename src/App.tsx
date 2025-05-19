@@ -19,6 +19,7 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import VehicleTypeSelection from "./pages/VehicleTypeSelection";
 import VehicleRegistration from "./pages/VehicleRegistration";
+import DriverRegistration from "./pages/DriverRegistration";
 import History from "./pages/History";
 
 // App component
@@ -42,8 +43,10 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/vehicle-selection" element={<VehicleTypeSelection />} />
           <Route path="/vehicle-registration" element={<VehicleRegistration />} />
+          <Route path="/driver-registration" element={<DriverRegistration />} />
           <Route path="/vehicles" element={<Navigate to="/vehicle-selection" replace />} />
           <Route path="/vehicles/new" element={<VehicleRegistration />} />
+          <Route path="/drivers/new" element={<DriverRegistration />} />
           <Route path="/history" element={<History />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

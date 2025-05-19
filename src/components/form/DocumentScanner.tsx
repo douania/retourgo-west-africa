@@ -11,6 +11,7 @@ import {
   getDocumentDescription 
 } from "@/utils/document-utils";
 import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
+import { Button } from "@/components/ui/button";
 
 interface DocumentScannerProps {
   onDocumentCaptured: (file: File, extractedData?: any) => void;
@@ -19,6 +20,7 @@ interface DocumentScannerProps {
   description?: string;
   previewUrl?: string | null;
   onDocumentRemove?: () => void;
+  showBothSides?: boolean;
 }
 
 const DocumentScanner = ({
@@ -27,36 +29,59 @@ const DocumentScanner = ({
   title,
   description,
   previewUrl,
-  onDocumentRemove
+  onDocumentRemove,
+  showBothSides = true
 }: DocumentScannerProps) => {
-  const { isProcessing, processDocument } = useDocumentProcessor({
+  const { isProcessing, processDocument, currentSide, resetCapture } = useDocumentProcessor({
     documentType,
-    onDocumentCaptured
+    onDocumentCaptured,
+    showBothSides
   });
 
   const documentTitle = getDocumentTitle(documentType, title);
   const documentDesc = getDocumentDescription(documentType, description);
+  
+  // Texte pour montrer le côté actuel du document
+  const getSideLabel = () => {
+    if (!showBothSides) return "";
+    
+    return currentSide === 'front' 
+      ? " - Recto" 
+      : " - Verso";
+  };
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-lg">
           <FileType className="h-5 w-5 text-retourgo-orange" />
-          {documentTitle}
+          {documentTitle}{getSideLabel()}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {isProcessing ? (
           <DocumentProcessingIndicator />
         ) : (
-          <ImageUpload
-            onImageCapture={processDocument}
-            onImageRemove={onDocumentRemove}
-            previewUrl={previewUrl}
-            allowCapture={true}
-            label={documentTitle}
-            description={documentDesc}
-          />
+          <>
+            <ImageUpload
+              onImageCapture={processDocument}
+              onImageRemove={onDocumentRemove || resetCapture}
+              previewUrl={previewUrl}
+              allowCapture={true}
+              label={`${documentTitle}${getSideLabel()}`}
+              description={documentDesc + (showBothSides ? ` (${currentSide === 'front' ? 'Recto' : 'Verso'})` : '')}
+            />
+            {showBothSides && currentSide === 'back' && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="mt-2 w-full"
+                onClick={resetCapture}
+              >
+                Recommencer la capture
+              </Button>
+            )}
+          </>
         )}
 
         <DocumentTips documentType={documentType} />
