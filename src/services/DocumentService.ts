@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { createTypedSupabaseClient, VerificationStatus } from "@/types/supabase-extensions";
+import { createTypedSupabaseClient, VerificationStatus, UserDocumentsRow } from "@/types/supabase-extensions";
 
 // Create a typed client for the extended database
 const typedSupabase = createTypedSupabaseClient(supabase);

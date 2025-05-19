@@ -3,6 +3,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import DocumentScanner from "@/components/form/DocumentScanner";
+import { VerificationStatus } from "@/types/supabase-extensions";
 
 export interface PersonalInfoFormData {
   full_name: string;
@@ -11,7 +12,7 @@ export interface PersonalInfoFormData {
   phone: string;
   email: string;
   preferred_origin?: string;
-  verification_status?: 'pending' | 'verified' | 'rejected' | null;
+  verification_status?: VerificationStatus;
 }
 
 interface PersonalInfoFormProps {
