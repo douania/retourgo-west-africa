@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { AuthProvider } from './contexts/AuthContext';
 import Index from './pages/Index';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -29,34 +30,36 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <Toaster richColors position="top-center" />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/how-it-works" element={<HowItWorks />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/user-type" element={<UserTypeSelection />} />
-        <Route path="/register/individual" element={<IndividualRegistration />} />
-        <Route path="/register/company" element={<CompanyRegistration />} />
-        <Route path="/freight" element={<FreightMarketplace />} />
-        <Route path="/vehicle-type" element={<VehicleTypeSelection />} />
-        <Route path="/vehicle-registration" element={<VehicleRegistration />} />
-        <Route path="/driver-registration" element={<DriverRegistration />} />
-        <Route path="/profiles" element={<Profiles />} />
-        <Route path="/profile/:id" element={<Profile />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/ai-assistant" element={<AIAssistant />} />
-        <Route path="/new-freight" element={<NewFreight />} />
-        <Route path="/freight/:id" element={<FreightDetails />} />
-        <Route path="/freight/:id/offers" element={<FreightOffers />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/map" element={<Map />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Toaster richColors position="top-center" />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/user-type" element={<UserTypeSelection />} />
+          <Route path="/register/individual" element={<IndividualRegistration />} />
+          <Route path="/register/company" element={<CompanyRegistration />} />
+          <Route path="/freight" element={<FreightMarketplace />} />
+          <Route path="/vehicle-type" element={<VehicleTypeSelection />} />
+          <Route path="/vehicle-registration" element={<VehicleRegistration />} />
+          <Route path="/driver-registration" element={<DriverRegistration />} />
+          <Route path="/profiles" element={<Profiles />} />
+          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/ai-assistant" element={<AIAssistant />} />
+          <Route path="/new-freight" element={<NewFreight />} />
+          <Route path="/freight/:id" element={<FreightDetails />} />
+          <Route path="/freight/:id/offers" element={<FreightOffers />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/map" element={<Map />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
