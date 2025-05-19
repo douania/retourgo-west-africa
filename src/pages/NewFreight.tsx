@@ -36,7 +36,7 @@ const NewFreight = () => {
   // Afficher un message d'accès refusé pour les transporteurs (au cas où la redirection échoue)
   if (userType === 'transporter') {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen bg-gray-50 py-12 pt-24">
         <div className="container mx-auto px-4">
           <Card>
             <CardContent className="pt-6">
@@ -62,7 +62,7 @@ const NewFreight = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12 pt-24">
       <div className="container mx-auto px-4">
         <FreightForm />
       </div>

@@ -38,21 +38,23 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           {userType === 'transporter' ? 'Marchandises' : 'Transporteurs'}
         </Link>
         
-        {userType === 'transporter' ? (
-          <Link
-            to="/vehicles"
-            className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            onClick={onClose}
-          >
-            Mes véhicules
-          </Link>
-        ) : (
+        {userType !== 'transporter' && (
           <Link
             to="/new-freight"
             className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
             onClick={onClose}
           >
             Publier une marchandise
+          </Link>
+        )}
+        
+        {userType === 'transporter' && (
+          <Link
+            to="/vehicles"
+            className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            onClick={onClose}
+          >
+            Mes véhicules
           </Link>
         )}
         
