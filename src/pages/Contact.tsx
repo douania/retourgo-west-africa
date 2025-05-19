@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Contact = () => {
   const [name, setName] = useState("");
@@ -23,6 +23,7 @@ const Contact = () => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +51,10 @@ const Contact = () => {
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                Contactez-nous
+                {t("contact.title")}
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                Vous avez des questions ou des suggestions? N'hésitez pas à nous contacter.
-                Notre équipe vous répondra dans les 24 heures.
+                {t("contact.subtitle")}
               </p>
             </div>
 
@@ -64,7 +64,7 @@ const Contact = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                       <div>
-                        <Label htmlFor="name">Nom complet</Label>
+                        <Label htmlFor="name">{t("contact.form.name")}</Label>
                         <Input
                           id="name"
                           name="name"
@@ -77,7 +77,7 @@ const Contact = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="email">Adresse email</Label>
+                        <Label htmlFor="email">{t("contact.form.email")}</Label>
                         <Input
                           id="email"
                           name="email"
@@ -91,7 +91,7 @@ const Contact = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="subject">Sujet</Label>
+                      <Label htmlFor="subject">{t("contact.form.subject")}</Label>
                       <Select value={subject} onValueChange={setSubject}>
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Sélectionnez un sujet" />
@@ -107,7 +107,7 @@ const Contact = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="message">Message</Label>
+                      <Label htmlFor="message">{t("contact.form.message")}</Label>
                       <Textarea
                         id="message"
                         name="message"
@@ -125,7 +125,7 @@ const Contact = () => {
                         className="w-full bg-retourgo-orange hover:bg-retourgo-orange/90"
                         disabled={isLoading}
                       >
-                        {isLoading ? "Envoi en cours..." : "Envoyer le message"}
+                        {isLoading ? t("contact.form.submitting") : t("contact.form.submit")}
                       </Button>
                     </div>
                   </form>
@@ -135,7 +135,7 @@ const Contact = () => {
               <div className="space-y-8">
                 <Card className="p-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Nos bureaux
+                    {t("contact.offices.title")}
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-start">
@@ -217,7 +217,7 @@ const Contact = () => {
 
                 <Card className="p-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Bureaux régionaux
+                    {t("contact.regional.title")}
                   </h3>
                   <div className="space-y-4">
                     <p className="font-medium text-gray-700">Abidjan</p>

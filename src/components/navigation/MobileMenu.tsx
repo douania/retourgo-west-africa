@@ -35,28 +35,28 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
           onClick={onClose}
         >
-          Accueil
+          {t("nav.home")}
         </Link>
         <Link
           to="/how-it-works"
           className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
           onClick={onClose}
         >
-          Comment ça marche
+          {t("nav.how_it_works")}
         </Link>
         <Link
           to="/pricing"
           className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
           onClick={onClose}
         >
-          Tarifs
+          {t("nav.pricing")}
         </Link>
         <Link
           to="/contact"
           className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
           onClick={onClose}
         >
-          Contact
+          {t("nav.contact")}
         </Link>
       </div>
 
@@ -68,7 +68,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={onClose}
             >
-              Tableau de bord
+              {t("nav.dashboard")}
             </Link>
             <Link
               to="/marketplace"
@@ -99,7 +99,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
                 onClick={onClose}
               >
-                Publier une marchandise
+                {t("nav.publish_merchandise")}
               </Link>
             )}
             {userType === 'transporter' && (
@@ -108,7 +108,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
                 onClick={onClose}
               >
-                Gérer mes véhicules
+                {t("nav.manage_vehicles")}
               </Link>
             )}
           </div>
@@ -118,27 +118,27 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={onClose}
             >
-              Mon profil
+              {t("nav.my_profile")}
             </Link>
             <Link
               to="/history"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={onClose}
             >
-              Historique
+              {t("nav.history")}
             </Link>
             <button
               className="flex w-full items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={handleLogout}
             >
-              <LogOut className="h-4 w-4 mr-2" /> Se déconnecter
+              <LogOut className="h-4 w-4 mr-2" /> {t("nav.logout")}
             </button>
           </div>
         </Fragment>
       )}
       
       <div className="px-5 py-4 flex items-center justify-between">
-        <span className="text-sm text-gray-500">Langue:</span>
+        <span className="text-sm text-gray-500">{t("language.title")}:</span>
         <LanguageSelector />
       </div>
     </div>

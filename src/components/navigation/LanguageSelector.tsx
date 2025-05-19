@@ -32,15 +32,15 @@ export function LanguageSelector() {
 
   const handleLanguageChange = (newLanguage: Language) => {
     setLanguage(newLanguage);
-    // In a real app, we would also update translations here
+    window.location.reload(); // Recharger la page pour appliquer la nouvelle langue
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+        <Button variant="ghost" size="sm" className="flex items-center gap-2">
           <Globe className="h-4 w-4" />
-          <span className="sr-only">Changer de langue</span>
+          <span className="hidden md:inline-block">{currentLanguage.nativeName}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
