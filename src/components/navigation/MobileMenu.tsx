@@ -14,12 +14,12 @@ interface MobileMenuProps {
 }
 
 const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const { userType, badgeClass, iconColor } = useUserTheme();
   const { t } = useTranslation();
 
   const handleLogout = async () => {
-    await logout();
+    await signOut();
     onClose();
   };
 
