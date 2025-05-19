@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,7 @@ import { VerificationStatus } from "@/types/supabase-extensions";
 export interface PersonalInfoFormData {
   full_name: string;
   id_number: string;
-  address?: string;
+  address: string;
   phone: string;
   email: string;
   preferred_origin?: string;
@@ -18,34 +17,35 @@ export interface PersonalInfoFormData {
 interface PersonalInfoFormProps {
   personalInfo: PersonalInfoFormData;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  idCardImage: string | null;
-  onIdCardCapture: (file: File, extractedData?: any) => void;
-  onIdCardRemove: () => void;
   step: number;
   isTransporter: boolean;
+  idCardImage?: string | null;
+  onIdCardCapture?: (file: File, extractedData?: any) => void;
+  onIdCardRemove?: () => void;
 }
 
 const PersonalInfoForm = ({
   personalInfo,
   onInputChange,
+  step,
+  isTransporter,
   idCardImage,
   onIdCardCapture,
-  onIdCardRemove,
-  step,
-  isTransporter
+  onIdCardRemove
 }: PersonalInfoFormProps) => {
   return (
     <>
       {step === 1 && (
         <div className="space-y-6">
-          <DocumentScanner
-            documentType="id_card"
-            onDocumentCaptured={onIdCardCapture}
-            previewUrl={idCardImage}
-            onDocumentRemove={onIdCardRemove}
-            showBothSides={true}
-            verificationStatus={personalInfo.verification_status}
-          />
+          {onIdCardCapture && onIdCardRemove && (
+            <DocumentScanner
+              documentType="id_card"
+              onDocumentCaptured={onIdCardCapture}
+              previewUrl={idCardImage}
+              onDocumentRemove={onIdCardRemove}
+              verificationStatus={personalInfo.verification_status}
+            />
+          )}
           
           <div className="space-y-2">
             <Label htmlFor="full_name">Nom complet*</Label>

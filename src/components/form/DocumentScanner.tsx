@@ -1,18 +1,15 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ImageUpload } from "@/components/ui/image-upload";
-import { FileType } from "lucide-react";
-import DocumentTips from "./DocumentTips";
-import DocumentProcessingIndicator from "./DocumentProcessingIndicator";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { 
   DocumentType, 
   getDocumentTitle, 
   getDocumentDescription 
 } from "@/utils/document-utils";
 import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { VerificationStatus } from "@/types/supabase-extensions";
+import DocumentHeader from "./DocumentHeader";
+import DocumentScanContent from "./DocumentScanContent";
 
 interface DocumentScannerProps {
   onDocumentCaptured: (file: File, extractedData?: any) => void;
@@ -22,10 +19,10 @@ interface DocumentScannerProps {
   previewUrl?: string | null;
   onDocumentRemove?: () => void;
   showBothSides?: boolean;
-  verificationStatus?: 'pending' | 'verified' | 'rejected' | null;
+  verificationStatus?: VerificationStatus;
 }
 
-const DocumentScanner = ({
+const DocumentScanner: React.FC<DocumentScannerProps> = ({
   onDocumentCaptured,
   documentType,
   title,
@@ -34,7 +31,7 @@ const DocumentScanner = ({
   onDocumentRemove,
   showBothSides = true,
   verificationStatus
-}: DocumentScannerProps) => {
+}) => {
   const { isProcessing, processDocument, currentSide, resetCapture } = useDocumentProcessor({
     documentType,
     onDocumentCaptured,
@@ -44,66 +41,35 @@ const DocumentScanner = ({
   const documentTitle = getDocumentTitle(documentType, title);
   const documentDesc = getDocumentDescription(documentType, description);
   
-  // Texte pour montrer le côté actuel du document
+  // Get side label based on current side
   const getSideLabel = () => {
     if (!showBothSides) return "";
-    
-    return currentSide === 'front' 
-      ? " - Recto" 
-      : " - Verso";
+    return currentSide === 'front' ? " - Recto" : " - Verso";
   };
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <FileType className="h-5 w-5 text-retourgo-orange" />
-            {documentTitle}{getSideLabel()}
-          </CardTitle>
-          
-          {verificationStatus && (
-            <Badge 
-              variant={
-                verificationStatus === 'verified' ? 'success' : 
-                verificationStatus === 'rejected' ? 'destructive' : 
-                'outline'
-              }
-            >
-              {verificationStatus === 'verified' ? 'Vérifié' : 
-               verificationStatus === 'rejected' ? 'Rejeté' : 
-               'En attente'}
-            </Badge>
-          )}
-        </div>
+        <DocumentHeader 
+          title={documentTitle}
+          sideLabel={getSideLabel()}
+          verificationStatus={verificationStatus}
+        />
       </CardHeader>
       <CardContent>
-        {isProcessing ? (
-          <DocumentProcessingIndicator />
-        ) : (
-          <>
-            <ImageUpload
-              onImageCapture={processDocument}
-              onImageRemove={onDocumentRemove || resetCapture}
-              previewUrl={previewUrl}
-              allowCapture={true}
-              label={`${documentTitle}${getSideLabel()}`}
-              description={documentDesc + (showBothSides ? ` (${currentSide === 'front' ? 'Recto' : 'Verso'})` : '')}
-            />
-            {showBothSides && currentSide === 'back' && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="mt-2 w-full"
-                onClick={resetCapture}
-              >
-                Recommencer la capture
-              </Button>
-            )}
-          </>
-        )}
-
-        <DocumentTips documentType={documentType} />
+        <DocumentScanContent 
+          isProcessing={isProcessing}
+          documentType={documentType}
+          title={documentTitle}
+          description={documentDesc}
+          previewUrl={previewUrl}
+          sideLabel={getSideLabel()}
+          showBothSides={showBothSides}
+          currentSide={currentSide}
+          onProcessDocument={processDocument}
+          onDocumentRemove={onDocumentRemove}
+          resetCapture={resetCapture}
+        />
       </CardContent>
     </Card>
   );
