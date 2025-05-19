@@ -1,66 +1,62 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import Index from './pages/Index';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import NotFound from './pages/NotFound';
+import HowItWorks from './pages/HowItWorks';
+import Contact from './pages/Contact';
+import UserTypeSelection from './pages/UserTypeSelection';
+import IndividualRegistration from './pages/IndividualRegistration';
+import CompanyRegistration from './pages/CompanyRegistration';
+import FreightMarketplace from './pages/FreightMarketplace';
+import VehicleTypeSelection from './pages/VehicleTypeSelection';
+import VehicleRegistration from './pages/VehicleRegistration';
+import DriverRegistration from './pages/DriverRegistration';
+import Profiles from './pages/Profiles';
+import Profile from './pages/Profile';
+import Pricing from './pages/Pricing';
+import AIAssistant from './pages/AIAssistant';
+import NewFreight from './pages/NewFreight';
+import FreightDetails from './pages/FreightDetails';
+import FreightOffers from './pages/FreightOffers';
+import History from './pages/History';
+import Map from './pages/Map';
+import './App.css';
 
-// Pages
-import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import Profile from "./pages/Profile";
-import NewFreight from "./pages/NewFreight";
-import FreightMarketplace from "./pages/FreightMarketplace";
-import FreightDetails from "./pages/FreightDetails";
-import FreightOffers from "./pages/FreightOffers";
-import HowItWorks from "./pages/HowItWorks";
-import Pricing from "./pages/Pricing";
-import Contact from "./pages/Contact";
-import NotFound from "./pages/NotFound";
-import VehicleTypeSelection from "./pages/VehicleTypeSelection";
-import VehicleRegistration from "./pages/VehicleRegistration";
-import DriverRegistration from "./pages/DriverRegistration";
-import History from "./pages/History";
-import UserTypeSelection from "./pages/UserTypeSelection";
-import CompanyRegistration from "./pages/CompanyRegistration";
-import IndividualRegistration from "./pages/IndividualRegistration";
-import AIAssistant from "./pages/AIAssistant";
-
-// App component
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/user-type-selection" element={<UserTypeSelection />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profiles" element={<Profile />} />
-          <Route path="/new-freight" element={<NewFreight />} />
-          <Route path="/marketplace" element={<FreightMarketplace />} />
-          <Route path="/freight/:id" element={<FreightDetails />} />
-          <Route path="/freight/:id/offers" element={<FreightOffers />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/vehicle-selection" element={<VehicleTypeSelection />} />
-          <Route path="/vehicle-registration" element={<VehicleRegistration />} />
-          <Route path="/driver-registration" element={<DriverRegistration />} />
-          <Route path="/vehicles" element={<Navigate to="/vehicle-selection" replace />} />
-          <Route path="/vehicles/new" element={<VehicleRegistration />} />
-          <Route path="/drivers/new" element={<DriverRegistration />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/company-registration" element={<CompanyRegistration />} />
-          <Route path="/individual-registration" element={<IndividualRegistration />} />
-          <Route path="/ai" element={<AIAssistant />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Toaster />
-      </Router>
-    </AuthProvider>
+    <Router>
+      <Toaster richColors position="top-center" />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/user-type" element={<UserTypeSelection />} />
+        <Route path="/register/individual" element={<IndividualRegistration />} />
+        <Route path="/register/company" element={<CompanyRegistration />} />
+        <Route path="/freight" element={<FreightMarketplace />} />
+        <Route path="/vehicle-type" element={<VehicleTypeSelection />} />
+        <Route path="/vehicle-registration" element={<VehicleRegistration />} />
+        <Route path="/driver-registration" element={<DriverRegistration />} />
+        <Route path="/profiles" element={<Profiles />} />
+        <Route path="/profile/:id" element={<Profile />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/ai-assistant" element={<AIAssistant />} />
+        <Route path="/new-freight" element={<NewFreight />} />
+        <Route path="/freight/:id" element={<FreightDetails />} />
+        <Route path="/freight/:id/offers" element={<FreightOffers />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/map" element={<Map />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 

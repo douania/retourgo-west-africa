@@ -22,4 +22,6 @@ export interface BaseMapProps {
   height?: string;
   zoom?: number;
   onMarkerClick?: (marker: MapMarker) => void;
+  followMarker?: string; // ID of marker to follow/center on
+  allowTracking?: boolean;
 }
