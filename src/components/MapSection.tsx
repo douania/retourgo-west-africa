@@ -1,7 +1,11 @@
+<think>
+
+</think>
 
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import MapboxMap, { MapMarker } from "@/components/map/MapboxMap";
+import MapboxMap from "@/components/map/MapboxMap";
+import { MapMarker } from "@/components/map/types";
 
 const MapSection = () => {
   // Simulating freight data points
