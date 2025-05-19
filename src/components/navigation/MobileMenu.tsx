@@ -1,7 +1,12 @@
 
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserTheme } from "@/hooks/useUserTheme";
+import { Truck, Package, LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { LanguageSelector } from "./LanguageSelector";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -9,114 +14,132 @@ interface MobileMenuProps {
 }
 
 const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
-  const { user, signOut } = useAuth();
-  const { userType } = useUserTheme();
+  const { user, logout } = useAuth();
+  const { userType, badgeClass, iconColor } = useUserTheme();
+  const { t } = useTranslation();
 
-  const handleSignOut = () => {
-    signOut();
+  const handleLogout = async () => {
+    await logout();
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="sm:hidden">
-      <div className="pt-2 pb-3 space-y-1">
+    <div
+      className={`${
+        isOpen ? "block" : "hidden"
+      } sm:hidden absolute top-16 inset-x-0 z-50 bg-white shadow-lg`}
+    >
+      <div className="px-2 pt-2 pb-3 space-y-1 border-b">
         <Link
           to="/"
-          className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
           onClick={onClose}
         >
           Accueil
         </Link>
-        
-        <Link
-          to="/marketplace"
-          className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-          onClick={onClose}
-        >
-          {userType === 'transporter' ? 'Marchandises' : 'Transporteurs'}
-        </Link>
-        
-        {userType !== 'transporter' && (
-          <Link
-            to="/new-freight"
-            className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            onClick={onClose}
-          >
-            Publier une marchandise
-          </Link>
-        )}
-        
-        {userType === 'transporter' && (
-          <Link
-            to="/vehicles"
-            className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-            onClick={onClose}
-          >
-            Mes véhicules
-          </Link>
-        )}
-        
         <Link
           to="/how-it-works"
-          className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
           onClick={onClose}
         >
           Comment ça marche
         </Link>
-        
+        <Link
+          to="/pricing"
+          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+          onClick={onClose}
+        >
+          Tarifs
+        </Link>
         <Link
           to="/contact"
-          className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+          className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
           onClick={onClose}
         >
           Contact
         </Link>
       </div>
-      
-      <div className="pt-4 pb-3 border-t border-gray-200">
-        {user ? (
-          <div className="space-y-1">
+
+      {user && (
+        <Fragment>
+          <div className="px-2 pt-2 pb-3 space-y-1 border-b">
             <Link
               to="/dashboard"
-              className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={onClose}
             >
               Tableau de bord
             </Link>
             <Link
+              to="/marketplace"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+              onClick={onClose}
+            >
+              <div className="flex items-center">
+                {userType === 'transporter' ? (
+                  <>
+                    <Package className="h-4 w-4 mr-2" style={{ color: iconColor }} />
+                    <Badge variant="outline" className={badgeClass}>
+                      {t("marketplace.transporter")}
+                    </Badge>
+                  </>
+                ) : (
+                  <>
+                    <Truck className="h-4 w-4 mr-2" style={{ color: iconColor }} />
+                    <Badge variant="outline" className={badgeClass}>
+                      {t("marketplace.shipper")}
+                    </Badge>
+                  </>
+                )}
+              </div>
+            </Link>
+            {userType !== 'transporter' && (
+              <Link
+                to="/new-freight"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                onClick={onClose}
+              >
+                Publier une marchandise
+              </Link>
+            )}
+            {userType === 'transporter' && (
+              <Link
+                to="/vehicle-selection"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+                onClick={onClose}
+              >
+                Gérer mes véhicules
+              </Link>
+            )}
+          </div>
+          <div className="px-2 pt-2 pb-3 space-y-1 border-b">
+            <Link
               to="/profile"
-              className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
               onClick={onClose}
             >
               Mon profil
             </Link>
-            <button
-              className="w-full text-left block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              onClick={handleSignOut}
+            <Link
+              to="/history"
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+              onClick={onClose}
             >
-              Déconnexion
+              Historique
+            </Link>
+            <button
+              className="flex w-full items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" /> Se déconnecter
             </button>
           </div>
-        ) : (
-          <div className="space-y-1">
-            <Link
-              to="/login"
-              className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              onClick={onClose}
-            >
-              Connexion
-            </Link>
-            <Link
-              to="/register"
-              className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-              onClick={onClose}
-            >
-              Inscription
-            </Link>
-          </div>
-        )}
+        </Fragment>
+      )}
+      
+      <div className="px-5 py-4 flex items-center justify-between">
+        <span className="text-sm text-gray-500">Langue:</span>
+        <LanguageSelector />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Truck, Package } from "lucide-react";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
+import { LanguageSelector } from "@/components/navigation/LanguageSelector";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,7 +54,10 @@ const Navbar = () => {
                 </Link>
               )}
             </div>
-            <AuthButtons />
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <AuthButtons />
+            </div>
             <div className="-mr-2 flex items-center sm:hidden">
               <NavbarToggleButton isOpen={isMenuOpen} onClick={toggleMenu} />
             </div>
