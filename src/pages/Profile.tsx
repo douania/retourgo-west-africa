@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Truck } from "lucide-react";
 
 interface ProfileData {
   id: string;
@@ -100,6 +101,10 @@ const Profile = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const navigateToVehicleRegistration = () => {
+    navigate("/vehicle-selection");
   };
 
   if (!profileData) {
@@ -204,6 +209,26 @@ const Profile = () => {
             </div>
           </form>
         </Card>
+
+        {profileData.user_type === "transporter" && (
+          <Card className="p-6 bg-white shadow-md mt-6">
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center space-x-2">
+                <Truck className="h-5 w-5 text-retourgo-orange" />
+                <h2 className="text-xl font-semibold text-gray-900">Gestion des véhicules</h2>
+              </div>
+              <p className="text-gray-600">
+                En tant que transporteur, vous pouvez enregistrer vos véhicules pour proposer vos services.
+              </p>
+              <Button 
+                onClick={navigateToVehicleRegistration}
+                className="bg-retourgo-orange hover:bg-retourgo-orange/90 w-full sm:w-auto"
+              >
+                <Truck className="mr-2 h-5 w-5" /> Ajouter un véhicule
+              </Button>
+            </div>
+          </Card>
+        )}
       </div>
     </div>
   );

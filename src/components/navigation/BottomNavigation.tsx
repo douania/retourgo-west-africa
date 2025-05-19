@@ -36,13 +36,13 @@ const BottomNavigation = () => {
       
       {userType === 'transporter' ? (
         <Link 
-          to="/new-freight" 
+          to="/vehicles" 
           className="flex flex-col items-center justify-center w-1/5 py-1"
         >
           <div className="bg-gradient-to-r from-transporter to-transporter-light rounded-full p-3 -mt-8 shadow-lg">
             <Truck className="h-6 w-6 text-white" />
           </div>
-          <span className="text-xs mt-1 text-gray-600">Transport</span>
+          <span className="text-xs mt-1 text-gray-600">Véhicules</span>
         </Link>
       ) : (
         <Link 

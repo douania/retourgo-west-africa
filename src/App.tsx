@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -42,6 +42,8 @@ function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/vehicle-selection" element={<VehicleTypeSelection />} />
           <Route path="/vehicle-registration" element={<VehicleRegistration />} />
+          <Route path="/vehicles" element={<Navigate to="/vehicle-selection" replace />} />
+          <Route path="/vehicles/new" element={<VehicleRegistration />} />
           <Route path="/history" element={<History />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
