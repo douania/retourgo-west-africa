@@ -3,6 +3,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import DocumentScanner from "@/components/form/DocumentScanner";
+import { VerificationStatus } from "@/types/supabase-extensions";
 
 export interface CompanyInfoFormData {
   company_name: string;
@@ -13,7 +14,8 @@ export interface CompanyInfoFormData {
   logistics_contact_phone: string;
   transport_license?: string;
   recurrent_locations?: string;
-  verification_status?: 'pending' | 'verified' | 'rejected' | null;
+  verification_status?: VerificationStatus;
+  isTransporter?: boolean; // Added to support the update function
 }
 
 interface CompanyInfoFormProps {

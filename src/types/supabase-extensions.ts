@@ -50,3 +50,15 @@ export type ExtendedDatabase = Database & {
 export type UserDocumentsRow = ExtendedDatabase["public"]["Tables"]["user_documents"]["Row"];
 export type UserDocumentsInsert = ExtendedDatabase["public"]["Tables"]["user_documents"]["Insert"];
 export type UserDocumentsUpdate = ExtendedDatabase["public"]["Tables"]["user_documents"]["Update"];
+
+// Helper function to create a typed supabase client
+export const createTypedSupabaseClient = (supabaseClient: any) => {
+  return supabaseClient as unknown as ReturnType<typeof supabaseClient> & {
+    from<T extends keyof ExtendedDatabase["public"]["Tables"]>(
+      table: T
+    ): ReturnType<typeof supabaseClient.from>;
+  };
+};
+
+// Define verification status type to ensure consistency
+export type VerificationStatus = 'pending' | 'verified' | 'rejected' | 'unverified' | null;

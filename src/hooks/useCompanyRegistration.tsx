@@ -1,196 +1,78 @@
-import { useState, useEffect } from "react";
+
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { CompanyInfoFormData } from "@/components/registration/CompanyInfoForm";
-import { ExtendedDatabase } from "@/types/supabase-extensions";
-
-// Create a typed client for the extended database
-const typedSupabase = supabase as unknown as ReturnType<typeof supabase> & {
-  from<T extends keyof ExtendedDatabase["public"]["Tables"]>(
-    table: T
-  ): ReturnType<typeof supabase.from>;
-};
+import { useCompanyRegistrationState } from "@/hooks/useCompanyRegistrationState";
+import { fetchDocumentImage, useDocumentUploader } from "@/services/DocumentService";
+import { checkUserProfile, updateCompanyProfile } from "@/services/CompanyRegistrationService";
 
 export const useCompanyRegistration = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { uploadDocument } = useDocumentUploader();
   
   // Get user type from navigation state
   const userTypeFromState = (location.state as { userType?: string })?.userType;
-  const [isTransporter, setIsTransporter] = useState(
-    userTypeFromState === "company_transporter"
-  );
   
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfoFormData>({
-    company_name: "",
-    ninea: "",
-    rc: "",
-    address: "",
-    logistics_contact_name: "",
-    logistics_contact_phone: "",
-    transport_license: "",
-    recurrent_locations: "",
-    verification_status: null
+  const {
+    companyInfo,
+    setCompanyInfo,
+    isTransporter,
+    updateUserType,
+    isSubmitting,
+    setIsSubmitting,
+    step,
+    businessDocFile,
+    businessDocImage,
+    handleInputChange,
+    handleDocumentCapture,
+    handleDocumentRemove,
+    nextStep,
+    prevStep
+  } = useCompanyRegistrationState({
+    initialUserType: userTypeFromState
   });
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [step, setStep] = useState(1);
-  const [businessDocFile, setBusinessDocFile] = useState<File | null>(null);
-  const [businessDocImage, setBusinessDocImage] = useState<string | null>(null);
 
   // Check profile type on component mount
   useEffect(() => {
     if (user) {
-      checkUserProfile();
-    }
-  }, [user]);
-
-  const checkUserProfile = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('user_type, first_name, verification_status')
-        .eq('id', user.id)
-        .single();
+      const loadUserProfile = async () => {
+        // Get profile data from database
+        const profileData = await checkUserProfile(user.id);
         
-      if (error) throw error;
-      
-      if (data) {
-        const userType = data.user_type;
-        // If user type is not defined by navigation, use the one from database
-        if (!userTypeFromState) {
-          setIsTransporter(userType === "company_transporter");
+        // If user type is not defined by navigation, use from database
+        if (!userTypeFromState && profileData.userType) {
+          updateUserType(profileData.userType === "company_transporter");
         }
         
         // Pre-fill company name if available
-        if (data.first_name) {
+        if (profileData.companyName || profileData.verificationStatus) {
           setCompanyInfo(prev => ({
             ...prev,
-            company_name: data.first_name,
-            verification_status: data.verification_status
+            company_name: profileData.companyName || prev.company_name,
+            verification_status: profileData.verificationStatus
           }));
         }
         
-        // Récupérer l'image du document d'entreprise si elle existe
-        fetchBusinessDocImage(user.id);
-      }
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-    }
-  };
-  
-  const fetchBusinessDocImage = async (userId: string) => {
-    try {
-      // Using typedSupabase to access the user_documents table
-      const { data: documentData, error: documentError } = await typedSupabase
-        .from('user_documents')
-        .select('document_url')
-        .eq('user_id', userId)
-        .eq('document_type', 'business_registration')
-        .single();
-        
-      if (documentError && documentError.code !== 'PGRST116') {
-        console.error("Error fetching document:", documentError);
-        return;
-      }
-      
-      if (documentData?.document_url) {
-        // Récupérer l'URL signée pour afficher l'image
-        const { data: storageData } = await supabase.storage
-          .from('user_documents')
-          .createSignedUrl(documentData.document_url, 3600);
-          
-        if (storageData?.signedUrl) {
-          setBusinessDocImage(storageData.signedUrl);
+        // Fetch the business document image if it exists
+        const docImageUrl = await fetchDocumentImage(user.id, 'business_registration');
+        if (docImageUrl) {
+          handleDocumentCapture(
+            // This is a temporary file object just to maintain the state structure
+            // The actual file isn't needed since we have the image URL
+            new File([], "existing-document.png", { type: "image/png" })
+          );
+          // Override the image URL from the blob with the fetched URL
+          document.getElementById('business-doc-preview')?.setAttribute('src', docImageUrl);
         }
-      }
-    } catch (error) {
-      console.error("Error fetching business document image:", error);
+      };
+      
+      loadUserProfile();
     }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCompanyInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleDocumentCapture = (file: File, extractedData?: any) => {
-    const imageUrl = URL.createObjectURL(file);
-    setBusinessDocImage(imageUrl);
-    setBusinessDocFile(file);
-
-    if (extractedData) {
-      // Si des données sont extraites automatiquement, pré-remplir le formulaire
-      setCompanyInfo(prev => ({
-        ...prev,
-        company_name: extractedData.company_name || prev.company_name,
-        ninea: extractedData.ninea || prev.ninea,
-        rc: extractedData.rc || prev.rc
-      }));
-    }
-  };
-
-  const handleDocumentRemove = () => {
-    setBusinessDocImage(null);
-    setBusinessDocFile(null);
-  };
-  
-  const uploadBusinessDoc = async (userId: string, file: File): Promise<string | null> => {
-    if (!file) return null;
-    
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${userId}/business_doc_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
-      
-      const { error: uploadError } = await supabase.storage
-        .from('user_documents')
-        .upload(filePath, file);
-        
-      if (uploadError) throw uploadError;
-      
-      // Using typedSupabase to access the user_documents table
-      const { error: docError } = await typedSupabase
-        .from('user_documents')
-        .upsert({
-          user_id: userId,
-          document_type: 'business_registration',
-          document_url: filePath,
-          uploaded_at: new Date().toISOString(),
-          verification_status: 'pending'
-        }, {
-          onConflict: 'user_id, document_type'
-        });
-        
-      if (docError) throw docError;
-      
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ verification_status: 'pending' })
-        .eq('id', userId);
-        
-      if (profileError) throw profileError;
-      
-      return filePath;
-    } catch (error) {
-      console.error("Error uploading business document:", error);
-      toast({
-        title: "Erreur d'upload",
-        description: "Une erreur est survenue lors de l'envoi de votre document.",
-        variant: "destructive"
-      });
-      return null;
-    }
-  };
+  }, [user, userTypeFromState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,22 +94,15 @@ export const useCompanyRegistration = () => {
       if (user) {
         // Upload business document if available
         if (businessDocFile) {
-          await uploadBusinessDoc(user.id, businessDocFile);
+          await uploadDocument(user.id, businessDocFile, 'business_registration');
         }
         
-        const { error } = await supabase
-          .from('profiles')
-          .update({
-            first_name: companyInfo.company_name, // Store company name in first_name
-            last_name: `NINEA: ${companyInfo.ninea}, RC: ${companyInfo.rc}`, // Store NINEA and RC in last_name
-            phone: companyInfo.logistics_contact_phone, // Logistics contact phone
-            return_origin: companyInfo.address, // Company address in return_origin
-            return_destination: companyInfo.recurrent_locations || null, // Recurring locations in return_destination
-            user_type: isTransporter ? "company_transporter" : "company_shipper"
-          })
-          .eq('id', user.id);
-          
-        if (error) throw error;
+        const result = await updateCompanyProfile(user.id, {
+          ...companyInfo,
+          isTransporter
+        });
+        
+        if (!result.success) throw result.error;
       }
       
       toast({
@@ -251,14 +126,6 @@ export const useCompanyRegistration = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
-  
-  const nextStep = () => {
-    setStep(step + 1);
-  };
-  
-  const prevStep = () => {
-    setStep(step - 1);
   };
 
   return {
