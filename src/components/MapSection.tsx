@@ -1,27 +1,45 @@
 
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
+import MapboxMap, { MapMarker } from "@/components/map/MapboxMap";
 
 const MapSection = () => {
   // Simulating freight data points
-  const freightPoints = [
-    { id: 1, left: '20%', top: '40%', type: 'Textile', weight: '500kg' },
-    { id: 2, left: '45%', top: '30%', type: 'Électronique', weight: '200kg' },
-    { id: 3, left: '65%', top: '60%', type: 'Alimentaire', weight: '1000kg' },
-    { id: 4, left: '30%', top: '70%', type: 'Construction', weight: '2000kg' },
-    { id: 5, left: '75%', top: '35%', type: 'Médical', weight: '100kg' },
+  const freightMarkers: MapMarker[] = [
+    { id: '1', position: { lat: 14.7167, lng: -17.4677 }, type: 'freight', label: 'Textile, 500kg' },
+    { id: '2', position: { lat: 14.6937, lng: -17.4441 }, type: 'freight', label: 'Électronique, 200kg' },
+    { id: '3', position: { lat: 14.7337, lng: -17.4877 }, type: 'freight', label: 'Alimentaire, 1000kg' },
+    { id: '4', position: { lat: 14.6967, lng: -17.4877 }, type: 'freight', label: 'Construction, 2000kg' },
+    { id: '5', position: { lat: 14.7397, lng: -17.4341 }, type: 'freight', label: 'Médical, 100kg' },
   ];
 
-  const transportPoints = [
-    { id: 1, left: '25%', top: '45%', type: 'Camion', capacity: '3T' },
-    { id: 2, left: '55%', top: '25%', type: '4x4', capacity: '1T' },
-    { id: 3, left: '70%', top: '55%', type: 'Camionnette', capacity: '1.5T' },
+  const transportMarkers: MapMarker[] = [
+    { id: '6', position: { lat: 14.7267, lng: -17.4577 }, type: 'vehicle', label: 'Camion, 3T' },
+    { id: '7', position: { lat: 14.6837, lng: -17.4541 }, type: 'vehicle', label: '4x4, 1T' },
+    { id: '8', position: { lat: 14.7437, lng: -17.4777 }, type: 'vehicle', label: 'Camionnette, 1.5T' },
   ];
 
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const handleItemClick = (item) => {
-    setSelectedItem(item);
+  const handleMarkerClick = (marker: MapMarker) => {
+    // Construire les données de l'élément sélectionné
+    if (marker.type === 'freight') {
+      const freightIndex = parseInt(marker.id) - 1;
+      setSelectedItem({
+        itemType: 'freight',
+        type: ['Textile', 'Électronique', 'Alimentaire', 'Construction', 'Médical'][freightIndex % 5],
+        weight: ['500kg', '200kg', '1000kg', '2000kg', '100kg'][freightIndex % 5],
+        ...marker
+      });
+    } else {
+      const transportIndex = parseInt(marker.id) - 6;
+      setSelectedItem({
+        itemType: 'transport',
+        type: ['Camion', '4x4', 'Camionnette'][transportIndex % 3],
+        capacity: ['3T', '1T', '1.5T'][transportIndex % 3],
+        ...marker
+      });
+    }
   };
 
   return (
@@ -37,56 +55,19 @@ const MapSection = () => {
           </p>
         </div>
 
-        <div className="relative h-[500px] bg-gray-100 rounded-xl overflow-hidden shadow-lg border border-gray-200">
-          {/* Map background image - This would be a real map in production */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center" 
-            style={{ 
-              backgroundImage: "url('https://i.imgur.com/tye2P2x.png')", 
-              opacity: 0.8
-            }}
-          ></div>
-          
-          {/* Country borders overlay */}
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
-            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <path 
-                d="M20,20 L30,15 L40,25 L50,20 L60,30 L70,25 L80,40 L70,50 L80,60 L70,70 L60,65 L50,75 L40,65 L30,70 L20,60 Z" 
-                fill="none" 
-                stroke="#000" 
-                strokeWidth="0.5"
-              />
-              <path 
-                d="M30,30 L40,35 L50,30 L60,40 L50,50 L60,60 L50,65 L40,55 Z" 
-                fill="none" 
-                stroke="#000" 
-                strokeWidth="0.5"
-              />
-            </svg>
-          </div>
-          
-          {/* Freight points */}
-          {freightPoints.map((point) => (
-            <div
-              key={`freight-${point.id}`}
-              className="absolute w-5 h-5 bg-retourgo-orange rounded-full shadow-lg cursor-pointer map-point"
-              style={{ left: point.left, top: point.top }}
-              onClick={() => handleItemClick({ ...point, itemType: 'freight' })}
-            ></div>
-          ))}
-          
-          {/* Transport points */}
-          {transportPoints.map((point) => (
-            <div
-              key={`transport-${point.id}`}
-              className="absolute w-5 h-5 bg-retourgo-green rounded-full shadow-lg cursor-pointer map-point"
-              style={{ left: point.left, top: point.top }}
-              onClick={() => handleItemClick({ ...point, itemType: 'transport' })}
-            ></div>
-          ))}
+        <div className="relative h-[500px] rounded-xl overflow-hidden shadow-lg border border-gray-200">
+          <MapboxMap 
+            height="h-[500px]"
+            initialPosition={{ lat: 14.7167, lng: -17.4677 }} // Dakar
+            zoom={14}
+            markers={[...freightMarkers, ...transportMarkers]}
+            onMarkerClick={handleMarkerClick}
+            showCurrentLocation={true}
+            title="Carte des frets et transporteurs"
+          />
           
           {/* Map legend */}
-          <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md">
+          <div className="absolute bottom-4 right-4 bg-white p-3 rounded-md shadow-md z-10">
             <div className="flex items-center mb-2">
               <div className="w-3 h-3 bg-retourgo-orange rounded-full mr-2"></div>
               <span className="text-xs text-gray-700">Fret disponible</span>
