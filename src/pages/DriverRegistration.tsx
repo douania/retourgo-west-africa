@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import DocumentScanner from "@/components/form/DocumentScanner";
 import DriverInfoForm from "@/components/driver/DriverInfoForm";
-import { User, FileDriverLicense, FileCardId } from "lucide-react";
+import { User, FileText, IdCard } from "lucide-react";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 
 interface DriverInfo {
