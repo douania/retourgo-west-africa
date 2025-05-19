@@ -30,7 +30,14 @@ export interface IdCardData {
   address: string;
 }
 
-export type DocumentData = VehicleRegistrationData | DriverLicenseData | IdCardData | null;
+export interface BusinessRegistrationData {
+  company_name: string;
+  ninea: string;
+  rc: string;
+  address: string;
+}
+
+export type DocumentData = VehicleRegistrationData | DriverLicenseData | IdCardData | BusinessRegistrationData | null;
 
 /**
  * Extrait les données à partir d'une image de document
@@ -78,6 +85,13 @@ export const extractDocumentData = async (file: File, documentType: DocumentType
         expiry_date: "01/02/2029",
         nationality: "Française",
         address: "1 rue de Paris, 75001 Paris"
+      };
+    } else if (documentType === "other") {
+      return {
+        company_name: "RetourGo Logistics",
+        ninea: "SN-DKR-2023-12345",
+        rc: "RC-DKR-2023-54321",
+        address: "Avenue Senghor, Dakar"
       };
     }
     

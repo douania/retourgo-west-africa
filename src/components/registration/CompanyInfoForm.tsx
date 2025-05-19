@@ -2,6 +2,7 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import DocumentScanner from "@/components/form/DocumentScanner";
 
 export interface CompanyInfoFormData {
   company_name: string;
@@ -12,6 +13,7 @@ export interface CompanyInfoFormData {
   logistics_contact_phone: string;
   transport_license?: string;
   recurrent_locations?: string;
+  verification_status?: 'pending' | 'verified' | 'rejected' | null;
 }
 
 interface CompanyInfoFormProps {
@@ -19,18 +21,37 @@ interface CompanyInfoFormProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   step: number;
   isTransporter: boolean;
+  businessDocImage?: string | null;
+  onDocumentCapture?: (file: File, extractedData?: any) => void;
+  onDocumentRemove?: () => void;
 }
 
 const CompanyInfoForm = ({
   companyInfo,
   onInputChange,
   step,
-  isTransporter
+  isTransporter,
+  businessDocImage,
+  onDocumentCapture,
+  onDocumentRemove
 }: CompanyInfoFormProps) => {
   return (
     <>
       {step === 1 && (
         <div className="space-y-6">
+          {onDocumentCapture && onDocumentRemove && (
+            <DocumentScanner
+              documentType="other"
+              title="Document d'immatriculation d'entreprise"
+              description="Téléchargez votre NINEA ou Registre de Commerce"
+              onDocumentCaptured={onDocumentCapture}
+              previewUrl={businessDocImage}
+              onDocumentRemove={onDocumentRemove}
+              showBothSides={false}
+              verificationStatus={companyInfo.verification_status}
+            />
+          )}
+          
           <div className="space-y-2">
             <Label htmlFor="company_name">Raison sociale*</Label>
             <Input
@@ -86,6 +107,17 @@ const CompanyInfoForm = ({
                 value={companyInfo.transport_license}
                 onChange={onInputChange}
               />
+            </div>
+          )}
+          
+          {companyInfo.verification_status === 'rejected' && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm mt-2">
+              Votre document d'entreprise a été rejeté. Veuillez télécharger un nouveau document valide pour continuer.
+            </div>
+          )}
+          {companyInfo.verification_status === 'pending' && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700 text-sm mt-2">
+              Votre document est en cours de vérification. Certaines fonctionnalités seront limitées jusqu'à la validation.
             </div>
           )}
         </div>

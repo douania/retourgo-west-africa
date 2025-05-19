@@ -12,7 +12,10 @@ const CompanyRegistration = () => {
     isTransporter,
     isSubmitting,
     step,
+    businessDocImage,
     handleInputChange,
+    handleDocumentCapture,
+    handleDocumentRemove,
     handleSubmit,
     nextStep,
     prevStep
@@ -48,6 +51,9 @@ const CompanyRegistration = () => {
         onInputChange={handleInputChange}
         step={step}
         isTransporter={isTransporter}
+        businessDocImage={businessDocImage}
+        onDocumentCapture={handleDocumentCapture}
+        onDocumentRemove={handleDocumentRemove}
       />
     </RegistrationLayout>
   );

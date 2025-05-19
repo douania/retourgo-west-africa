@@ -12,6 +12,7 @@ import {
 } from "@/utils/document-utils";
 import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface DocumentScannerProps {
   onDocumentCaptured: (file: File, extractedData?: any) => void;
@@ -21,6 +22,7 @@ interface DocumentScannerProps {
   previewUrl?: string | null;
   onDocumentRemove?: () => void;
   showBothSides?: boolean;
+  verificationStatus?: 'pending' | 'verified' | 'rejected' | null;
 }
 
 const DocumentScanner = ({
@@ -30,7 +32,8 @@ const DocumentScanner = ({
   description,
   previewUrl,
   onDocumentRemove,
-  showBothSides = true
+  showBothSides = true,
+  verificationStatus
 }: DocumentScannerProps) => {
   const { isProcessing, processDocument, currentSide, resetCapture } = useDocumentProcessor({
     documentType,
@@ -53,10 +56,26 @@ const DocumentScanner = ({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <FileType className="h-5 w-5 text-retourgo-orange" />
-          {documentTitle}{getSideLabel()}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <FileType className="h-5 w-5 text-retourgo-orange" />
+            {documentTitle}{getSideLabel()}
+          </CardTitle>
+          
+          {verificationStatus && (
+            <Badge 
+              variant={
+                verificationStatus === 'verified' ? 'success' : 
+                verificationStatus === 'rejected' ? 'destructive' : 
+                'outline'
+              }
+            >
+              {verificationStatus === 'verified' ? 'Vérifié' : 
+               verificationStatus === 'rejected' ? 'Rejeté' : 
+               'En attente'}
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {isProcessing ? (

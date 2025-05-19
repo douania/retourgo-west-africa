@@ -11,6 +11,7 @@ export interface PersonalInfoFormData {
   phone: string;
   email: string;
   preferred_origin?: string;
+  verification_status?: 'pending' | 'verified' | 'rejected' | null;
 }
 
 interface PersonalInfoFormProps {
@@ -42,6 +43,7 @@ const PersonalInfoForm = ({
             previewUrl={idCardImage}
             onDocumentRemove={onIdCardRemove}
             showBothSides={true}
+            verificationStatus={personalInfo.verification_status}
           />
           
           <div className="space-y-2">
@@ -65,6 +67,17 @@ const PersonalInfoForm = ({
               required
             />
           </div>
+          
+          {personalInfo.verification_status === 'rejected' && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm mt-2">
+              Votre document a été rejeté. Veuillez télécharger un nouveau document valide pour continuer.
+            </div>
+          )}
+          {personalInfo.verification_status === 'pending' && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700 text-sm mt-2">
+              Votre document est en cours de vérification. Certaines fonctionnalités seront limitées jusqu'à la validation.
+            </div>
+          )}
         </div>
       )}
       

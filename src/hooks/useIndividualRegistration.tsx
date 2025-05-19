@@ -24,12 +24,14 @@ export const useIndividualRegistration = () => {
     address: "",
     phone: "",
     email: "",
-    preferred_origin: ""
+    preferred_origin: "",
+    verification_status: null
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
   const [idCardImage, setIdCardImage] = useState<string | null>(null);
+  const [idCardFile, setIdCardFile] = useState<File | null>(null);
 
   // Check profile type on component mount
   useEffect(() => {
@@ -44,7 +46,7 @@ export const useIndividualRegistration = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_type, first_name, last_name, phone')
+        .select('user_type, first_name, last_name, phone, verification_status')
         .eq('id', user.id)
         .single();
         
@@ -62,11 +64,45 @@ export const useIndividualRegistration = () => {
           ...prev,
           full_name: `${data.first_name || ""} ${data.last_name || ""}`.trim(),
           phone: data.phone || "",
-          email: user.email || ""
+          email: user.email || "",
+          verification_status: data.verification_status || null
         }));
+        
+        // Récupérer l'image d'identité si elle existe
+        fetchIdCardImage(user.id);
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
+    }
+  };
+  
+  const fetchIdCardImage = async (userId: string) => {
+    try {
+      const { data: documentData, error: documentError } = await supabase
+        .from('user_documents')
+        .select('document_url')
+        .eq('user_id', userId)
+        .eq('document_type', 'id_card')
+        .single();
+        
+      if (documentError && documentError.code !== 'PGRST116') {
+        // PGRST116 signifie qu'aucun document n'a été trouvé, ce n'est pas une erreur
+        console.error("Error fetching document:", documentError);
+        return;
+      }
+      
+      if (documentData?.document_url) {
+        // Récupérer l'URL signée pour afficher l'image
+        const { data: storageData } = await supabase.storage
+          .from('user_documents')
+          .createSignedUrl(documentData.document_url, 3600);
+          
+        if (storageData?.signedUrl) {
+          setIdCardImage(storageData.signedUrl);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching ID card image:", error);
     }
   };
 
@@ -82,6 +118,7 @@ export const useIndividualRegistration = () => {
   const handleIdCardCapture = (file: File, extractedData?: any) => {
     const imageUrl = URL.createObjectURL(file);
     setIdCardImage(imageUrl);
+    setIdCardFile(file);
 
     if (extractedData) {
       setPersonalInfo(prev => ({
@@ -94,6 +131,58 @@ export const useIndividualRegistration = () => {
 
   const handleRemoveIdCard = () => {
     setIdCardImage(null);
+    setIdCardFile(null);
+  };
+  
+  const uploadIdCard = async (userId: string, file: File): Promise<string | null> => {
+    if (!file) return null;
+    
+    try {
+      // Créer un nom de fichier unique avec l'extension
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}/id_card_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+      
+      // Upload du fichier vers Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('user_documents')
+        .upload(filePath, file);
+        
+      if (uploadError) throw uploadError;
+      
+      // Enregistrer la référence du document dans la base de données
+      const { error: docError } = await supabase
+        .from('user_documents')
+        .upsert({
+          user_id: userId,
+          document_type: 'id_card',
+          document_url: filePath,
+          uploaded_at: new Date().toISOString(),
+          verification_status: 'pending'
+        }, {
+          onConflict: 'user_id, document_type'
+        });
+        
+      if (docError) throw docError;
+      
+      // Mettre à jour le statut de vérification du profil
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ verification_status: 'pending' })
+        .eq('id', userId);
+        
+      if (profileError) throw profileError;
+      
+      return filePath;
+    } catch (error) {
+      console.error("Error uploading ID card:", error);
+      toast({
+        title: "Erreur d'upload",
+        description: "Une erreur est survenue lors de l'envoi de votre document.",
+        variant: "destructive"
+      });
+      return null;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,6 +203,11 @@ export const useIndividualRegistration = () => {
     try {
       // Update profile with personal info
       if (user) {
+        // Upload ID card if available
+        if (idCardFile) {
+          await uploadIdCard(user.id, idCardFile);
+        }
+        
         // Split full name into first and last name
         const nameParts = personalInfo.full_name.split(" ");
         const firstName = nameParts[0] || "";
@@ -135,7 +229,7 @@ export const useIndividualRegistration = () => {
       
       toast({
         title: "Informations enregistrées",
-        description: "Vos informations personnelles ont été enregistrées avec succès.",
+        description: "Vos informations personnelles ont été enregistrées avec succès. Votre document sera vérifié par notre équipe.",
       });
       
       // Navigate to next step based on user type
