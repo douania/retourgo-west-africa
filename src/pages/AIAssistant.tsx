@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CheckCircle2 } from "lucide-react";
 
 const AIAssistant = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   
   return (
     <div className="min-h-screen bg-background">
@@ -23,10 +23,15 @@ const AIAssistant = () => {
         
         <Alert className="mb-6 border-green-500 bg-green-50">
           <CheckCircle2 className="h-4 w-4 text-green-500" />
-          <AlertTitle className="text-green-700">Fonctionnalités IA activées</AlertTitle>
+          <AlertTitle className="text-green-700">
+            {language === 'en' ? 'AI features enabled' : 
+             language === 'wo' ? 'Jumtukaay AI jàpp na' : 
+             'Fonctionnalités IA activées'}
+          </AlertTitle>
           <AlertDescription className="text-green-600">
-            Les fonctionnalités d'IA sont maintenant pleinement opérationnelles. 
-            N'hésitez pas à les utiliser pour optimiser vos opérations de transport.
+            {language === 'en' ? 'AI features are now fully operational. Feel free to use them to optimize your transport operations.' : 
+             language === 'wo' ? 'Jumtukaay yi AI dëpp na. Bul tiit di leen jëfandikoo ngir xelal say transport.' : 
+             'Les fonctionnalités d\'IA sont maintenant pleinement opérationnelles. N\'hésitez pas à les utiliser pour optimiser vos opérations de transport.'}
           </AlertDescription>
         </Alert>
         

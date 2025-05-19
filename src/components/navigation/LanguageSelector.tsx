@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
+import { toast } from "@/components/ui/use-toast";
 
 export type Language = "fr" | "en" | "wo";
 
@@ -27,12 +29,24 @@ export const languages: LanguageOption[] = [
 
 export function LanguageSelector() {
   const [language, setLanguage] = useLocalStorage<Language>("language", "fr");
+  const { t } = useTranslation();
 
   const currentLanguage = languages.find(lang => lang.code === language) || languages[0];
 
   const handleLanguageChange = (newLanguage: Language) => {
+    if (newLanguage === language) return;
+    
     setLanguage(newLanguage);
-    window.location.reload(); // Recharger la page pour appliquer la nouvelle langue
+    toast({
+      title: t("language.change"),
+      description: `${currentLanguage.nativeName} → ${languages.find(l => l.code === newLanguage)?.nativeName}`,
+      duration: 2000,
+    });
+    
+    // Utilisation de setTimeout pour s'assurer que le changement est enregistré avant le rechargement
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   return (
@@ -49,6 +63,7 @@ export function LanguageSelector() {
             key={lang.code}
             onClick={() => handleLanguageChange(lang.code)}
             className={cn(
+              "cursor-pointer",
               language === lang.code && "font-bold bg-accent"
             )}
           >
