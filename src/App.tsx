@@ -21,6 +21,9 @@ import VehicleTypeSelection from "./pages/VehicleTypeSelection";
 import VehicleRegistration from "./pages/VehicleRegistration";
 import DriverRegistration from "./pages/DriverRegistration";
 import History from "./pages/History";
+import UserTypeSelection from "./pages/UserTypeSelection";
+import CompanyRegistration from "./pages/CompanyRegistration";
+import IndividualRegistration from "./pages/IndividualRegistration";
 
 // App component
 function App() {
@@ -31,6 +34,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/user-type-selection" element={<UserTypeSelection />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profiles" element={<Profile />} />
@@ -48,6 +52,8 @@ function App() {
           <Route path="/vehicles/new" element={<VehicleRegistration />} />
           <Route path="/drivers/new" element={<DriverRegistration />} />
           <Route path="/history" element={<History />} />
+          <Route path="/company-registration" element={<CompanyRegistration />} />
+          <Route path="/individual-registration" element={<IndividualRegistration />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

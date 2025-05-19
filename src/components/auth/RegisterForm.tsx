@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ const RegisterForm = ({ preselectedUserType }: RegisterFormProps) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [isCompany, setIsCompany] = useState(false);
   const { signUp, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -30,6 +33,16 @@ const RegisterForm = ({ preselectedUserType }: RegisterFormProps) => {
   useEffect(() => {
     if (preselectedUserType) {
       setUserType(preselectedUserType);
+    }
+  }, [preselectedUserType]);
+
+  // Determine if the user is a company based on userType
+  useEffect(() => {
+    if (preselectedUserType) {
+      setIsCompany(
+        preselectedUserType === "company_transporter" || 
+        preselectedUserType === "company_shipper"
+      );
     }
   }, [preselectedUserType]);
 
@@ -51,10 +64,16 @@ const RegisterForm = ({ preselectedUserType }: RegisterFormProps) => {
         lastName,
         phone,
         userType,
+        companyName: isCompany ? companyName : null,
+        isCompany
       });
       
-      // Navigate to login page after successful registration
-      navigate("/login");
+      // Navigate to the appropriate next step
+      if (userType === "transporter") {
+        navigate("/vehicle-selection");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
       console.error("Registration error:", error);
     }
@@ -62,6 +81,22 @@ const RegisterForm = ({ preselectedUserType }: RegisterFormProps) => {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
+      {isCompany && (
+        <div>
+          <Label htmlFor="company-name">Raison sociale</Label>
+          <div className="mt-1">
+            <Input
+              id="company-name"
+              name="company-name"
+              type="text"
+              required={isCompany}
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
           <Label htmlFor="first-name">Prénom</Label>

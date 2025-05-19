@@ -23,9 +23,10 @@ const UserTypeSelect = ({ value, onChange }: UserTypeSelectProps) => {
             <SelectValue placeholder="Sélectionnez votre profil" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="transporter">Transporteur</SelectItem>
-            <SelectItem value="shipper">Expéditeur</SelectItem>
-            <SelectItem value="individual">Particulier</SelectItem>
+            <SelectItem value="individual_transporter">Particulier - Transporteur</SelectItem>
+            <SelectItem value="individual_shipper">Particulier - Expéditeur</SelectItem>
+            <SelectItem value="company_transporter">Société de transport</SelectItem>
+            <SelectItem value="company_shipper">Société expéditrice</SelectItem>
           </SelectContent>
         </Select>
       </div>
