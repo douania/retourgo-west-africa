@@ -7,6 +7,8 @@ import PriceEstimator from "@/components/ai/PriceEstimator";
 import DocumentScanner from "@/components/ai/DocumentScanner";
 import DemandPredictor from "@/components/ai/DemandPredictor";
 import { useTranslation } from "@/hooks/useTranslation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 const AIAssistant = () => {
   const { t } = useTranslation();
@@ -18,6 +20,15 @@ const AIAssistant = () => {
         <h1 className="text-3xl font-bold text-center mb-8">
           {t("ai.title")}
         </h1>
+        
+        <Alert variant="warning" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Fonctionnalités en mode démo</AlertTitle>
+          <AlertDescription>
+            Les fonctionnalités d'IA sont actuellement en mode démo et peuvent ne pas répondre correctement en raison de limites d'API. 
+            Nous travaillons à l'intégration d'alternatives gratuites pour améliorer la fiabilité.
+          </AlertDescription>
+        </Alert>
         
         <div className="max-w-4xl mx-auto">
           <Tabs defaultValue="assistant" className="w-full">
