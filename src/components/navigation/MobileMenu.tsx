@@ -1,6 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserTheme } from "@/hooks/useUserTheme";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface MobileMenuProps {
 
 const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
   const { user, signOut } = useAuth();
+  const { userType } = useUserTheme();
 
   const handleSignOut = () => {
     signOut();
@@ -27,13 +29,33 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
         >
           Accueil
         </Link>
+        
         <Link
           to="/marketplace"
           className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
           onClick={onClose}
         >
-          Frets
+          {userType === 'transporter' ? 'Marchandises' : 'Transporteurs'}
         </Link>
+        
+        {userType === 'transporter' ? (
+          <Link
+            to="/vehicles"
+            className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            onClick={onClose}
+          >
+            Mes véhicules
+          </Link>
+        ) : (
+          <Link
+            to="/new-freight"
+            className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+            onClick={onClose}
+          >
+            Publier une marchandise
+          </Link>
+        )}
+        
         <Link
           to="/how-it-works"
           className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -41,13 +63,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
         >
           Comment ça marche
         </Link>
-        <Link
-          to="/pricing"
-          className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
-          onClick={onClose}
-        >
-          Tarifs
-        </Link>
+        
         <Link
           to="/contact"
           className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -56,6 +72,7 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
           Contact
         </Link>
       </div>
+      
       <div className="pt-4 pb-3 border-t border-gray-200">
         {user ? (
           <div className="space-y-1">
@@ -65,6 +82,13 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
               onClick={onClose}
             >
               Tableau de bord
+            </Link>
+            <Link
+              to="/profile"
+              className="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+              onClick={onClose}
+            >
+              Mon profil
             </Link>
             <button
               className="w-full text-left block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700"

@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { MapPin, TruckIcon, Search, Filter } from "lucide-react";
+import { MapPin, TruckIcon, Search, Filter, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import Navbar from "@/components/Navbar";
@@ -15,30 +15,28 @@ import Navbar from "@/components/Navbar";
 const FreightMarketplace = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isTransporter, setIsTransporter] = useState(false);
   const [showReturnOnly, setShowReturnOnly] = useState(false);
   const [showNearbyOnly, setShowNearbyOnly] = useState(false);
   const [hasReturnRoute, setHasReturnRoute] = useState(false);
-  const { themeClass, primaryColor, switchClass } = useUserTheme();
+  const { themeClass, primaryColor, switchClass, userType } = useUserTheme();
   
   useEffect(() => {
     if (!user) return;
 
-    const fetchUserType = async () => {
+    const fetchUserProfile = async () => {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('user_type, return_destination')
+          .select('return_destination')
           .eq('id', user.id)
           .single();
 
         if (error) {
-          console.error('Erreur lors de la récupération du type d\'utilisateur:', error);
+          console.error('Erreur lors de la récupération des données de profil:', error);
           return;
         }
 
         if (data) {
-          setIsTransporter(data.user_type === 'transporter');
           setHasReturnRoute(!!data.return_destination);
         }
       } catch (err) {
@@ -46,7 +44,7 @@ const FreightMarketplace = () => {
       }
     };
 
-    fetchUserType();
+    fetchUserProfile();
   }, [user]);
 
   return (
@@ -57,25 +55,37 @@ const FreightMarketplace = () => {
           <div className="flex items-center justify-between mb-8">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Search className="h-8 w-8" style={{ color: primaryColor }} />
-                Place de marché <span style={{ color: primaryColor }}>RetourGo</span>
+                {userType === 'transporter' ? (
+                  <>
+                    <Search className="h-8 w-8" style={{ color: primaryColor }} />
+                    Marchandises disponibles
+                  </>
+                ) : (
+                  <>
+                    <TruckIcon className="h-8 w-8" style={{ color: primaryColor }} />
+                    Transporteurs disponibles
+                  </>
+                )}
+                <span style={{ color: primaryColor }}> RetourGo</span>
               </h1>
               <p className="mt-2 text-gray-600">
-                Trouvez des marchandises disponibles et optimisez vos trajets retour
+                {userType === 'transporter' 
+                  ? "Trouvez des marchandises disponibles et optimisez vos trajets retour" 
+                  : "Trouvez des transporteurs fiables pour vos marchandises"}
               </p>
             </div>
             
-            {user && (
+            {user && userType !== 'transporter' && (
               <Button 
                 onClick={() => navigate("/new-freight")}
-                className={isTransporter ? "transporter-accent" : "shipper-accent"}
+                className="shipper-accent"
               >
                 Publier une marchandise
               </Button>
             )}
           </div>
 
-          {isTransporter && (
+          {userType === 'transporter' && (
             <Card className="mb-6 shadow-md border">
               <CardContent className="pt-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
@@ -131,7 +141,7 @@ const FreightMarketplace = () => {
           <FreightList 
             showNearbyOnly={showNearbyOnly}
             showReturnOnly={showReturnOnly}
-            showReturnPricing={true}
+            showReturnPricing={userType === 'transporter'}
           />
         </div>
       </div>

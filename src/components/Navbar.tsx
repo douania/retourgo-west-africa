@@ -8,14 +8,14 @@ import MobileMenu from "@/components/navigation/MobileMenu";
 import NavbarToggleButton from "@/components/navigation/NavbarToggleButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
-import { Truck } from "lucide-react";
+import { Truck, Package } from "lucide-react";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
-  const { badgeClass, iconColor } = useUserTheme();
+  const { badgeClass, iconColor, userType } = useUserTheme();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -35,10 +35,21 @@ const Navbar = () => {
             <div className="hidden sm:flex sm:items-center">
               {user && (
                 <Link to="/marketplace" className="flex items-center gap-2 mr-4">
-                  <Truck className="h-4 w-4" style={{ color: iconColor }} />
-                  <Badge variant="outline" className={`${badgeClass} animate-pulse-light`}>
-                    Marchandises à proximité
-                  </Badge>
+                  {userType === 'transporter' ? (
+                    <>
+                      <Package className="h-4 w-4" style={{ color: iconColor }} />
+                      <Badge variant="outline" className={`${badgeClass} animate-pulse-light`}>
+                        Marchandises à proximité
+                      </Badge>
+                    </>
+                  ) : (
+                    <>
+                      <Truck className="h-4 w-4" style={{ color: iconColor }} />
+                      <Badge variant="outline" className={`${badgeClass} animate-pulse-light`}>
+                        Transporteurs disponibles
+                      </Badge>
+                    </>
+                  )}
                 </Link>
               )}
             </div>
@@ -52,7 +63,6 @@ const Navbar = () => {
         <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       </nav>
       
-      {/* Ajouter la navigation du bas en style Wave/Orange Money sur mobile */}
       {user && <BottomNavigation />}
     </>
   );
