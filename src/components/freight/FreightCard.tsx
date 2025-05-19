@@ -51,7 +51,7 @@ const FreightCard = ({
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl font-bold text-gray-800">{freight.title}</CardTitle>
           <Badge variant={freight.status === "available" ? "success" : "secondary"}>
-            {freight.status === "available" ? "Disponible" : "Attribué"}
+            {freight.status === "available" ? "Disponible" : "Attribuée"}
           </Badge>
         </div>
       </CardHeader>

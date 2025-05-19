@@ -139,7 +139,7 @@ const FreightDetails = () => {
 
         toast({
           title: "Offre envoyée",
-          description: "Votre offre a été envoyée au propriétaire du fret",
+          description: "Votre offre a été envoyée au propriétaire de la marchandise",
         });
 
         setUserOffer(data);
@@ -174,8 +174,8 @@ const FreightDetails = () => {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Fret non trouvé</h1>
-          <p className="mt-2 text-gray-600">Ce fret n'existe pas ou a été supprimé</p>
+          <h1 className="text-2xl font-bold text-gray-900">Marchandise non trouvée</h1>
+          <p className="mt-2 text-gray-600">Cette marchandise n'existe pas ou a été supprimée</p>
           <Button 
             onClick={() => navigate("/marketplace")}
             className="mt-6 bg-retourgo-orange hover:bg-retourgo-orange/90"

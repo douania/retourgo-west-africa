@@ -26,14 +26,14 @@ export const FreightDetailsCard = ({ freight, shipper }: FreightDetailsCardProps
             </p>
           </div>
           <Badge variant={freight.status === "available" ? "success" : "secondary"}>
-            {freight.status === "available" ? "Disponible" : "Attribué"}
+            {freight.status === "available" ? "Disponible" : "Attribuée"}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">Détails du fret</h3>
+            <h3 className="text-lg font-semibold mb-4">Détails de la marchandise</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-retourgo-orange mt-0.5" />

@@ -21,7 +21,7 @@ export const FreightOfferHeader = ({ freight }: FreightOfferHeaderProps) => {
             </p>
           </div>
           <Badge variant={freight.status === "available" ? "success" : "secondary"}>
-            {freight.status === "available" ? "Disponible" : "Attribué"}
+            {freight.status === "available" ? "Disponible" : "Attribuée"}
           </Badge>
         </div>
       </CardHeader>

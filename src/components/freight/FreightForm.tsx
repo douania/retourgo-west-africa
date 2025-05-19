@@ -66,9 +66,9 @@ const FreightForm = () => {
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Publier un nouveau fret</CardTitle>
+        <CardTitle>Publier une nouvelle marchandise</CardTitle>
         <CardDescription>
-          Remplissez les détails de votre fret pour le publier sur RetourGo
+          Remplissez les détails de votre marchandise pour la publier sur RetourGo
         </CardDescription>
       </CardHeader>
       
@@ -115,7 +115,7 @@ const FreightForm = () => {
             className="bg-retourgo-orange hover:bg-retourgo-orange/90"
             disabled={isSubmitting || !!pricingError}
           >
-            {isSubmitting ? "Publication en cours..." : "Publier le fret"}
+            {isSubmitting ? "Publication en cours..." : "Publier la marchandise"}
           </Button>
         </CardFooter>
       </form>

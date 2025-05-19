@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,7 +90,7 @@ const FreightList = ({
 
         if (error) throw error;
         
-        // Filtrer les frets selon les critères
+        // Filtrer les marchandises selon les critères
         let filteredFreights = data as Freight[];
         
         // Appliquer la réduction pour le retour à vide si demandé
@@ -117,7 +118,7 @@ const FreightList = ({
         setFreights(filteredFreights);
       } catch (error: any) {
         toast({
-          title: "Erreur lors du chargement des frets",
+          title: "Erreur lors du chargement des marchandises",
           description: error.message,
           variant: "destructive",
         });
@@ -157,7 +158,7 @@ const FreightList = ({
       setFreights(data as Freight[]);
     } catch (error: any) {
       toast({
-        title: "Erreur lors du chargement des frets",
+        title: "Erreur lors du chargement des marchandises",
         description: error.message,
         variant: "destructive",
       });
@@ -171,7 +172,7 @@ const FreightList = ({
       <div className="flex gap-2">
         <div className="relative flex-grow">
           <Input
-            placeholder="Rechercher un fret par titre ou ville..."
+            placeholder="Rechercher une marchandise par titre ou ville..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pr-10"
@@ -199,8 +200,8 @@ const FreightList = ({
         <>
           {freights.length === 0 ? (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold text-gray-700">Aucun fret disponible</h3>
-              <p className="text-gray-500 mt-2">Aucun fret ne correspond à votre recherche ou il n'y a pas de frets disponibles actuellement.</p>
+              <h3 className="text-xl font-semibold text-gray-700">Aucune marchandise disponible</h3>
+              <p className="text-gray-500 mt-2">Aucune marchandise ne correspond à votre recherche ou il n'y a pas de marchandises disponibles actuellement.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

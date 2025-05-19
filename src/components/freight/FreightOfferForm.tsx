@@ -66,7 +66,7 @@ export const FreightOfferForm = ({
           </Button>
           {userOffer && (
             <p className="text-sm text-gray-500 text-center">
-              Vous avez déjà fait une offre de {userOffer.price_offered} FCFA pour ce fret.
+              Vous avez déjà fait une offre de {userOffer.price_offered} FCFA pour cette marchandise.
               {userOffer.status !== 'pending' && ` (Statut: ${userOffer.status === 'accepted' ? 'Acceptée' : 'Refusée'})`}
             </p>
           )}
