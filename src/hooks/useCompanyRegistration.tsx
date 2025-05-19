@@ -1,10 +1,17 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { CompanyInfoFormData } from "@/components/registration/CompanyInfoForm";
+import { ExtendedDatabase } from "@/types/supabase-extensions";
+
+// Create a typed client for the extended database
+const typedSupabase = supabase as unknown as ReturnType<typeof supabase> & {
+  from<T extends keyof ExtendedDatabase["public"]["Tables"]>(
+    table: T
+  ): ReturnType<typeof supabase.from>;
+};
 
 export const useCompanyRegistration = () => {
   const { user } = useAuth();
@@ -80,7 +87,8 @@ export const useCompanyRegistration = () => {
   
   const fetchBusinessDocImage = async (userId: string) => {
     try {
-      const { data: documentData, error: documentError } = await supabase
+      // Using typedSupabase to access the user_documents table
+      const { data: documentData, error: documentError } = await typedSupabase
         .from('user_documents')
         .select('document_url')
         .eq('user_id', userId)
@@ -150,7 +158,8 @@ export const useCompanyRegistration = () => {
         
       if (uploadError) throw uploadError;
       
-      const { error: docError } = await supabase
+      // Using typedSupabase to access the user_documents table
+      const { error: docError } = await typedSupabase
         .from('user_documents')
         .upsert({
           user_id: userId,

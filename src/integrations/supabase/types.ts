@@ -74,6 +74,7 @@ export type Database = {
           return_origin: string | null
           updated_at: string | null
           user_type: string
+          verification_status: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -91,6 +92,7 @@ export type Database = {
           return_origin?: string | null
           updated_at?: string | null
           user_type: string
+          verification_status?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -108,6 +110,7 @@ export type Database = {
           return_origin?: string | null
           updated_at?: string | null
           user_type?: string
+          verification_status?: string | null
         }
         Relationships: []
       }
@@ -148,6 +151,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_documents: {
+        Row: {
+          document_type: string
+          document_url: string
+          id: string
+          uploaded_at: string
+          user_id: string
+          verification_status: string | null
+        }
+        Insert: {
+          document_type: string
+          document_url: string
+          id?: string
+          uploaded_at?: string
+          user_id: string
+          verification_status?: string | null
+        }
+        Update: {
+          document_type?: string
+          document_url?: string
+          id?: string
+          uploaded_at?: string
+          user_id?: string
+          verification_status?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

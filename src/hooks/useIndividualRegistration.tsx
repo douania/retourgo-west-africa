@@ -5,6 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { PersonalInfoFormData } from "@/components/registration/PersonalInfoForm";
+import { ExtendedDatabase } from "@/types/supabase-extensions";
+
+// Create a typed client for the extended database
+const typedSupabase = supabase as unknown as ReturnType<typeof supabase> & {
+  from<T extends keyof ExtendedDatabase["public"]["Tables"]>(
+    table: T
+  ): ReturnType<typeof supabase.from>;
+};
 
 export const useIndividualRegistration = () => {
   const { user } = useAuth();
@@ -78,7 +86,8 @@ export const useIndividualRegistration = () => {
   
   const fetchIdCardImage = async (userId: string) => {
     try {
-      const { data: documentData, error: documentError } = await supabase
+      // Using typedSupabase to access the user_documents table
+      const { data: documentData, error: documentError } = await typedSupabase
         .from('user_documents')
         .select('document_url')
         .eq('user_id', userId)
@@ -150,8 +159,8 @@ export const useIndividualRegistration = () => {
         
       if (uploadError) throw uploadError;
       
-      // Enregistrer la référence du document dans la base de données
-      const { error: docError } = await supabase
+      // Using typedSupabase to access the user_documents table
+      const { error: docError } = await typedSupabase
         .from('user_documents')
         .upsert({
           user_id: userId,
