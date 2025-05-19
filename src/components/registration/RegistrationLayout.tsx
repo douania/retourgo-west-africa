@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
-import RegistrationProgress from "./RegistrationProgress";
+import RegistrationProgress, { RegistrationStep } from "./RegistrationProgress";
 import { LucideIcon } from "lucide-react";
 
 interface RegistrationLayoutProps {
@@ -12,6 +12,7 @@ interface RegistrationLayoutProps {
   children: ReactNode;
   currentStep: number;
   totalSteps: number;
+  steps?: RegistrationStep[];
   onNext?: () => void;
   onPrevious?: () => void;
   onSubmit?: (e: React.FormEvent) => void;
@@ -26,6 +27,7 @@ const RegistrationLayout = ({
   children,
   currentStep,
   totalSteps,
+  steps,
   onNext,
   onPrevious,
   onSubmit,
@@ -46,7 +48,11 @@ const RegistrationLayout = ({
               Étape {currentStep}/{totalSteps} - {description || "Informations personnelles"}
             </CardDescription>
             
-            <RegistrationProgress currentStep={currentStep} totalSteps={totalSteps} />
+            <RegistrationProgress 
+              currentStep={currentStep} 
+              totalSteps={totalSteps}
+              steps={steps}
+            />
           </CardHeader>
           
           <form onSubmit={onSubmit}>

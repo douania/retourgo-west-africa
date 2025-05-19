@@ -4,6 +4,7 @@ import { User } from "lucide-react";
 import PersonalInfoForm from "@/components/registration/PersonalInfoForm";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { useIndividualRegistration } from "@/hooks/useIndividualRegistration";
+import { RegistrationStep } from "@/components/registration/RegistrationProgress";
 
 const IndividualRegistration = () => {
   const {
@@ -20,12 +21,24 @@ const IndividualRegistration = () => {
     prevStep
   } = useIndividualRegistration();
 
+  const registrationSteps: RegistrationStep[] = [
+    {
+      id: 1,
+      name: "Identité"
+    },
+    {
+      id: 2,
+      name: "Coordonnées"
+    }
+  ];
+
   return (
     <RegistrationLayout
       title="Complétez votre profil"
       description="Informations personnelles"
       currentStep={step}
       totalSteps={2}
+      steps={registrationSteps}
       onNext={nextStep}
       onPrevious={prevStep}
       onSubmit={handleSubmit}
