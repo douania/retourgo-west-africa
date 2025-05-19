@@ -1,1 +1,39 @@
+
 project_id = "hgfhmmseeqybpwjpgcqx"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+
+[db]
+port = 54322
+
+[studio]
+port = 54323
+
+[inbucket]
+port = 54324
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+
+[realtime]
+enabled = true
+
+[functions]
+port = 9000
+protocol = "https"
+
+[functions.ai-assistant]
+
+[functions.route-optimization]
+
+[functions.price-estimation]
+
+[functions.document-recognition]
+
+[functions.demand-prediction]

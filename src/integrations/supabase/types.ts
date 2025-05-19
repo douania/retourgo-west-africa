@@ -9,6 +9,166 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_price_estimations: {
+        Row: {
+          created_at: string
+          destination: string
+          distance: number
+          estimated_price: number
+          factors_considered: Json
+          freight_id: string | null
+          id: string
+          origin: string
+          vehicle_type: string
+          volume: number | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          distance: number
+          estimated_price: number
+          factors_considered: Json
+          freight_id?: string | null
+          id?: string
+          origin: string
+          vehicle_type: string
+          volume?: number | null
+          weight: number
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          distance?: number
+          estimated_price?: number
+          factors_considered?: Json
+          freight_id?: string | null
+          id?: string
+          origin?: string
+          vehicle_type?: string
+          volume?: number | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_price_estimations_freight_id_fkey"
+            columns: ["freight_id"]
+            isOneToOne: false
+            referencedRelation: "freights"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demand_predictions: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          id: string
+          predicted_demand: number
+          prediction_date: string
+          region: string
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string
+          id?: string
+          predicted_demand: number
+          prediction_date: string
+          region: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          id?: string
+          predicted_demand?: number
+          prediction_date?: string
+          region?: string
+        }
+        Relationships: []
+      }
+      document_recognitions: {
+        Row: {
+          confidence_score: number
+          created_at: string
+          document_type: string
+          document_url: string
+          extracted_data: Json
+          id: string
+          user_id: string
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string
+          document_type: string
+          document_url: string
+          extracted_data: Json
+          id?: string
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string
+          document_type?: string
+          document_url?: string
+          extracted_data?: Json
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       freights: {
         Row: {
           created_at: string
@@ -111,6 +271,39 @@ export type Database = {
           updated_at?: string | null
           user_type?: string
           verification_status?: string | null
+        }
+        Relationships: []
+      }
+      route_optimizations: {
+        Row: {
+          created_at: string
+          destination: string
+          distance: number
+          estimated_duration: number
+          id: string
+          origin: string
+          suggested_route: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          distance: number
+          estimated_duration: number
+          id?: string
+          origin: string
+          suggested_route: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          distance?: number
+          estimated_duration?: number
+          id?: string
+          origin?: string
+          suggested_route?: Json
+          user_id?: string
         }
         Relationships: []
       }

@@ -58,6 +58,15 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
         >
           {t("nav.contact")}
         </Link>
+        {user && (
+          <Link
+            to="/ai"
+            className="block px-3 py-2 rounded-md text-base font-medium text-retourgo-orange hover:bg-gray-50"
+            onClick={onClose}
+          >
+            {t("nav.ai_tools")}
+          </Link>
+        )}
       </div>
 
       {user && (

@@ -24,6 +24,7 @@ import History from "./pages/History";
 import UserTypeSelection from "./pages/UserTypeSelection";
 import CompanyRegistration from "./pages/CompanyRegistration";
 import IndividualRegistration from "./pages/IndividualRegistration";
+import AIAssistant from "./pages/AIAssistant";
 
 // App component
 function App() {
@@ -54,6 +55,7 @@ function App() {
           <Route path="/history" element={<History />} />
           <Route path="/company-registration" element={<CompanyRegistration />} />
           <Route path="/individual-registration" element={<IndividualRegistration />} />
+          <Route path="/ai" element={<AIAssistant />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
