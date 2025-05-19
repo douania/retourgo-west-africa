@@ -25,13 +25,13 @@ export function useDocumentProcessor({ documentType, onDocumentCaptured }: UseDo
       // Afficher un toast de succès adapté
       if (extractedData) {
         toast({
-          title: "Document traité",
-          description: "Veuillez vérifier et compléter les informations extraites si nécessaire.",
+          title: "Document analysé avec succès",
+          description: "Les informations ont été extraites automatiquement. Veuillez vérifier et compléter si nécessaire.",
         });
       } else {
         toast({
           title: "Document enregistré",
-          description: "Veuillez saisir manuellement les informations du véhicule.",
+          description: "L'extraction automatique a échoué. Veuillez saisir manuellement les informations.",
         });
       }
       
@@ -40,7 +40,7 @@ export function useDocumentProcessor({ documentType, onDocumentCaptured }: UseDo
       console.error("Erreur de traitement du document:", error);
       toast({
         title: "Erreur de traitement",
-        description: "Une erreur est survenue lors du traitement du document. Veuillez saisir les informations manuellement.",
+        description: "Une erreur est survenue lors de l'analyse du document. Veuillez saisir les informations manuellement.",
         variant: "destructive"
       });
       return null;

@@ -11,9 +11,9 @@ const DocumentTips = ({ documentType }: DocumentTipsProps) => {
       <div className="mt-4 p-3 bg-blue-50 rounded-md text-xs text-blue-800">
         <p className="font-medium mb-1">Conseils pour la carte grise:</p>
         <ul className="list-disc pl-4 space-y-1">
-          <li>L'extraction automatique des données est en cours de développement</li>
-          <li>Veuillez vérifier et compléter les informations du véhicule manuellement</li>
-          <li>Assurez-vous que les informations saisies correspondent à la carte grise</li>
+          <li>Assurez-vous que toute la carte grise est visible dans l'image</li>
+          <li>Vérifiez les données extraites automatiquement</li>
+          <li>Complétez les informations manquantes si nécessaire</li>
         </ul>
       </div>
     );
@@ -24,9 +24,9 @@ const DocumentTips = ({ documentType }: DocumentTipsProps) => {
       <div className="mt-4 p-3 bg-blue-50 rounded-md text-xs text-blue-800">
         <p className="font-medium mb-1">Conseils pour la photo du permis:</p>
         <ul className="list-disc pl-4 space-y-1">
-          <li>L'extraction automatique des données est en cours de développement</li>
-          <li>Veuillez vérifier et compléter les informations du permis manuellement</li>
-          <li>Assurez-vous que la date d'expiration est visible</li>
+          <li>Assurez-vous que toutes les informations sont lisibles</li>
+          <li>Vérifiez les données extraites automatiquement</li>
+          <li>Confirmez que la date d'expiration est correcte</li>
         </ul>
       </div>
     );

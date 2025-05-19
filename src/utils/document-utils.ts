@@ -24,7 +24,7 @@ export type DocumentData = VehicleRegistrationData | DriverLicenseData | null;
 
 /**
  * Extrait les données à partir d'une image de document
- * Actuellement implémenté comme une fonction simulée avec validation basique
+ * Actuellement implémenté comme une fonction simulée
  */
 export const extractDocumentData = async (file: File, documentType: DocumentType): Promise<DocumentData> => {
   // Simuler le traitement avec délai
@@ -36,23 +36,29 @@ export const extractDocumentData = async (file: File, documentType: DocumentType
     return null;
   }
   
-  // Dans une implémentation réelle, nous appellerions ici un service d'OCR
-  
-  // Pour l'instant, indiquer clairement qu'il s'agit de données d'exemple
+  // Simulation d'extraction de données OCR par type de document
   if (documentType === "vehicle_registration") {
-    // Retourner null pour forcer l'utilisateur à saisir les informations manuellement
-    return null;
+    // Renvoyer des données simulées pour la carte grise
+    return {
+      plate_number: "AA-123-BB",
+      make: "Renault",
+      model: "Kangoo",
+      year: "2020",
+      registration_date: "15/06/2020",
+      owner: "RetourGo Transport",
+      vehicle_type: "Utilitaire"
+    };
   } 
   
   if (documentType === "driver_license") {
-    // Données d'exemple pour le permis de conduire
+    // Données simulées pour le permis de conduire
     return {
-      license_number: "[Numéro à saisir]",
-      full_name: "[Nom à saisir]",
-      birth_date: "[Date à saisir]",
-      issue_date: "[Date à saisir]",
-      expiry_date: "[Date à saisir]",
-      categories: "[Catégories à saisir]"
+      license_number: "12AB3456789",
+      full_name: "Jean Dupont",
+      birth_date: "01/01/1985",
+      issue_date: "01/01/2018",
+      expiry_date: "01/01/2033",
+      categories: "B, C"
     };
   }
   

@@ -45,7 +45,7 @@ const VehicleRegistration = () => {
         model: extractedData.model || "",
         year: extractedData.year || "",
         type: extractedData.vehicle_type || "",
-        capacity: ""
+        capacity: ""  // La capacité doit toujours être saisie manuellement
       });
     }
     // Sinon, garder les données actuelles du formulaire pour que l'utilisateur les complète manuellement
