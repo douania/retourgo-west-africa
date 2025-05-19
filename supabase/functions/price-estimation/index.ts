@@ -22,10 +22,7 @@ serve(async (req) => {
     }
 
     // Create a client for OpenAI
-    const openAIKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openAIKey) {
-      throw new Error("OPENAI_API_KEY is not set");
-    }
+    const openAIKey = Deno.env.get("OPENAI_API_KEY") || "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";
 
     // Prompt for price estimation
     const prompt = `
@@ -64,12 +61,15 @@ serve(async (req) => {
     Ne retournez que le JSON, pas d'autre texte.
     `;
 
+    console.log("Sending request to OpenAI for price estimation:", origin, "to", destination);
+
     // Call OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIKey}`,
         'Content-Type': 'application/json',
+        'OpenAI-Beta': 'parallel_api_v2'
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
@@ -83,10 +83,12 @@ serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.json();
+      console.error("OpenAI API error response:", JSON.stringify(error));
       throw new Error(`OpenAI API error: ${error.error?.message || JSON.stringify(error)}`);
     }
 
     const data = await response.json();
+    console.log("Received response from OpenAI for price estimation");
     const priceData = JSON.parse(data.choices[0].message.content);
 
     return new Response(

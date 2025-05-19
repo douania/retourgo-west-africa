@@ -25,7 +25,7 @@ serve(async (req) => {
       throw new Error('User ID is required');
     }
 
-    // Create a client for OpenAI - Using the API key provided by the user
+    // Create a client for OpenAI - Using the API key 
     const openAIKey = Deno.env.get("OPENAI_API_KEY") || "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";
     
     // System message to provide context about RetourGO
@@ -44,6 +44,8 @@ serve(async (req) => {
       ...messages
     ];
 
+    console.log("Sending request to OpenAI with messages:", JSON.stringify(fullMessages));
+
     // Call OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -60,10 +62,12 @@ serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.json();
+      console.error("OpenAI API error response:", JSON.stringify(error));
       throw new Error(`OpenAI API error: ${error.error?.message || JSON.stringify(error)}`);
     }
 
     const data = await response.json();
+    console.log("Received response from OpenAI:", JSON.stringify(data));
     const assistantMessage = data.choices[0].message;
 
     return new Response(

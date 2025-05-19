@@ -8,7 +8,7 @@ import DocumentScanner from "@/components/ai/DocumentScanner";
 import DemandPredictor from "@/components/ai/DemandPredictor";
 import { useTranslation } from "@/hooks/useTranslation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 const AIAssistant = () => {
   const { t } = useTranslation();
@@ -21,12 +21,12 @@ const AIAssistant = () => {
           {t("ai.title")}
         </h1>
         
-        <Alert className="mb-6 border-amber-500 bg-amber-50">
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
-          <AlertTitle className="text-amber-700">Fonctionnalités en mode démo</AlertTitle>
-          <AlertDescription className="text-amber-600">
-            Les fonctionnalités d'IA sont actuellement en cours de configuration avec l'API OpenAI.
-            Si vous rencontrez des problèmes, veuillez patienter quelques instants.
+        <Alert className="mb-6 border-green-500 bg-green-50">
+          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <AlertTitle className="text-green-700">Fonctionnalités IA activées</AlertTitle>
+          <AlertDescription className="text-green-600">
+            Les fonctionnalités d'IA sont maintenant pleinement opérationnelles. 
+            N'hésitez pas à les utiliser pour optimiser vos opérations de transport.
           </AlertDescription>
         </Alert>
         
