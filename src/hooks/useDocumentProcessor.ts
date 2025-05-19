@@ -16,13 +16,13 @@ export function useDocumentProcessor({ documentType, onDocumentCaptured }: UseDo
     setIsProcessing(true);
     
     try {
-      // Extraire les données du document en utilisant notre fonction utilitaire
+      // Extraire les données du document en utilisant notre fonction utilitaire OCR
       const extractedData = await extractDocumentData(file, documentType);
       
       // Passer le fichier et les données extraites au composant parent
       onDocumentCaptured(file, extractedData);
       
-      // Afficher un toast de succès adapté
+      // Afficher un toast adapté au résultat de l'extraction
       if (extractedData) {
         toast({
           title: "Document analysé avec succès",
@@ -31,7 +31,8 @@ export function useDocumentProcessor({ documentType, onDocumentCaptured }: UseDo
       } else {
         toast({
           title: "Document enregistré",
-          description: "L'extraction automatique a échoué. Veuillez saisir manuellement les informations.",
+          description: "L'extraction automatique n'est pas disponible. Veuillez saisir manuellement les informations.",
+          variant: "default"
         });
       }
       
