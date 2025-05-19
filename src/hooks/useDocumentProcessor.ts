@@ -16,24 +16,31 @@ export function useDocumentProcessor({ documentType, onDocumentCaptured }: UseDo
     setIsProcessing(true);
     
     try {
-      // Extract document data using our utility function
+      // Extraire les données du document en utilisant notre fonction utilitaire
       const extractedData = await extractDocumentData(file, documentType);
       
-      // Pass the file and extracted data to the parent component
+      // Passer le fichier et les données extraites au composant parent
       onDocumentCaptured(file, extractedData);
       
-      // Show success toast
-      toast({
-        title: "Document traité",
-        description: extractedData ? "Les informations ont été extraites avec succès." : "Le document a été enregistré.",
-      });
+      // Afficher un toast de succès adapté
+      if (extractedData) {
+        toast({
+          title: "Document traité",
+          description: "Veuillez vérifier et compléter les informations extraites si nécessaire.",
+        });
+      } else {
+        toast({
+          title: "Document enregistré",
+          description: "Veuillez saisir manuellement les informations du véhicule.",
+        });
+      }
       
       return extractedData;
     } catch (error) {
-      console.error("Error processing document:", error);
+      console.error("Erreur de traitement du document:", error);
       toast({
         title: "Erreur de traitement",
-        description: "Une erreur est survenue lors du traitement du document.",
+        description: "Une erreur est survenue lors du traitement du document. Veuillez saisir les informations manuellement.",
         variant: "destructive"
       });
       return null;

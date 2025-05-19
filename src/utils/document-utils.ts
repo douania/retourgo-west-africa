@@ -23,33 +23,36 @@ export interface DriverLicenseData {
 export type DocumentData = VehicleRegistrationData | DriverLicenseData | null;
 
 /**
- * Simulates extracting data from a document image
- * In a real implementation, this would call an OCR service
+ * Extrait les données à partir d'une image de document
+ * Actuellement implémenté comme une fonction simulée avec validation basique
  */
 export const extractDocumentData = async (file: File, documentType: DocumentType): Promise<DocumentData> => {
-  // Simulate processing with timeout
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // Simuler le traitement avec délai
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  // Vérifier si le fichier est bien une image
+  if (!file.type.startsWith('image/')) {
+    console.error("Le fichier n'est pas une image");
+    return null;
+  }
   
+  // Dans une implémentation réelle, nous appellerions ici un service d'OCR
+  
+  // Pour l'instant, indiquer clairement qu'il s'agit de données d'exemple
   if (documentType === "vehicle_registration") {
-    return {
-      plate_number: "1234 ABC 75",
-      make: "TOYOTA",
-      model: "HILUX",
-      year: "2018",
-      registration_date: "15/06/2018",
-      owner: "NOM PRÉNOM",
-      vehicle_type: "PICKUP"
-    };
+    // Retourner null pour forcer l'utilisateur à saisir les informations manuellement
+    return null;
   } 
   
   if (documentType === "driver_license") {
+    // Données d'exemple pour le permis de conduire
     return {
-      license_number: "12345678",
-      full_name: "NOM PRÉNOM",
-      birth_date: "01/01/1980",
-      issue_date: "01/01/2020",
-      expiry_date: "01/01/2025",
-      categories: "B, C"
+      license_number: "[Numéro à saisir]",
+      full_name: "[Nom à saisir]",
+      birth_date: "[Date à saisir]",
+      issue_date: "[Date à saisir]",
+      expiry_date: "[Date à saisir]",
+      categories: "[Catégories à saisir]"
     };
   }
   
@@ -74,7 +77,7 @@ export const getDocumentDescription = (documentType: DocumentType, customDescrip
   
   switch (documentType) {
     case "vehicle_registration":
-      return "Prenez en photo la carte grise pour enregistrer automatiquement les informations du véhicule";
+      return "Prenez en photo la carte grise ou saisissez manuellement les informations du véhicule";
     case "driver_license":
       return "Prenez en photo votre permis de conduire pour valider votre compte transporteur";
     default:

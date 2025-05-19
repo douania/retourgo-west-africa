@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import RegistrationCard from "@/components/vehicle/RegistrationCard";
 import { registerVehicle } from "@/services/VehicleRegistrationService";
+import BottomNavigation from "@/components/navigation/BottomNavigation";
 
 interface VehicleInfo {
   plate_number: string;
@@ -32,11 +33,11 @@ const VehicleRegistration = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleDocumentCapture = (file: File, extractedData?: any) => {
-    // Create URL for image preview
+    // Créer URL pour la prévisualisation de l'image
     const imageUrl = URL.createObjectURL(file);
     setRegistrationImage(imageUrl);
     
-    // Update form with extracted data if available
+    // Mettre à jour le formulaire avec les données extraites si disponibles
     if (extractedData) {
       setVehicleInfo({
         plate_number: extractedData.plate_number || "",
@@ -47,6 +48,7 @@ const VehicleRegistration = () => {
         capacity: ""
       });
     }
+    // Sinon, garder les données actuelles du formulaire pour que l'utilisateur les complète manuellement
   };
 
   const handleRemoveDocument = () => {
@@ -63,6 +65,17 @@ const VehicleRegistration = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation basique
+    if (!vehicleInfo.plate_number || !vehicleInfo.make || !vehicleInfo.model || !vehicleInfo.type || !vehicleInfo.capacity) {
+      toast({
+        title: "Formulaire incomplet",
+        description: "Veuillez remplir tous les champs obligatoires.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -73,7 +86,7 @@ const VehicleRegistration = () => {
         description: `Le véhicule ${vehicleInfo.make} ${vehicleInfo.model} a été ajouté à votre flotte.`,
       });
       
-      // Navigate to vehicles list (or create it if it doesn't exist)
+      // Naviguer vers la liste des véhicules
       navigate("/profile");
     } catch (error) {
       console.error("Error registering vehicle:", error);
@@ -96,7 +109,7 @@ const VehicleRegistration = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-12 pb-20">
       <div className="container mx-auto px-4 max-w-3xl">
         <RegistrationCard 
           isSubmitting={isSubmitting}
@@ -108,6 +121,7 @@ const VehicleRegistration = () => {
           registrationImage={registrationImage}
         />
       </div>
+      <BottomNavigation />
     </div>
   );
 };
