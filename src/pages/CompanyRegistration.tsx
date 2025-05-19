@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -99,14 +98,12 @@ const CompanyRegistration = () => {
         const { error } = await supabase
           .from('profiles')
           .update({
-            company_name: companyInfo.company_name,
-            ninea: companyInfo.ninea,
-            rc: companyInfo.rc,
-            company_address: companyInfo.address,
-            logistics_contact: companyInfo.logistics_contact_name,
-            logistics_phone: companyInfo.logistics_contact_phone,
-            transport_license: companyInfo.transport_license,
-            recurrent_locations: companyInfo.recurrent_locations
+            first_name: companyInfo.company_name, // Stockons le nom de l'entreprise dans first_name
+            last_name: `NINEA: ${companyInfo.ninea}, RC: ${companyInfo.rc}`, // Stockons NINEA et RC dans last_name
+            phone: companyInfo.logistics_contact_phone, // Téléphone du contact logistique
+            return_origin: companyInfo.address, // Adresse du siège dans return_origin
+            return_destination: companyInfo.recurrent_locations || null, // Lieux récurrents dans return_destination
+            // Stockons les autres informations dans des métadonnées qui seront ajoutées plus tard
           })
           .eq('id', user.id);
           

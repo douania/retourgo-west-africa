@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -53,7 +52,7 @@ const IndividualRegistration = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_type, first_name, last_name, phone, email')
+        .select('user_type, first_name, last_name, phone')
         .eq('id', user.id)
         .single();
         
@@ -130,10 +129,8 @@ const IndividualRegistration = () => {
           .update({
             first_name: firstName,
             last_name: lastName,
-            id_number: personalInfo.id_number,
-            address: personalInfo.address,
             phone: personalInfo.phone,
-            return_origin: personalInfo.preferred_origin
+            return_origin: personalInfo.preferred_origin || null
           })
           .eq('id', user.id);
           
