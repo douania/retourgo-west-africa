@@ -53,23 +53,31 @@ export function ImageUpload({
     }
 
     setLocalFile(file);
+    console.log("File passed validation, calling onImageCapture");
     onImageCapture(file);
   };
 
   const handleStartCapture = () => {
+    console.log("Starting camera capture");
     setIsCapturing(true);
   };
 
   const handleCancelCapture = () => {
+    console.log("Cancelling camera capture");
     setIsCapturing(false);
   };
 
   const handleRemove = () => {
+    console.log("Removing image");
     if (onImageRemove) {
       onImageRemove();
     }
     setLocalFile(null);
   };
+
+  useEffect(() => {
+    console.log("ImageUpload previewUrl changed:", previewUrl);
+  }, [previewUrl]);
 
   return (
     <div className="w-full">

@@ -39,10 +39,10 @@ export function useDocumentProcessor({
 
   // Fonction pour gérer le téléchargement initial du document
   const handleFileUpload = (file: File) => {
+    console.log("File uploaded to useDocumentProcessor:", file.name);
     if (showBothSides && isShowingFront) {
       handleFrontFile(file);
       setCurrentFile(file);
-      return null;
     } else if (showBothSides && isShowingBack) {
       setCurrentFile(file);
       
@@ -51,8 +51,6 @@ export function useDocumentProcessor({
         description: "Cliquez sur 'Analyser' pour extraire les informations des deux faces du document.",
         variant: "default"
       });
-      
-      return null;
     } else {
       setCurrentFile(file);
       
@@ -61,13 +59,12 @@ export function useDocumentProcessor({
         description: "Cliquez sur 'Analyser' pour extraire les informations automatiquement.",
         variant: "default"
       });
-      
-      return null;
     }
   };
 
   // Fonction pour traiter le document via OCR
   const processDocument = async () => {
+    console.log("processDocument called, currentFile:", currentFile?.name || "null");
     if (!currentFile) {
       toast({
         title: "Aucun document",
@@ -87,8 +84,10 @@ export function useDocumentProcessor({
     }
 
     try {
+      console.log("Starting document processing...");
       if (showBothSides) {
         if (isShowingFront) {
+          console.log("Processing front side");
           // Traiter le recto
           const extractedData = await extractDocumentData(currentFile, documentType, user.id);
           
@@ -97,11 +96,13 @@ export function useDocumentProcessor({
           
           return extractedData;
         } else {
+          console.log("Processing back side");
           // Analyser le verso
           const extractedData = await extractDocumentData(currentFile, documentType, user.id);
           
           // Passer les deux fichiers + données extraites au composant parent
           if (frontFile) {
+            console.log("Calling onDocumentCaptured with front file and data");
             onDocumentCaptured(frontFile, extractedData);
           }
           
@@ -126,10 +127,12 @@ export function useDocumentProcessor({
           return extractedData;
         }
       } else {
+        console.log("Processing single-sided document");
         // Analyser un seul côté
         const extractedData = await extractDocumentData(currentFile, documentType, user.id);
         
         // Passer le fichier et les données extraites au composant parent
+        console.log("Calling onDocumentCaptured with file and data");
         onDocumentCaptured(currentFile, extractedData);
         
         // Réinitialiser le fichier courant

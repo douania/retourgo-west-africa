@@ -75,6 +75,12 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
     setLocalPreviewUrl(null);
   };
 
+  const handleProcessDocument = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("Analyze Document button clicked");
+    onProcessDocument();
+  };
+
   return (
     <>
       <ImageUpload
@@ -91,7 +97,7 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
           <Button 
             type="button" 
             className="w-full"
-            onClick={onProcessDocument}
+            onClick={handleProcessDocument}
           >
             <ScanSearch className="mr-2 h-4 w-4" />
             Analyser le document

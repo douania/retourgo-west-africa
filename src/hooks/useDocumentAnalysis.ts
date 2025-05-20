@@ -23,6 +23,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
    * @returns The extracted data or null if extraction failed
    */
   const extractDocumentData = async (file: File, docType: DocumentType, userId: string): Promise<any> => {
+    console.log("extractDocumentData called with:", file.name, docType, userId);
     if (!userId) {
       toast({
         title: "Utilisateur non identifié",
@@ -33,34 +34,39 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
     }
 
     setIsProcessing(true);
+    console.log("Started processing document");
 
     try {
       // Convert the file to Base64
+      console.log("Converting file to base64");
       const base64 = await fileToBase64(file);
       
       // Extract the Base64 content without the prefix
       const base64Content = extractBase64Content(base64);
 
-      console.log("Envoi du document pour analyse OCR...");
+      console.log("Sending document for OCR analysis to AI service");
 
       // Call the Edge Function Supabase via the AI service
       const result = await analyzeDocument(base64Content, docType, userId);
 
-      console.log('Document analysis result:', result);
+      console.log('Document analysis result received:', result);
       
       if (result && result.extractedData) {
+        console.log("Data successfully extracted:", result.extractedData);
         onSuccess?.(result.extractedData);
         return result.extractedData;
       }
       
+      console.log("No data could be extracted");
       return null;
     } catch (error) {
-      console.error("Erreur lors de l'extraction OCR:", error);
+      console.error("Error during OCR extraction:", error);
       if (error instanceof Error) {
         onError?.(error);
       }
       return null;
     } finally {
+      console.log("Document processing completed");
       setIsProcessing(false);
     }
   };
