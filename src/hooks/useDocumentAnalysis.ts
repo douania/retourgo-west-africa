@@ -56,7 +56,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       if (result && result.extractedData) {
         console.log("Data successfully extracted:", result.extractedData);
         
-        // Check if the data is coming from mock source
+        // Check if the data is coming from mock source, safely accessing the source property
         if (result.source && result.source.includes('mock')) {
           console.log("Warning: Using mock data instead of real OCR results");
           toast({

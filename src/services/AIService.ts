@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,6 +50,7 @@ export interface DocumentRecognitionResponse {
   extractedData: Record<string, any>;
   documentType: string;
   confidenceScore: number;
+  source?: string; // Adding the optional source property to fix the type error
 }
 
 export interface DemandPredictionResponse {
