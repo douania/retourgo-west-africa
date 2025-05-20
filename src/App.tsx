@@ -16,6 +16,7 @@ import CompanyRegistration from './pages/CompanyRegistration';
 import FreightMarketplace from './pages/FreightMarketplace';
 import VehicleTypeSelection from './pages/VehicleTypeSelection';
 import VehicleRegistration from './pages/VehicleRegistration';
+import VehicleNew from './pages/VehicleNew';
 import DriverRegistration from './pages/DriverRegistration';
 import Profiles from './pages/Profiles';
 import Profile from './pages/Profile';
@@ -54,6 +55,8 @@ function App() {
           {/* Add new redirect for /vehicle-selection to /vehicle-type */}
           <Route path="/vehicle-selection" element={<Navigate to="/vehicle-type" replace />} />
           <Route path="/vehicle-registration" element={<VehicleRegistration />} />
+          {/* Add new route for specific vehicle type registration */}
+          <Route path="/vehicles/new" element={<VehicleNew />} />
           <Route path="/driver-registration" element={<DriverRegistration />} />
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/profile/:id" element={<Profile />} />
