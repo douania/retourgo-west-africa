@@ -41,14 +41,16 @@ export async function analyzeDocument(
         documentType, 
         userId,
         options: {
-          preferredOcr: "googleVision", // Force using Google Vision API
-          tryAllOrientations: true,     // Try all possible orientations
-          enhanceImage: true,           // Request image enhancement if needed
-          documentCountry: "senegal",   // Specify the document's country
-          useHighResolution: true,      // Request high resolution processing
+          preferredOcr: "googleVision",     // Force using Google Vision API
+          tryAllOrientations: true,          // Try all possible orientations
+          enhanceImage: true,                // Request image enhancement if needed
+          documentCountry: "senegal",        // Specify the document's country
+          useHighResolution: true,           // Request high resolution processing
           detectFormats: ["TEXT_DETECTION", "DOCUMENT_TEXT_DETECTION"], // Use both detection types
-          debugMode: true,              // Enable additional debugging logs
-          requestId: requestTimestamp   // Help trace this specific request
+          debugMode: true,                   // Enable additional debugging logs
+          requestId: requestTimestamp,       // Help trace this specific request
+          rawTextOutput: true,               // Request full raw text in the response
+          showConfidenceScores: true         // Show confidence scores for each text block
         }
       }
     });
@@ -71,13 +73,12 @@ export async function analyzeDocument(
     console.log("OCR service used:", data.source || "unknown");
     console.log("Confidence score:", data.confidenceScore || "unknown");
     
-    // Log a sample of extracted data
+    // Log a sample of extracted data - show more of the raw text for debugging
     const extractedDataSample = { ...data.extractedData };
     if (extractedDataSample.raw_detected_text) {
-      extractedDataSample.raw_detected_text = 
-        extractedDataSample.raw_detected_text.substring(0, 100) + "...";
+      console.log("Raw text sample (first 300 chars):", 
+        extractedDataSample.raw_detected_text.substring(0, 300));
     }
-    console.log("Extracted data sample:", JSON.stringify(extractedDataSample || {}));
     
     return data as DocumentRecognitionResponse;
   } catch (err) {

@@ -37,6 +37,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
 }) => {
   const { user } = useAuth();
   const [retryCount, setRetryCount] = useState(0);
+  const [rawTextVisible, setRawTextVisible] = useState(false);
 
   // Log the authentication status
   useEffect(() => {
@@ -54,7 +55,8 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
     currentSide, 
     currentFile,
     processingAttempts,
-    resetCapture 
+    resetCapture,
+    rawDetectedText // New state to store raw detected text
   } = useDocumentProcessor({
     documentType,
     onDocumentCaptured,
@@ -88,21 +90,9 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
     resetCapture();
   };
 
-  // Get enhanced error message based on attempts
-  const getEnhancedErrorMessage = () => {
-    if (!processingError) return "";
-    
-    let message = processingError;
-    
-    if (processingAttempts >= 2) {
-      message += "\n\nAstuces pour améliorer la reconnaissance:";
-      message += "\n• Assurez-vous que l'image est bien éclairée";
-      message += "\n• Évitez les reflets et les ombres";
-      message += "\n• Placez le document sur un fond contrasté";
-      message += "\n• Positionnez le document bien à plat et cadré";
-    }
-    
-    return message;
+  // Toggle raw text visibility
+  const toggleRawText = () => {
+    setRawTextVisible(!rawTextVisible);
   };
 
   return (
@@ -159,6 +149,24 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
           resetCapture={resetCapture}
           retryCount={retryCount}
         />
+        
+        {/* Show raw text detected by OCR, if available */}
+        {rawDetectedText && (
+          <div className="mt-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="font-semibold text-sm">Texte brut détecté par l'OCR</span>
+              <Button variant="outline" size="sm" onClick={toggleRawText}>
+                {rawTextVisible ? "Masquer" : "Afficher"}
+              </Button>
+            </div>
+            
+            {rawTextVisible && (
+              <div className="bg-secondary/30 p-3 rounded-md text-xs whitespace-pre-wrap max-h-48 overflow-y-auto">
+                {rawDetectedText}
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

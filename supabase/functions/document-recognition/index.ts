@@ -51,16 +51,29 @@ serve(async (req) => {
     }
 
     // Allow demo mode without userId
-    if (!userId) {
-      console.log("No userId provided, using demo mode");
-    }
-
-    console.log(`Processing document: ${documentType}`);
+    const effectiveUserId = userId || "demo-user";
+    console.log(`Processing for user: ${effectiveUserId}`);
     console.log(`Request ID: ${options.requestId || "not provided"}`);
     console.log("Document base64 length:", documentBase64.length);
     
     // Check if the base64 string starts with the expected prefix
-    console.log("Base64 prefix check (first 20 chars):", documentBase64.substring(0, 20));
+    const base64Prefix = documentBase64.substring(0, 20);
+    console.log("Base64 prefix check:", base64Prefix);
+    
+    // Make sure we're dealing with a valid base64 image
+    const validBase64Pattern = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
+    let cleanedBase64 = documentBase64;
+    
+    // Clean up the base64 string if needed
+    if (documentBase64.startsWith('data:')) {
+      console.log("Cleaning base64 string to remove data URI prefix");
+      cleanedBase64 = documentBase64.replace(/^data:image\/[a-z]+;base64,/, "");
+    }
+    
+    // Basic validation of base64 format
+    if (!validBase64Pattern.test(cleanedBase64.substring(0, 100))) {
+      console.warn("Base64 data might not be in the correct format");
+    }
     
     let extractedData = {};
     let ocrService = "unknown";
@@ -72,6 +85,8 @@ serve(async (req) => {
     if (googleApiKey) {
       console.log("Google Cloud API Key length:", googleApiKey.length);
       console.log("Google Cloud API Key first 5 chars:", googleApiKey.substring(0, 5) + "...");
+    } else {
+      console.error("CRITICAL ERROR: Google Cloud API Key is not configured!");
     }
     
     // Determine which OCR service to try first
@@ -88,13 +103,8 @@ serve(async (req) => {
             throw new Error("Google Cloud API Key is not configured");
           }
           
-          // Check if base64 doesn't start with unexpected prefixes
-          if (documentBase64.startsWith('data:')) {
-            console.warn("documentBase64 includes data:image prefix, will be cleaned");
-          }
-          
           console.log("Calling Google Vision processor with options");
-          const googleResult = await processWithGoogleVision(documentBase64, documentType, options);
+          const googleResult = await processWithGoogleVision(cleanedBase64, documentType, options);
           console.log("Google Vision API returned result");
           
           if (!googleResult || !googleResult.data) {
@@ -106,6 +116,12 @@ serve(async (req) => {
           confidenceScore = googleResult.confidence || 0.8;
           ocrService = "google_vision";
           console.log("Successfully extracted data with Google Vision API");
+          
+          // If rawText is returned and options request it, include it in response
+          if (googleResult.rawText && options.rawTextOutput) {
+            console.log("Including full raw text in response");
+            extractedData.raw_detected_text = googleResult.rawText;
+          }
         } catch (googleError) {
           console.error("Google Vision API error:", googleError.message);
           console.error("Error details:", googleError);
@@ -117,7 +133,7 @@ serve(async (req) => {
           
           // Otherwise fall back to Hugging Face
           console.log("Falling back to Hugging Face");
-          const huggingFaceResult = await processWithHuggingFace(documentBase64, options);
+          const huggingFaceResult = await processWithHuggingFace(cleanedBase64, options);
           extractedData = huggingFaceResult;
           ocrService = "huggingface";
           confidenceScore = 0.6;
@@ -125,7 +141,7 @@ serve(async (req) => {
       } else {
         // Use Hugging Face as first choice
         console.log("Using Hugging Face OCR");
-        extractedData = await processWithHuggingFace(documentBase64, options);
+        extractedData = await processWithHuggingFace(cleanedBase64, options);
         ocrService = "huggingface";
         confidenceScore = 0.6;
       }

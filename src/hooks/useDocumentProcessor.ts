@@ -22,6 +22,7 @@ export function useDocumentProcessor({
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [processingError, setProcessingError] = useState<string | null>(null);
   const [processingAttempts, setProcessingAttempts] = useState(0);
+  const [rawDetectedText, setRawDetectedText] = useState<string | null>(null);
   
   const { currentSide, moveToBackSide: goToNextSide, resetToFrontSide: resetSides } = useDocumentSides({
     showBothSides
@@ -30,6 +31,13 @@ export function useDocumentProcessor({
   const { isProcessing, extractDocumentData } = useDocumentAnalysis({
     onSuccess: (extractedData) => {
       console.log("Document data extracted successfully:", extractedData);
+      
+      // Store the raw text if available
+      if (extractedData.raw_detected_text) {
+        console.log("Storing raw text from OCR");
+        setRawDetectedText(extractedData.raw_detected_text);
+      }
+      
       if (currentFile) {
         onDocumentCaptured(currentFile, extractedData);
         
@@ -71,8 +79,9 @@ export function useDocumentProcessor({
   const handleFileUpload = (file: File) => {
     console.log("File uploaded:", file.name);
     setCurrentFile(file);
-    // Clear any previous errors
+    // Clear any previous errors and raw text
     setProcessingError(null);
+    setRawDetectedText(null);
   };
 
   const processDocument = async () => {
@@ -89,8 +98,11 @@ export function useDocumentProcessor({
     
     try {
       // Get the user ID if available
-      const userId = user?.id;
+      const userId = user?.id || "demo-user";
       console.log("User authenticated:", userId ? "Yes" : "No");
+      
+      // Clear previous raw text
+      setRawDetectedText(null);
       
       // Process the document with the current file
       await extractDocumentData(currentFile, documentType, userId);
@@ -108,6 +120,7 @@ export function useDocumentProcessor({
     setCurrentFile(null);
     setProcessingError(null);
     setProcessingAttempts(0);
+    setRawDetectedText(null);
     resetSides();
   };
 
@@ -117,6 +130,7 @@ export function useDocumentProcessor({
     currentFile,
     currentSide,
     processingAttempts,
+    rawDetectedText,
     processDocument,
     handleFileUpload,
     resetCapture
