@@ -79,6 +79,7 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     const detectedText = result.responses[0].fullTextAnnotation.text;
     console.log("Text detected by Google Vision API");
     console.log("Text length:", detectedText.length);
+    console.log("First 100 chars:", detectedText.substring(0, 100));
     
     if (!detectedText || detectedText.length < 10) {
       console.error("Insufficient text detected in the document");
@@ -122,22 +123,4 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     console.error("Error processing with Google Vision:", error);
     throw error;
   }
-}
-
-// In a production environment, you would implement proper image preprocessing here:
-
-// Function to enhance image quality before OCR
-function enhanceImageQuality(base64Image: string): Promise<string> {
-  // In a real implementation, this would use image processing libraries
-  // to increase contrast, adjust brightness, sharpen, etc.
-  // For this implementation, we'll just return the original image
-  return Promise.resolve(base64Image);
-}
-
-// Function to handle image rotation
-function rotateImage(base64Image: string, degrees: number): Promise<string> {
-  // In a real implementation, this would rotate the image by the specified degrees
-  // For this implementation, we'll just return the original image
-  console.log(`Would rotate image by ${degrees} degrees`);
-  return Promise.resolve(base64Image);
 }

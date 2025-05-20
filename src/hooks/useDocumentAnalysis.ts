@@ -56,13 +56,14 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       }
 
       // Convert the file to Base64
-      console.log("Converting file to base64");
       console.log("Converting file to base64:", file.name);
       const base64 = await fileToBase64(file);
+      console.log("File converted to base64 successfully");
       
       // Extract the Base64 content without the prefix
       console.log("Extracting base64 content from data URL");
       const base64Content = extractBase64Content(base64);
+      console.log("Base64 content extracted successfully");
       console.log("Base64 conversion complete, content length:", base64Content.length);
 
       console.log("Sending document for OCR analysis with enhanced parameters");
@@ -72,6 +73,10 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
 
       // Call the Edge Function with enhanced OCR options
       const result = await analyzeDocument(base64Content, docType, userId);
+      
+      if (!result) {
+        throw new Error("Erreur lors de l'analyse du document. Aucun résultat retourné.");
+      }
 
       console.log('Document analysis result received:', result);
       
