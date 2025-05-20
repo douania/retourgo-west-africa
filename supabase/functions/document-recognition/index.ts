@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -67,14 +66,13 @@ async function processWithHuggingFace(base64Image: string) {
     const formData = new FormData();
     formData.append('file', blob, 'document.jpg');
 
-    // Appel à l'API Hugging Face (modèle OCR gratuit)
+    // Appel à l'API Hugging Face avec la clé API fournie
     const response = await fetch(
       "https://api-inference.huggingface.co/models/microsoft/trocr-base-printed", 
       {
         method: "POST",
         headers: {
-          // Utilisez une clé d'API vide pour le niveau gratuit - limité mais fonctionnel pour les tests
-          "Authorization": "Bearer "
+          "Authorization": "Bearer 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"
         },
         body: formData
       }
