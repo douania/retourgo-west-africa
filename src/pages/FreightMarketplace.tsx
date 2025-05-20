@@ -11,6 +11,7 @@ import { MapPin, TruckIcon, Search, Filter, Package } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import Navbar from "@/components/Navbar";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const FreightMarketplace = () => {
   const { user } = useAuth();
@@ -19,6 +20,7 @@ const FreightMarketplace = () => {
   const [showNearbyOnly, setShowNearbyOnly] = useState(false);
   const [hasReturnRoute, setHasReturnRoute] = useState(false);
   const { themeClass, primaryColor, switchClass, userType } = useUserTheme();
+  const { t } = useTranslation();
   
   useEffect(() => {
     if (!user) return;
@@ -58,20 +60,20 @@ const FreightMarketplace = () => {
                 {userType === 'transporter' ? (
                   <>
                     <Search className="h-8 w-8" style={{ color: primaryColor }} />
-                    Marchandises disponibles
+                    {t("marketplace.transporter")}
                   </>
                 ) : (
                   <>
                     <TruckIcon className="h-8 w-8" style={{ color: primaryColor }} />
-                    Transporteurs disponibles
+                    {t("marketplace.shipper")}
                   </>
                 )}
                 <span style={{ color: primaryColor }}> RetourGo</span>
               </h1>
               <p className="mt-2 text-gray-600">
                 {userType === 'transporter' 
-                  ? "Trouvez des marchandises disponibles et optimisez vos trajets retour" 
-                  : "Trouvez des transporteurs fiables pour vos marchandises"}
+                  ? t("freight.transporter_description") 
+                  : t("freight.shipper_description")}
               </p>
             </div>
             
@@ -80,7 +82,7 @@ const FreightMarketplace = () => {
                 onClick={() => navigate("/new-freight")}
                 className="shipper-accent"
               >
-                Publier une marchandise
+                {t("freight.publish_button")}
               </Button>
             )}
           </div>
@@ -98,7 +100,7 @@ const FreightMarketplace = () => {
                     />
                     <Label htmlFor="nearby-filter" className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" style={{ color: primaryColor }} />
-                      <span>Marchandises à proximité</span>
+                      <span>{t("freight.nearby_filter")}</span>
                     </Label>
                   </div>
                   
@@ -112,7 +114,7 @@ const FreightMarketplace = () => {
                     />
                     <Label htmlFor="return-filter" className="flex items-center gap-1">
                       <TruckIcon className="h-4 w-4" style={{ color: primaryColor }} />
-                      <span>{hasReturnRoute ? 'Compatible avec mon trajet retour' : 'Définissez votre trajet retour'}</span>
+                      <span>{hasReturnRoute ? t("freight.return_compatible") : t("freight.set_return_route")}</span>
                     </Label>
                   </div>
                   
@@ -123,7 +125,7 @@ const FreightMarketplace = () => {
                       onClick={() => navigate("/dashboard")}
                       className="ml-auto"
                     >
-                      Définir mon trajet retour
+                      {t("freight.define_return_route")}
                     </Button>
                   )}
                 </div>
@@ -131,7 +133,7 @@ const FreightMarketplace = () => {
                 <div className="mt-4 flex justify-end">
                   <Button variant="outline" size="sm" className="flex items-center gap-1">
                     <Filter className="h-3.5 w-3.5" />
-                    Plus de filtres
+                    {t("freight.more_filters")}
                   </Button>
                 </div>
               </CardContent>

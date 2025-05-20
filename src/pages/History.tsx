@@ -10,6 +10,7 @@ import { Truck, Package, ArrowDown, ArrowUp } from "lucide-react";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import { Freight, TransportOffer } from "@/types/freight";
 import { FreightDetailsHeader } from "@/components/freight/FreightDetailsHeader";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const History = () => {
   const { user } = useAuth();
@@ -19,6 +20,7 @@ const History = () => {
   const [loading, setLoading] = useState(true);
   const [completedFreights, setCompletedFreights] = useState<Freight[]>([]);
   const [completedOffers, setCompletedOffers] = useState<TransportOffer[]>([]);
+  const { t } = useTranslation();
 
   const handleBack = () => {
     navigate(-1);
@@ -82,21 +84,21 @@ const History = () => {
       <FreightDetailsHeader onBack={handleBack} title="" />
       
       <div className={`${gradientClass} text-white p-6 rounded-xl mb-6`}>
-        <h1 className="text-2xl font-bold">Historique de mes activités</h1>
-        <p className="text-white/80">Consultez l'historique de vos marchandises et transports</p>
+        <h1 className="text-2xl font-bold">{t("freight.activities")}</h1>
+        <p className="text-white/80">{t("freight.check_history")}</p>
       </div>
 
       <Tabs defaultValue="completed" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="completed">
-            {userType === 'transporter' ? 'Transports effectués' : 'Marchandises expédiées'}
+            {userType === 'transporter' ? t("freight.completed_transports") : t("freight.shipped_merchandise")}
           </TabsTrigger>
-          <TabsTrigger value="payments">Paiements</TabsTrigger>
+          <TabsTrigger value="payments">{t("freight.payments")}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="completed">
           {loading ? (
-            <p className="text-center py-12">Chargement...</p>
+            <p className="text-center py-12">{t("freight.loading")}</p>
           ) : userType === 'transporter' ? (
             completedOffers.length > 0 ? (
               <div className="space-y-4">
@@ -107,7 +109,7 @@ const History = () => {
                         <Truck className="h-5 w-5 text-purple-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium">{offer.freights?.title || 'Transport'}</h3>
+                        <h3 className="font-medium">{offer.freights?.title || t("freight.transport")}</h3>
                         <p className="text-sm text-gray-500">
                           {new Date(offer.updated_at || '').toLocaleDateString('fr-FR')}
                         </p>
@@ -120,8 +122,8 @@ const History = () => {
             ) : (
               <div className="text-center py-12">
                 <Package className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                <h3 className="text-lg font-medium text-gray-700">Aucun transport effectué</h3>
-                <p className="text-gray-500">Votre historique apparaîtra ici</p>
+                <h3 className="text-lg font-medium text-gray-700">{t("freight.no_completed_transports")}</h3>
+                <p className="text-gray-500">{t("freight.history_will_appear")}</p>
               </div>
             )
           ) : completedFreights.length > 0 ? (
@@ -146,8 +148,8 @@ const History = () => {
           ) : (
             <div className="text-center py-12">
               <Package className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-              <h3 className="text-lg font-medium text-gray-700">Aucune marchandise expédiée</h3>
-              <p className="text-gray-500">Votre historique apparaîtra ici</p>
+              <h3 className="text-lg font-medium text-gray-700">{t("freight.no_shipped_merchandise")}</h3>
+              <p className="text-gray-500">{t("freight.history_will_appear")}</p>
             </div>
           )}
         </TabsContent>
@@ -155,8 +157,8 @@ const History = () => {
         <TabsContent value="payments">
           <div className="text-center py-12">
             <ArrowDown className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-            <h3 className="text-lg font-medium text-gray-700">Aucun paiement récent</h3>
-            <p className="text-gray-500">Votre historique de paiements apparaîtra ici</p>
+            <h3 className="text-lg font-medium text-gray-700">{t("freight.no_recent_payments")}</h3>
+            <p className="text-gray-500">{t("freight.payment_history_will_appear")}</p>
           </div>
         </TabsContent>
       </Tabs>
