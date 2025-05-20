@@ -12,11 +12,13 @@ import { Truck, Package } from "lucide-react";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import { LanguageSelector } from "@/components/navigation/LanguageSelector";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
   const { badgeClass, iconColor, userType } = useUserTheme();
+  const { t } = useTranslation();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -40,14 +42,14 @@ const Navbar = () => {
                     <>
                       <Package className="h-4 w-4" style={{ color: iconColor }} />
                       <Badge variant="outline" className={`${badgeClass} animate-pulse-light`}>
-                        Marchandises à proximité
+                        {t("marketplace.transporter")}
                       </Badge>
                     </>
                   ) : (
                     <>
                       <Truck className="h-4 w-4" style={{ color: iconColor }} />
                       <Badge variant="outline" className={`${badgeClass} animate-pulse-light`}>
-                        Transporteurs disponibles
+                        {t("marketplace.shipper")}
                       </Badge>
                     </>
                   )}
