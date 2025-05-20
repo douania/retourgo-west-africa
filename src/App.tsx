@@ -51,6 +51,8 @@ function App() {
           {/* Redirect from /marketplace to /freight */}
           <Route path="/marketplace" element={<Navigate to="/freight" replace />} />
           <Route path="/vehicle-type" element={<VehicleTypeSelection />} />
+          {/* Add new redirect for /vehicle-selection to /vehicle-type */}
+          <Route path="/vehicle-selection" element={<Navigate to="/vehicle-type" replace />} />
           <Route path="/vehicle-registration" element={<VehicleRegistration />} />
           <Route path="/driver-registration" element={<DriverRegistration />} />
           <Route path="/profiles" element={<Profiles />} />

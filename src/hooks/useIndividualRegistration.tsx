@@ -140,7 +140,7 @@ export const useIndividualRegistration = () => {
       
       // Navigate to next step based on user type
       if (isTransporter) {
-        navigate("/vehicle-selection");
+        navigate("/vehicle-type"); // Updated from /vehicle-selection to /vehicle-type
       } else {
         navigate("/dashboard");
       }
