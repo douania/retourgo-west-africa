@@ -35,33 +35,35 @@ const DriverRegistration = () => {
   const [licenseImage, setLicenseImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Gérer la capture de la carte d'identité
+  // Handle ID card capture with OCR data
   const handleIdCardCapture = (file: File, extractedData?: any) => {
+    console.log("ID card captured with extracted data:", extractedData);
     const imageUrl = URL.createObjectURL(file);
     setIdCardImage(imageUrl);
 
     if (extractedData) {
       setDriverInfo(prev => ({
         ...prev,
-        full_name: extractedData.full_name || prev.full_name,
-        birth_date: extractedData.birth_date || prev.birth_date,
-        id_number: extractedData.id_number || prev.id_number
+        full_name: extractedData.full_name || extractedData.nom_complet || prev.full_name,
+        birth_date: extractedData.birth_date || extractedData.date_de_naissance || prev.birth_date,
+        id_number: extractedData.id_number || extractedData.numero_identification || extractedData.numero_carte || prev.id_number
       }));
     }
   };
 
-  // Gérer la capture du permis de conduire
+  // Handle driver license capture with OCR data
   const handleLicenseCapture = (file: File, extractedData?: any) => {
+    console.log("License captured with extracted data:", extractedData);
     const imageUrl = URL.createObjectURL(file);
     setLicenseImage(imageUrl);
 
     if (extractedData) {
       setDriverInfo(prev => ({
         ...prev,
-        full_name: extractedData.full_name || prev.full_name,
-        license_number: extractedData.license_number || prev.license_number,
-        license_categories: extractedData.categories || prev.license_categories,
-        license_expiry: extractedData.expiry_date || prev.license_expiry
+        full_name: extractedData.full_name || extractedData.nom_complet || prev.full_name,
+        license_number: extractedData.license_number || extractedData.numero_permis || extractedData.numero || prev.license_number,
+        license_categories: extractedData.categories || extractedData.license_categories || extractedData.categorie || prev.license_categories,
+        license_expiry: extractedData.expiry_date || extractedData.date_expiration || prev.license_expiry
       }));
     }
   };
@@ -85,7 +87,7 @@ const DriverRegistration = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation de base
+    // Basic validation
     if (!driverInfo.full_name || !driverInfo.license_number || !driverInfo.id_number) {
       toast({
         title: "Formulaire incomplet",
@@ -95,7 +97,7 @@ const DriverRegistration = () => {
       return;
     }
 
-    // Vérification des images
+    // Check for images
     if (!idCardImage || !licenseImage) {
       toast({
         title: "Documents manquants",
@@ -108,10 +110,10 @@ const DriverRegistration = () => {
     setIsSubmitting(true);
 
     try {
-      // En pratique, vous enverriez ces données à votre backend
-      // Par exemple: await registerDriver(driverInfo, idCardImage, licenseImage);
+      // In practice, you would send this data to your backend
+      // For example: await registerDriver(driverInfo, idCardImage, licenseImage);
       
-      // Simuler un délai d'enregistrement
+      // Simulate a registration delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       toast({

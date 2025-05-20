@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentType } from "@/utils/document-utils";
@@ -35,12 +36,17 @@ export function useDocumentProcessor({
     isProcessing, 
     extractDocumentData 
   } = useDocumentAnalysis({
+    // Always call onDocumentCaptured with the extracted data
     onSuccess: (data) => {
-      console.log("Document analysis successful:", data);
-      // Keep existing functionality but add the document capture part here too
-      // to ensure data is passed to parent component even if user is not logged in
+      console.log("Document analysis successful with data:", data);
       if (currentFile) {
+        // Pass the extracted data to the parent component
         onDocumentCaptured(currentFile, data);
+        
+        toast({
+          title: "Document analysé avec succès",
+          description: "Les informations ont été extraites et les champs du formulaire ont été remplis automatiquement.",
+        });
       }
     },
     onError: (error) => {
@@ -48,11 +54,17 @@ export function useDocumentProcessor({
       // We'll still capture the document even if analysis failed
       if (currentFile) {
         onDocumentCaptured(currentFile, null);
+        
+        toast({
+          title: "Erreur d'analyse",
+          description: "Les informations n'ont pas pu être extraites automatiquement. Veuillez remplir les champs manuellement.",
+          variant: "destructive"
+        });
       }
     }
   });
 
-  // Fonction pour gérer le téléchargement initial du document
+  // Handle file upload
   const handleFileUpload = (file: File) => {
     console.log("File uploaded to useDocumentProcessor:", file.name);
     if (showBothSides && isShowingFront) {
@@ -77,7 +89,7 @@ export function useDocumentProcessor({
     }
   };
 
-  // Fonction pour traiter le document via OCR
+  // Process document via OCR
   const processDocument = async () => {
     console.log("processDocument called in useDocumentProcessor, currentFile:", currentFile?.name || "null");
     console.log("Current user:", user?.id || "not authenticated");
@@ -97,10 +109,11 @@ export function useDocumentProcessor({
       if (showBothSides) {
         if (isShowingFront) {
           console.log("Processing front side");
-          // Traiter le recto
+          // Process the front side
           const extractedData = await extractDocumentData(currentFile, documentType, user?.id);
+          console.log("Front side data extracted:", extractedData);
           
-          // Passer au verso après analyse du recto
+          // Move to back side after front side analysis
           moveToBackSide();
           
           toast({
@@ -111,72 +124,46 @@ export function useDocumentProcessor({
           return extractedData;
         } else {
           console.log("Processing back side");
-          // Analyser le verso
+          // Analyze the back side
           const extractedData = await extractDocumentData(currentFile, documentType, user?.id);
+          console.log("Back side data extracted, combined data:", extractedData);
           
-          // Passer les deux fichiers + données extraites au composant parent
+          // Pass both files + extracted data to parent component
           if (frontFile) {
             console.log("Calling onDocumentCaptured with front file and data");
             onDocumentCaptured(frontFile, extractedData);
           }
           
-          // Réinitialiser pour la prochaine capture
+          // Reset for next capture
           resetToFrontSide();
           setCurrentFile(null);
-          
-          // Afficher le toast de succès
-          if (extractedData) {
-            toast({
-              title: "Document analysé avec succès",
-              description: "Les informations ont été extraites automatiquement. Veuillez vérifier et compléter si nécessaire.",
-            });
-          } else {
-            toast({
-              title: "Document enregistré",
-              description: "L'extraction automatique n'a pas fonctionné. Veuillez saisir manuellement les informations.",
-              variant: "default"
-            });
-          }
           
           return extractedData;
         }
       } else {
         console.log("Processing single-sided document");
-        // Analyser un seul côté
+        // Analyze a single side
         const extractedData = await extractDocumentData(currentFile, documentType, user?.id);
+        console.log("Single-sided document data extracted:", extractedData);
         
-        // Passer le fichier et les données extraites au composant parent
+        // Pass the file and extracted data to parent component
         console.log("Calling onDocumentCaptured with file and data for single-sided doc");
         onDocumentCaptured(currentFile, extractedData);
         
-        // Réinitialiser le fichier courant
+        // Reset the current file
         setCurrentFile(null);
-        
-        // Afficher un toast adapté au résultat de l'extraction
-        if (extractedData) {
-          toast({
-            title: "Document analysé avec succès",
-            description: "Les informations ont été extraites automatiquement. Veuillez vérifier et compléter si nécessaire.",
-          });
-        } else {
-          toast({
-            title: "Document enregistré",
-            description: "L'extraction automatique n'a pas fonctionné. Veuillez saisir manuellement les informations.",
-            variant: "default"
-          });
-        }
         
         return extractedData;
       }
     } catch (error) {
-      console.error("Erreur de traitement du document:", error);
+      console.error("Error processing document:", error);
       toast({
         title: "Erreur de traitement",
         description: "Une erreur est survenue lors de l'analyse du document. Veuillez saisir les informations manuellement.",
         variant: "destructive"
       });
       
-      // Réinitialiser l'état
+      // Reset state
       setCurrentFile(null);
       
       if (showBothSides) {

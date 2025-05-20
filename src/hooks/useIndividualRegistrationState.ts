@@ -51,6 +51,7 @@ export function useIndividualRegistrationState({
 
   // Document handlers
   const handleIdCardCapture = (file: File, extractedData?: any) => {
+    console.log("ID card captured in useIndividualRegistrationState with data:", extractedData);
     const imageUrl = URL.createObjectURL(file);
     setIdCardImage(imageUrl);
     setIdCardFile(file);
@@ -58,8 +59,9 @@ export function useIndividualRegistrationState({
     if (extractedData) {
       setPersonalInfo(prev => ({
         ...prev,
-        full_name: extractedData.full_name || prev.full_name,
-        id_number: extractedData.id_number || prev.id_number
+        full_name: extractedData.full_name || extractedData.nom_complet || prev.full_name,
+        id_number: extractedData.id_number || extractedData.numero_identification || extractedData.numero_carte || prev.id_number,
+        address: extractedData.address || extractedData.adresse || prev.address
       }));
     }
   };
