@@ -52,9 +52,9 @@ export function ImageDropzone({
     }
   };
 
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation(); // Prevent event bubbling
+  const openFileDialog = () => {
+    // This function directly triggers the file input click
+    console.log("Opening file dialog");
     inputRef.current?.click();
   };
 
@@ -67,7 +67,7 @@ export function ImageDropzone({
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
       onDrop={handleDrop}
-      onClick={handleButtonClick}
+      onClick={openFileDialog}
     >
       <input
         ref={inputRef}

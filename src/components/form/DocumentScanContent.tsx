@@ -67,6 +67,7 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
   };
 
   const handleImageRemove = () => {
+    console.log("Document removed");
     if (onDocumentRemove) {
       onDocumentRemove();
     } else {
@@ -119,6 +120,6 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
       <DocumentTips documentType={documentType} />
     </>
   );
-};
+}
 
 export default DocumentScanContent;
