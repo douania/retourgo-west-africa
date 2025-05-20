@@ -26,6 +26,8 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
    */
   const extractDocumentData = async (file: File, docType: DocumentType, userId?: string): Promise<any> => {
     console.log("extractDocumentData called with:", file.name, docType, userId || "no userId");
+    console.log("File type:", file.type);
+    console.log("File size:", (file.size / 1024).toFixed(2) + "KB");
 
     // Clear previous errors
     setLastError(null);
@@ -61,13 +63,13 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       console.log("File converted to base64 successfully");
       console.log("Base64 length:", base64.length);
       
+      // Check if the base64 string begins with the expected data:image prefix
+      if (!base64.startsWith('data:image/')) {
+        console.warn("Base64 content doesn't have the expected prefix. This might cause issues.");
+      }
+      
       // Log the first 50 characters of the base64 string to check format
       console.log("Base64 format check (first 50 chars):", base64.substring(0, 50));
-      
-      // Extract the Base64 content
-      console.log("Extracting base64 content from data URL");
-      const base64Content = base64;  // We'll let the analyzeDocument function handle the cleaning
-      console.log("Base64 content extracted successfully");
 
       console.log("Sending document for OCR analysis with enhanced parameters");
 
@@ -76,7 +78,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
 
       // Call the Edge Function with enhanced OCR options
       console.log("Calling document analysis service with userId:", userId);
-      const result = await analyzeDocument(base64Content, docType, userId);
+      const result = await analyzeDocument(base64, docType, userId);
       
       if (!result) {
         throw new Error("Erreur lors de l'analyse du document. Aucun résultat retourné.");
@@ -87,10 +89,16 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       if (result && result.extractedData) {
         const extractedData = result.extractedData;
         
+        // Check if raw detected text is available and log it
+        if (extractedData.raw_detected_text) {
+          console.log("Raw text from Google Vision:", 
+            extractedData.raw_detected_text.substring(0, 200) + "...");
+        }
+        
         // Check if useful data was extracted
         const hasRealData = Object.keys(extractedData).some(
           key => !key.startsWith('possible_') && 
-                 !['extraction_quality', 'source', 'confidence', 'ocr_service'].includes(key) &&
+                 !['extraction_quality', 'source', 'confidence', 'ocr_service', 'raw_detected_text'].includes(key) &&
                  extractedData[key] !== null && 
                  extractedData[key] !== ''
         );
@@ -143,7 +151,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
             if (key.startsWith('possible_')) {
               const cleanKey = key.replace('possible_', '');
               acc[cleanKey] = value;
-            } else if (!['extraction_quality', 'source', 'confidence', 'ocr_service'].includes(key)) {
+            } else if (!['extraction_quality', 'source', 'confidence', 'ocr_service', 'raw_detected_text'].includes(key)) {
               acc[key] = value;
             }
             return acc;
@@ -157,6 +165,32 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
           return cleanData;
         } else {
           console.log("No useful data could be extracted:", extractedData);
+          
+          // If we have raw text but no structured data, show it to help debug
+          if (extractedData.raw_detected_text) {
+            console.log("Raw text was detected but couldn't be parsed into structured data");
+            console.log("Raw text sample:", 
+              extractedData.raw_detected_text.substring(0, 300) + "...");
+            
+            // Show raw text to the user
+            toast({
+              title: "Texte détecté mais non structuré",
+              description: "Le texte a été détecté mais n'a pas pu être structuré. Vérifiez les logs pour plus de détails.",
+              variant: "default"
+            });
+            
+            // Return raw text as fallback
+            const fallbackData = {
+              raw_text: extractedData.raw_detected_text,
+              extraction_quality: "low"
+            };
+            
+            if (onSuccess) {
+              onSuccess(fallbackData);
+            }
+            
+            return fallbackData;
+          }
           
           // Suggestions based on potential issues
           let suggestions = "";

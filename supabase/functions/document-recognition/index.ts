@@ -31,6 +31,8 @@ serve(async (req) => {
     
     const { documentBase64, documentType, userId, options = {} } = requestBody;
     
+    console.log("Request options:", JSON.stringify(options));
+    
     // Validate input with detailed logging
     if (!documentBase64) {
       console.error("Missing required field: documentBase64");
@@ -54,7 +56,11 @@ serve(async (req) => {
     }
 
     console.log(`Processing document: ${documentType}`);
-    console.log("Processing options:", JSON.stringify(options));
+    console.log(`Request ID: ${options.requestId || "not provided"}`);
+    console.log("Document base64 length:", documentBase64.length);
+    
+    // Check if the base64 string starts with the expected prefix
+    console.log("Base64 prefix check (first 20 chars):", documentBase64.substring(0, 20));
     
     let extractedData = {};
     let ocrService = "unknown";
@@ -63,6 +69,10 @@ serve(async (req) => {
     // Log API key availability (securely)
     const googleApiKey = Deno.env.get("GOOGLE_CLOUD_API_KEY");
     console.log("Google Cloud API Key available:", googleApiKey ? "Yes" : "No");
+    if (googleApiKey) {
+      console.log("Google Cloud API Key length:", googleApiKey.length);
+      console.log("Google Cloud API Key first 5 chars:", googleApiKey.substring(0, 5) + "...");
+    }
     
     // Determine which OCR service to try first
     const preferredOcr = options?.preferredOcr || "googleVision"; // Default to Google Vision
@@ -78,12 +88,12 @@ serve(async (req) => {
             throw new Error("Google Cloud API Key is not configured");
           }
           
-          // Check if documentBase64 is in the correct format (not containing data:image prefix)
+          // Check if base64 doesn't start with unexpected prefixes
           if (documentBase64.startsWith('data:')) {
-            console.error("DocumentBase64 should not include data:image prefix");
-            throw new Error("DocumentBase64 format is incorrect");
+            console.warn("documentBase64 includes data:image prefix, will be cleaned");
           }
           
+          console.log("Calling Google Vision processor with options");
           const googleResult = await processWithGoogleVision(documentBase64, documentType, options);
           console.log("Google Vision API returned result");
           
@@ -156,7 +166,8 @@ serve(async (req) => {
         JSON.stringify({ 
           extractedData: {
             ...mockData,
-            ocr_service: "mock_data"
+            ocr_service: "mock_data",
+            error_reason: error.message
           },
           documentType,
           confidenceScore: 0.5,

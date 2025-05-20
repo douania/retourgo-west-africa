@@ -49,8 +49,12 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     };
     
     console.log("Sending request to Google Cloud Vision API");
+    console.log("API Key first 5 chars:", apiKey.substring(0, 5) + "...");
     
-    // Call the Vision API
+    // Call the Vision API with a timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
     const response = await fetch(
       `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
       {
@@ -58,22 +62,48 @@ export async function processWithGoogleVision(base64Image: string, documentType:
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
       }
     );
+    
+    clearTimeout(timeoutId);
+    
+    console.log("Google Vision API Response Status:", response.status);
     
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Google API error status:", response.status);
       console.error("Google API error response:", JSON.stringify(errorData));
-      throw new Error(`Google Cloud Vision API error: ${errorData.error?.message || response.statusText}`);
+      
+      // Get more detailed error information
+      let errorMessage = "Google Cloud Vision API error";
+      if (errorData.error) {
+        errorMessage += `: ${errorData.error.message || response.statusText}`;
+        console.error("Error code:", errorData.error.code);
+        console.error("Error status:", errorData.error.status);
+        
+        // Add additional debugging for common API errors
+        if (errorData.error.code === 403) {
+          console.error("API Key might be invalid or missing required permissions");
+        } else if (errorData.error.code === 400) {
+          console.error("Request format might be incorrect or image data is invalid");
+        }
+      }
+      
+      throw new Error(errorMessage);
     }
     
     const result = await response.json();
-    console.log("Google Vision API response received");
+    console.log("Google Vision API response received successfully");
     
     // Check if we received valid results
-    if (!result.responses || result.responses.length === 0 || !result.responses[0].fullTextAnnotation) {
+    if (!result.responses || result.responses.length === 0) {
+      console.error("Empty response from Google Vision API");
+      throw new Error("Empty response from Google Vision API");
+    }
+    
+    if (!result.responses[0].fullTextAnnotation) {
       console.error("No text detected in the image");
       throw new Error("No text detected in the image");
     }
@@ -117,8 +147,12 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     console.log("Successfully parsed data from Google Vision OCR result");
     console.log("Parsed data:", JSON.stringify(parsedData));
     
+    // Add raw text to help with debugging
     return {
-      data: parsedData,
+      data: {
+        ...parsedData,
+        raw_detected_text: detectedText.substring(0, 300) + "...", // Include a sample of the raw text
+      },
       confidence: avgConfidence,
       rawText: detectedText
     };
