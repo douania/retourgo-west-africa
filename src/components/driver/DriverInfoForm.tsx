@@ -15,9 +15,40 @@ interface DriverInfo {
 interface DriverInfoFormProps {
   driverInfo: DriverInfo;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  extractedData?: Record<string, any>;
 }
 
-const DriverInfoForm = ({ driverInfo, handleInputChange }: DriverInfoFormProps) => {
+const DriverInfoForm = ({ driverInfo, handleInputChange, extractedData }: DriverInfoFormProps) => {
+  // Utiliser les données extraites pour pré-remplir le formulaire si disponibles
+  useEffect(() => {
+    if (extractedData && Object.keys(extractedData).length > 0) {
+      console.log("Using extracted data to populate driver form:", extractedData);
+      
+      // Créer un événement artificiel pour chaque champ que nous voulons mettre à jour
+      const fields = [
+        { name: 'full_name', value: extractedData.full_name || extractedData.nom_complet || extractedData.nom },
+        { name: 'license_number', value: extractedData.license_number || extractedData.numero_permis },
+        { name: 'license_categories', value: extractedData.categories || extractedData.license_categories },
+        { name: 'license_expiry', value: extractedData.expiry_date || extractedData.license_expiry || extractedData.date_expiration },
+        { name: 'id_number', value: extractedData.id_number || extractedData.numero_identification },
+        { name: 'birth_date', value: extractedData.birth_date || extractedData.date_naissance }
+      ];
+      
+      fields.forEach(field => {
+        if (field.value) {
+          const event = {
+            target: {
+              name: field.name,
+              value: field.value
+            }
+          } as React.ChangeEvent<HTMLInputElement>;
+          
+          handleInputChange(event);
+        }
+      });
+    }
+  }, [extractedData, handleInputChange]);
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Informations du conducteur</h3>
@@ -89,6 +120,12 @@ const DriverInfoForm = ({ driverInfo, handleInputChange }: DriverInfoFormProps) 
           />
         </div>
       </div>
+      
+      {extractedData && (
+        <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-700 text-sm mt-2">
+          Les données ont été extraites automatiquement du document. Veuillez vérifier et corriger si nécessaire.
+        </div>
+      )}
     </div>
   );
 };

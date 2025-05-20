@@ -57,11 +57,24 @@ export function useIndividualRegistrationState({
     setIdCardFile(file);
 
     if (extractedData) {
+      // Map extracted data to form fields, handling different formats
+      const mappedData = {
+        // Handle various possible field names from OCR services
+        full_name: extractedData.full_name || extractedData.nom_complet || extractedData.nom || "",
+        id_number: extractedData.id_number || extractedData.numero_identification || extractedData.numero_carte || "",
+        address: extractedData.address || extractedData.adresse || "",
+        birth_date: extractedData.birth_date || extractedData.date_naissance || "",
+        nationality: extractedData.nationality || extractedData.nationalite || ""
+      };
+
+      console.log("Mapped OCR data:", mappedData);
+      
       setPersonalInfo(prev => ({
         ...prev,
-        full_name: extractedData.full_name || extractedData.nom_complet || prev.full_name,
-        id_number: extractedData.id_number || extractedData.numero_identification || extractedData.numero_carte || prev.id_number,
-        address: extractedData.address || extractedData.adresse || prev.address
+        full_name: mappedData.full_name || prev.full_name,
+        id_number: mappedData.id_number || prev.id_number,
+        address: mappedData.address || prev.address
+        // We could also store birth_date and nationality in custom fields if needed
       }));
     }
   };

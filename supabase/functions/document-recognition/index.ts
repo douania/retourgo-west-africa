@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Mock data for demo or when OpenAI is unavailable
+// Mock data for demo or when APIs are unavailable
 const getMockData = (documentType: string) => {
   switch (documentType) {
     case 'id_card':
@@ -47,6 +47,78 @@ const getMockData = (documentType: string) => {
   }
 };
 
+// Process text using Hugging Face Inference API
+async function processWithHuggingFace(base64Image: string) {
+  console.log("Processing document with Hugging Face API");
+  
+  try {
+    // Conversion de base64 en Blob pour l'envoi à Hugging Face
+    const byteCharacters = atob(base64Image);
+    const byteNumbers = new Array(byteCharacters.length);
+    
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+    // Préparation du FormData
+    const formData = new FormData();
+    formData.append('file', blob, 'document.jpg');
+
+    // Appel à l'API Hugging Face (modèle OCR gratuit)
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/microsoft/trocr-base-printed", 
+      {
+        method: "POST",
+        headers: {
+          // Utilisez une clé d'API vide pour le niveau gratuit - limité mais fonctionnel pour les tests
+          "Authorization": "Bearer "
+        },
+        body: formData
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Hugging Face API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("Hugging Face result:", result);
+
+    // L'API renvoie généralement un résultat sous forme de texte simple
+    // Nous devons l'analyser pour extraire les informations structurées
+    return parseOCRText(result[0].generated_text || result.generated_text || "");
+  } catch (error) {
+    console.error("Error processing with Hugging Face:", error);
+    throw error;
+  }
+}
+
+// Fonction simplifiée pour analyser le texte OCR et extraire des informations structurées
+function parseOCRText(text: string) {
+  const extractedData: Record<string, string> = {};
+  
+  // Recherche de patterns courants dans les documents d'identité
+  const nameMatch = text.match(/nom(?:\s*et\s*prénom)?s?\s*:?\s*([A-Za-zÀ-ÖØ-öø-ÿ\s]+)/i);
+  if (nameMatch && nameMatch[1]) extractedData.full_name = nameMatch[1].trim();
+  
+  const idMatch = text.match(/(?:carte|numéro|n°)(?:\s*nationale)?(?:\s*d['']identité)?\s*:?\s*(\w+)/i);
+  if (idMatch && idMatch[1]) extractedData.id_number = idMatch[1].trim();
+  
+  const birthMatch = text.match(/(?:né[e]? le|date de naissance)\s*:?\s*(\d{1,2}[\/\.-]\d{1,2}[\/\.-]\d{2,4})/i);
+  if (birthMatch && birthMatch[1]) extractedData.birth_date = birthMatch[1].trim();
+  
+  const addressMatch = text.match(/(?:adresse|domicil[e|ié]|résid[e|ant])\s*:?\s*([^,\.]{3,})/i);
+  if (addressMatch && addressMatch[1]) extractedData.address = addressMatch[1].trim();
+  
+  const nationalityMatch = text.match(/nationalité\s*:?\s*([A-Za-zÀ-ÖØ-öø-ÿ\s]+)/i);
+  if (nationalityMatch && nationalityMatch[1]) extractedData.nationality = nationalityMatch[1].trim();
+
+  return extractedData;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -70,83 +142,44 @@ serve(async (req) => {
       console.log("No userId provided, using demo mode");
     }
 
-    // Get API key
-    const openAIKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openAIKey) {
-      console.log("No OpenAI API key found, using mock data");
-      const mockData = getMockData(documentType);
-      
-      return new Response(
-        JSON.stringify({ 
-          extractedData: mockData,
-          documentType,
-          confidenceScore: 0.9,
-          source: "mock_data"
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log("Sending document recognition request to OpenAI for document type:", documentType);
+    console.log("Processing document:", documentType);
 
     try {
-      // Call OpenAI Vision API
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIKey}`,
-          'Content-Type': 'application/json',
-          'OpenAI-Beta': 'parallel_api_v2'
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { 
-              role: "system", 
-              content: `Vous êtes un expert en analyse de documents ${getDocumentTypeDescription(documentType)} au Sénégal. 
-              Extrayez toutes les informations pertinentes du document dans un format JSON structuré.` 
-            },
-            { 
-              role: "user", 
-              content: [
-                {
-                  type: "text",
-                  text: `Analysez ce document ${getDocumentTypeDescription(documentType)} et extrayez toutes les informations importantes dans un format JSON bien structuré.`
-                },
-                {
-                  type: "image_url",
-                  image_url: {
-                    url: `data:image/jpeg;base64,${documentBase64}`
-                  }
-                }
-              ]
-            }
-          ],
-          response_format: { type: "json_object" }
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      // First try with Hugging Face API
+      const extractedData = await processWithHuggingFace(documentBase64);
+      
+      // If empty result, fall back to mock data
+      if (Object.keys(extractedData).length === 0) {
+        console.log("No data extracted from Hugging Face, falling back to mock data");
+        const mockData = getMockData(documentType);
+        
+        return new Response(
+          JSON.stringify({ 
+            extractedData: mockData,
+            documentType,
+            confidenceScore: 0.8,
+            source: "mock_data"
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
-
-      const data = await response.json();
-      console.log("Received response from OpenAI for document recognition");
-      const extractedData = JSON.parse(data.choices[0].message.content);
-
+      
+      console.log("Successfully extracted data with Hugging Face:", extractedData);
+      
       return new Response(
         JSON.stringify({ 
           extractedData,
           documentType,
-          confidenceScore: 0.95,
-          source: "openai"
+          confidenceScore: 0.7,
+          source: "huggingface_ocr"
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-    } catch (openaiError) {
-      console.error("OpenAI API error:", openaiError.message);
       
-      // Fallback to mock data if OpenAI API fails
+    } catch (error) {
+      console.error("Hugging Face API error:", error.message);
+      
+      // Fall back to mock data if Hugging Face fails
       console.log("Falling back to mock data");
       const mockData = getMockData(documentType);
       
@@ -168,18 +201,3 @@ serve(async (req) => {
     );
   }
 });
-
-function getDocumentTypeDescription(documentType: string): string {
-  switch (documentType) {
-    case 'vehicle_registration':
-      return 'de carte grise de véhicule';
-    case 'driver_license':
-      return 'de permis de conduire';
-    case 'id_card':
-      return "de carte d'identité";
-    case 'business_registration':
-      return "d'enregistrement d'entreprise";
-    default:
-      return '';
-  }
-}
