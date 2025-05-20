@@ -1,12 +1,14 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { DocumentType, extractDocumentData } from "@/utils/document-utils";
+import { DocumentType } from "@/utils/document-utils";
+import { useAIServices } from "@/services/AIService";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface UseDocumentProcessorProps {
   documentType: DocumentType;
   onDocumentCaptured: (file: File, extractedData?: any) => void;
-  showBothSides?: boolean; // Nouveau paramètre pour indiquer si on doit afficher les deux faces
+  showBothSides?: boolean;
 }
 
 export function useDocumentProcessor({ 
@@ -18,6 +20,8 @@ export function useDocumentProcessor({
   const [currentSide, setCurrentSide] = useState<'front' | 'back'>('front');
   const [frontFile, setFrontFile] = useState<File | null>(null);
   const { toast } = useToast();
+  const { analyzeDocument } = useAIServices();
+  const { user } = useAuth();
 
   const processDocument = async (file: File) => {
     setIsProcessing(true);
@@ -40,8 +44,7 @@ export function useDocumentProcessor({
           setIsProcessing(false);
           return null;
         } else {
-          // Nous avons maintenant les deux faces, extraire les données
-          // Pour une implémentation complète, on pourrait combiner les deux fichiers
+          // Nous avons maintenant les deux faces, réaliser l'OCR avec la face arrière
           const extractedData = await extractDocumentData(file, documentType);
           
           // Passer les deux fichiers + données extraites au composant parent
@@ -72,7 +75,7 @@ export function useDocumentProcessor({
           return extractedData;
         }
       } else {
-        // Comportement normal pour un seul côté
+        // Comportement normal pour un seul côté - appliquer l'OCR
         const extractedData = await extractDocumentData(file, documentType);
         
         // Passer le fichier et les données extraites au composant parent
@@ -110,6 +113,43 @@ export function useDocumentProcessor({
       setIsProcessing(false);
       return null;
     }
+  };
+
+  // Fonction pour extraire les données du document via OCR
+  const extractDocumentData = async (file: File, docType: DocumentType) => {
+    if (!user) return null;
+
+    try {
+      // Convertir le fichier en Base64
+      const base64 = await fileToBase64(file);
+
+      // Extraire le contenu Base64 sans le préfixe data:image/...
+      const base64Content = base64.split(',')[1];
+
+      // Appeler l'Edge Function Supabase via le service AI
+      const result = await analyzeDocument(base64Content, docType, user.id);
+
+      console.log('Document analysis result:', result);
+      
+      if (result && result.extractedData) {
+        return result.extractedData;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Erreur lors de l'extraction OCR:", error);
+      return null;
+    }
+  };
+
+  // Fonction utilitaire pour convertir un fichier en Base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+    });
   };
 
   return {

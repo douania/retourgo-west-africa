@@ -40,68 +40,13 @@ export interface BusinessRegistrationData {
 export type DocumentData = VehicleRegistrationData | DriverLicenseData | IdCardData | BusinessRegistrationData | null;
 
 /**
- * Extrait les données à partir d'une image de document
- * Utilise un service OCR pour extraire les données réelles
+ * Cette fonction est maintenant obsolète car nous utilisons directement 
+ * l'OCR via l'Edge Function Supabase dans useDocumentProcessor.ts
+ * Elle est conservée pour compatibilité avec l'API existante.
  */
 export const extractDocumentData = async (file: File, documentType: DocumentType): Promise<DocumentData> => {
-  try {
-    // Vérifier si le fichier est une image
-    if (!file.type.startsWith('image/')) {
-      console.error("Le fichier n'est pas une image");
-      return null;
-    }
-    
-    console.log(`Traitement d'un document de type: ${documentType}`);
-    
-    // Pour l'instant, nous simulons des données extraites pour démonstration
-    // Dans une implémentation réelle, vous utiliseriez un service OCR comme Google Cloud Vision, Azure Form Recognizer, etc.
-    
-    // Simulation des données extraites selon le type de document
-    if (documentType === "vehicle_registration") {
-      return {
-        plate_number: "AB-123-CD",
-        make: "Renault",
-        model: "Kangoo",
-        year: "2020",
-        registration_date: "12/05/2020",
-        owner: "Transports Express",
-        vehicle_type: "Utilitaire"
-      };
-    } else if (documentType === "driver_license") {
-      return {
-        license_number: "123456789",
-        full_name: "Jean Dupont",
-        birth_date: "15/03/1985",
-        issue_date: "10/06/2018",
-        expiry_date: "10/06/2033",
-        categories: "B, BE"
-      };
-    } else if (documentType === "id_card") {
-      return {
-        id_number: "987654321",
-        full_name: "Jean Dupont",
-        birth_date: "15/03/1985",
-        issue_date: "01/02/2019",
-        expiry_date: "01/02/2029",
-        nationality: "Française",
-        address: "1 rue de Paris, 75001 Paris"
-      };
-    } else if (documentType === "other") {
-      return {
-        company_name: "RetourGo Logistics",
-        ninea: "SN-DKR-2023-12345",
-        rc: "RC-DKR-2023-54321",
-        address: "Avenue Senghor, Dakar"
-      };
-    }
-    
-    // Si le type de document n'est pas reconnu, retourner null
-    return null;
-    
-  } catch (error) {
-    console.error("Erreur lors de l'extraction des données du document:", error);
-    return null;
-  }
+  console.warn("La fonction extractDocumentData est obsolète. Utilisez useDocumentProcessor à la place.");
+  return null;
 };
 
 export const getDocumentTitle = (documentType: DocumentType, customTitle?: string): string => {
