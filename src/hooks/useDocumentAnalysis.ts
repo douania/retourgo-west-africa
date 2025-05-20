@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentType } from "@/utils/document-utils";
-import { useAIServices } from "@/services/ai"; // Updated import path
+import { useAIServices } from "@/services/ai"; 
 import { fileToBase64, extractBase64Content } from "@/utils/file-utils";
 
 interface UseDocumentAnalysisProps {
@@ -73,30 +73,79 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       console.log('Document analysis result received:', result);
       
       if (result && result.extractedData) {
-        console.log("Data successfully extracted:", result.extractedData);
+        const extractedData = result.extractedData;
         
-        // Check if the data is coming from mock source, safely accessing the source property
-        if (result.source && result.source.includes('mock')) {
-          console.log("Warning: Using mock data instead of real OCR results");
+        // Vérifier si des données ont réellement été extraites
+        const hasRealData = Object.keys(extractedData).some(
+          key => !key.startsWith('possible_') && extractedData[key] !== null && extractedData[key] !== ''
+        );
+        
+        if (hasRealData) {
+          console.log("Data successfully extracted:", extractedData);
+          
+          // Check if the data is coming from mock source, safely accessing the source property
+          if (result.source && result.source.includes('mock')) {
+            console.log("Warning: Using mock data instead of real OCR results");
+            toast({
+              title: "Mode démo activé",
+              description: "Des données fictives sont utilisées pour la démonstration. Pour utiliser la reconnaissance réelle, réessayez avec une image plus claire.",
+              variant: "default"
+            });
+          } else {
+            // Success with real data
+            toast({
+              title: "Document analysé",
+              description: "Les informations ont été extraites avec succès du document.",
+            });
+          }
+          
+          if (onSuccess) {
+            console.log("Calling onSuccess callback with data:", extractedData);
+            onSuccess(extractedData);
+          }
+          
+          return extractedData;
+        } else if (Object.keys(extractedData).some(key => key.startsWith('possible_'))) {
+          // Des données probables ont été extraites mais pas fiables
+          console.log("Only probable data could be extracted:", extractedData);
+          
           toast({
-            title: "Mode démo activé",
-            description: "Des données fictives sont utilisées pour la démonstration. Pour utiliser la reconnaissance réelle, réessayez avec une image plus claire.",
+            title: "Analyse partielle",
+            description: "Certaines informations ont été détectées mais peuvent être imprécises. Veuillez vérifier et corriger si nécessaire.",
             variant: "default"
           });
+          
+          // Créer un nouvel objet sans les préfixes "possible_"
+          const cleanData = Object.entries(extractedData).reduce((acc, [key, value]) => {
+            const cleanKey = key.replace('possible_', '');
+            acc[cleanKey] = value;
+            return acc;
+          }, {} as Record<string, string>);
+          
+          if (onSuccess) {
+            console.log("Calling onSuccess callback with partial data:", cleanData);
+            onSuccess(cleanData);
+          }
+          
+          return cleanData;
         } else {
-          // Success with real data
+          console.log("No data could be extracted:", extractedData);
+          
+          const error = new Error("Aucune donnée n'a pu être extraite. Veuillez essayer avec une image plus claire ou saisir les données manuellement.");
+          setLastError(error);
+          
           toast({
-            title: "Document analysé",
-            description: "Les informations ont été extraites avec succès du document.",
+            title: "Extraction échouée",
+            description: "Aucune information n'a pu être extraite du document. Veuillez essayer avec une image plus claire ou saisir les données manuellement.",
+            variant: "destructive"
           });
+          
+          if (onError) {
+            onError(error);
+          }
+          
+          throw error;
         }
-        
-        if (onSuccess) {
-          console.log("Calling onSuccess callback with data:", result.extractedData);
-          onSuccess(result.extractedData);
-        }
-        
-        return result.extractedData;
       } else {
         console.log("No data could be extracted or result is invalid:", result);
         

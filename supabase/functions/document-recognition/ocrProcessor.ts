@@ -22,27 +22,64 @@ export async function processWithHuggingFace(base64Image: string) {
     formData.append('file', blob, 'document.jpg');
 
     // Utiliser un modèle plus robuste de Hugging Face pour l'OCR
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/microsoft/trocr-large-printed", 
-      {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer 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"
-        },
-        body: formData
+    // Tester avec plusieurs modèles pour améliorer la fiabilité
+    try {
+      // Essayer d'abord avec le modèle TrOCR pour les textes imprimés
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/microsoft/trocr-large-printed", 
+        {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer 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"
+          },
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Hugging Face API error: ${response.status}`);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Hugging Face API error: ${response.status}`);
+      const result = await response.json();
+      console.log("Hugging Face TrOCR result:", result);
+
+      // Vérifier si le résultat contient du texte
+      const extractedText = result[0]?.generated_text || result.generated_text || "";
+      
+      if (extractedText.length < 10) {
+        // Si trop peu de texte a été extrait, essayer avec un autre modèle
+        throw new Error("Insufficient text detected with TrOCR model");
+      }
+      
+      return parseOCRText(extractedText);
+      
+    } catch (error) {
+      console.log("Trying with alternative model due to error:", error);
+      
+      // Essayer avec un modèle alternatif optimisé pour les documents d'identité
+      const altResponse = await fetch(
+        "https://api-inference.huggingface.co/models/facebook/nougat-base", 
+        {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer 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"
+          },
+          body: formData
+        }
+      );
+
+      if (!altResponse.ok) {
+        throw new Error(`Alternative Hugging Face API error: ${altResponse.status}`);
+      }
+
+      const altResult = await altResponse.json();
+      console.log("Alternative Hugging Face model result:", altResult);
+      
+      // L'API peut renvoyer différents formats selon le modèle
+      const extractedText = altResult[0]?.generated_text || altResult.generated_text || "";
+      
+      return parseOCRText(extractedText);
     }
-
-    const result = await response.json();
-    console.log("Hugging Face result:", result);
-
-    // L'API renvoie généralement un résultat sous forme de texte simple
-    // Nous devons l'analyser pour extraire les informations structurées
-    return parseOCRText(result[0].generated_text || result.generated_text || "");
   } catch (error) {
     console.error("Error processing with Hugging Face:", error);
     throw error;
