@@ -35,7 +35,9 @@ export function ImageDropzone({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      console.log("File dropped:", e.dataTransfer.files[0].name);
       onFileDrop(e.dataTransfer.files[0]);
     }
   };
@@ -43,11 +45,13 @@ export function ImageDropzone({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
+      console.log("File selected:", e.target.files[0].name);
       onFileDrop(e.target.files[0]);
     }
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event bubbling
     inputRef.current?.click();
   };
 

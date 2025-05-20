@@ -42,12 +42,17 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
     return <DocumentProcessingIndicator />;
   }
 
-  const hasFile = previewUrl || currentFile;
+  const hasFile = Boolean(previewUrl || currentFile);
+  
+  const handleImageCapture = (file: File) => {
+    console.log("Document captured:", file.name);
+    onFileUpload(file);
+  };
 
   return (
     <>
       <ImageUpload
-        onImageCapture={onFileUpload}
+        onImageCapture={handleImageCapture}
         onImageRemove={onDocumentRemove || resetCapture}
         previewUrl={previewUrl}
         allowCapture={true}

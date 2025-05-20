@@ -27,6 +27,8 @@ export function ImageUpload({
   const { toast } = useToast();
 
   const handleFile = (file: File) => {
+    console.log("Handling file in ImageUpload:", file.name);
+    
     // Vérifiez le type et la taille du fichier
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     const maxSize = 5 * 1024 * 1024; // 5MB
