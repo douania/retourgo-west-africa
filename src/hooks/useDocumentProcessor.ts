@@ -22,7 +22,7 @@ export function useDocumentProcessor({
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [processingError, setProcessingError] = useState<string | null>(null);
   
-  const { currentSide, goToNextSide, resetSides } = useDocumentSides({
+  const { currentSide, moveToBackSide: goToNextSide, resetToFrontSide: resetSides } = useDocumentSides({
     showBothSides
   });
   

@@ -31,7 +31,6 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
     setLastError(null);
 
     // For demonstration purposes, allow document analysis even without authentication
-    // In production, you would want to enforce authentication
     if (!userId) {
       console.log("No userId provided, using demo mode");
       userId = "demo-user";
@@ -79,9 +78,16 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       if (result && result.extractedData) {
         const extractedData = result.extractedData;
         
-        // Vérifier si des données ont réellement été extraites
+        // Vérifier si des données utiles ont réellement été extraites
         const hasRealData = Object.keys(extractedData).some(
-          key => !key.startsWith('possible_') && extractedData[key] !== null && extractedData[key] !== ''
+          key => !key.startsWith('possible_') && 
+                 !['extraction_quality', 'source', 'confidence'].includes(key) &&
+                 extractedData[key] !== null && 
+                 extractedData[key] !== ''
+        );
+        
+        const hasPartialData = Object.keys(extractedData).some(
+          key => key.startsWith('possible_') && extractedData[key] !== null && extractedData[key] !== ''
         );
         
         if (hasRealData) {
@@ -109,8 +115,8 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
           }
           
           return extractedData;
-        } else if (Object.keys(extractedData).some(key => key.startsWith('possible_'))) {
-          // Des données probables ont été extraites mais pas fiables
+        } else if (hasPartialData) {
+          // Des données probables ont été extraites mais pas très fiables
           console.log("Only probable data could be extracted:", extractedData);
           
           toast({
@@ -121,8 +127,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
           
           // Créer un nouvel objet sans les préfixes "possible_"
           const cleanData = Object.entries(extractedData).reduce((acc, [key, value]) => {
-            const cleanKey = key.replace('possible_', '');
-            acc[cleanKey] = value;
+            if (key.startsWith('possible_')) {
+              const cleanKey = key.replace('possible_', '');
+              acc[cleanKey] = value;
+            } else if (!['extraction_quality', 'source', 'confidence'].includes(key)) {
+              acc[key] = value;
+            }
             return acc;
           }, {} as Record<string, string>);
           
@@ -133,14 +143,24 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
           
           return cleanData;
         } else {
-          console.log("No data could be extracted:", extractedData);
+          console.log("No useful data could be extracted:", extractedData);
           
-          const error = new Error("L'image est peut-être tournée. Essayez de la faire pivoter pour que le texte soit bien droit, puis réessayez.");
+          // Suggestions variables
+          let suggestions = "";
+          const quality = parseFloat(extractedData.extraction_quality || "0");
+          
+          if (quality < 20) {
+            suggestions = "L'image est peut-être de mauvaise qualité. Essayez avec une photo plus claire et bien cadrée.";
+          } else {
+            suggestions = "L'image est peut-être tournée. Essayez de la faire pivoter pour que le texte soit bien droit, puis réessayez.";
+          }
+          
+          const error = new Error(suggestions);
           setLastError(error);
           
           toast({
             title: "Extraction échouée",
-            description: "L'image est peut-être tournée. Essayez de la faire pivoter avant de télécharger ou de la prendre en orientation portrait.",
+            description: suggestions,
             variant: "destructive"
           });
           
@@ -153,12 +173,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       } else {
         console.log("No data could be extracted or result is invalid:", result);
         
-        const error = new Error("L'orientation de l'image peut être un problème. Essayez de prendre une photo en mode portrait.");
+        const error = new Error("L'orientation ou la qualité de l'image peut être un problème. Essayez de prendre une photo en mode portrait avec un bon éclairage.");
         setLastError(error);
         
         toast({
           title: "Extraction limitée",
-          description: "L'orientation de l'image peut être un problème. Essayez de prendre une photo en mode portrait.",
+          description: "L'orientation ou la qualité de l'image peut être un problème. Essayez une photo plus claire et bien cadrée.",
           variant: "default"
         });
         
