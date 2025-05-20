@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentType } from "@/utils/document-utils";
-import { useAIServices } from "@/services/AIService";
+import { useAIServices } from "@/services/ai"; // Updated import path
 import { fileToBase64, extractBase64Content } from "@/utils/file-utils";
 
 interface UseDocumentAnalysisProps {
