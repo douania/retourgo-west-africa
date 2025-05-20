@@ -13,6 +13,7 @@ interface UseDocumentAnalysisProps {
 export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisProps = {}) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastError, setLastError] = useState<Error | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
   const { analyzeDocument } = useAIServices();
 
@@ -66,6 +67,9 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       console.log("Base64 conversion complete, content length:", base64Content.length);
 
       console.log("Sending document for OCR analysis to AI service");
+
+      // Increment retry count to track attempts - can help with debugging
+      setRetryCount(prev => prev + 1);
 
       // Call the Edge Function Supabase via the AI service
       const result = await analyzeDocument(base64Content, docType, userId);
@@ -131,12 +135,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
         } else {
           console.log("No data could be extracted:", extractedData);
           
-          const error = new Error("Aucune donnée n'a pu être extraite. Veuillez essayer avec une image plus claire ou saisir les données manuellement.");
+          const error = new Error("L'image est peut-être tournée. Essayez de la faire pivoter pour que le texte soit bien droit, puis réessayez.");
           setLastError(error);
           
           toast({
             title: "Extraction échouée",
-            description: "Aucune information n'a pu être extraite du document. Veuillez essayer avec une image plus claire ou saisir les données manuellement.",
+            description: "L'image est peut-être tournée. Essayez de la faire pivoter avant de télécharger ou de la prendre en orientation portrait.",
             variant: "destructive"
           });
           
@@ -149,12 +153,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       } else {
         console.log("No data could be extracted or result is invalid:", result);
         
-        const error = new Error("Aucune donnée n'a pu être extraite. Veuillez essayer avec une image plus claire.");
+        const error = new Error("L'orientation de l'image peut être un problème. Essayez de prendre une photo en mode portrait.");
         setLastError(error);
         
         toast({
           title: "Extraction limitée",
-          description: "Veuillez essayer avec une image plus claire ou saisir les données manuellement.",
+          description: "L'orientation de l'image peut être un problème. Essayez de prendre une photo en mode portrait.",
           variant: "default"
         });
         
@@ -192,6 +196,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
   return {
     isProcessing,
     lastError,
+    retryCount,
     extractDocumentData
   };
 }
