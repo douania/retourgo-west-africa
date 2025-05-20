@@ -1,6 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/hooks/useTranslation";
+import { LucideIcon } from "lucide-react";
 
 const HowItWorksSection = () => {
   const { t } = useTranslation();

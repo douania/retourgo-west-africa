@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FreightDetailsHeaderProps {
   onBack: () => void;
@@ -9,6 +9,8 @@ interface FreightDetailsHeaderProps {
 }
 
 export const FreightDetailsHeader = ({ onBack, title }: FreightDetailsHeaderProps) => {
+  const { t } = useTranslation();
+  
   return (
     <>
       <Button 
@@ -16,7 +18,7 @@ export const FreightDetailsHeader = ({ onBack, title }: FreightDetailsHeaderProp
         className="mb-6 flex items-center gap-2"
         onClick={onBack}
       >
-        <ArrowLeft className="h-4 w-4" /> Retour
+        <ArrowLeft className="h-4 w-4" /> {t("freight.back")}
       </Button>
 
       {title && (

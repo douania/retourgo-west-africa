@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Truck } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProfileData {
   id: string;
@@ -30,6 +31,7 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!user) {
@@ -58,15 +60,15 @@ const Profile = () => {
       } catch (error: any) {
         console.error("Error fetching profile:", error);
         toast({
-          title: "Erreur",
-          description: "Impossible de charger le profil",
+          title: t("profile.error"),
+          description: t("profile.load_error"),
           variant: "destructive",
         });
       }
     };
 
     fetchProfile();
-  }, [user, navigate, toast]);
+  }, [user, navigate, toast, t]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,14 +90,14 @@ const Profile = () => {
       }
 
       toast({
-        title: "Profil mis à jour",
-        description: "Vos informations ont été mises à jour avec succès.",
+        title: t("profile.updated"),
+        description: t("profile.update_success"),
       });
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour le profil",
+        title: t("profile.error"),
+        description: t("profile.update_error"),
         variant: "destructive",
       });
     } finally {
@@ -110,7 +112,7 @@ const Profile = () => {
   if (!profileData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p>Chargement du profil...</p>
+        <p>{t("profile.loading")}</p>
       </div>
     );
   }
@@ -119,9 +121,9 @@ const Profile = () => {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Votre Profil</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t("profile.your_profile")}</h1>
           <p className="mt-2 text-lg text-gray-600">
-            Mettez à jour vos informations personnelles
+            {t("profile.update_info")}
           </p>
         </div>
 
@@ -129,7 +131,7 @@ const Profile = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <Label htmlFor="firstName">Prénom</Label>
+                <Label htmlFor="firstName">{t("profile.first_name")}</Label>
                 <Input
                   id="firstName"
                   value={firstName}
@@ -139,7 +141,7 @@ const Profile = () => {
               </div>
 
               <div>
-                <Label htmlFor="lastName">Nom</Label>
+                <Label htmlFor="lastName">{t("profile.last_name")}</Label>
                 <Input
                   id="lastName"
                   value={lastName}
@@ -158,12 +160,12 @@ const Profile = () => {
                 className="mt-1 bg-gray-100"
               />
               <p className="text-sm text-gray-500 mt-1">
-                L'email ne peut pas être modifié
+                {t("profile.email_note")}
               </p>
             </div>
 
             <div>
-              <Label htmlFor="phone">Téléphone</Label>
+              <Label htmlFor="phone">{t("profile.phone")}</Label>
               <Input
                 id="phone"
                 value={phone}
@@ -173,21 +175,21 @@ const Profile = () => {
             </div>
 
             <div>
-              <Label htmlFor="userType">Type d'utilisateur</Label>
+              <Label htmlFor="userType">{t("profile.user_type")}</Label>
               <Input
                 id="userType"
                 value={
                   profileData.user_type === "transporter"
-                    ? "Transporteur"
+                    ? t("profile.transporter")
                     : profileData.user_type === "shipper"
-                    ? "Expéditeur"
-                    : "Particulier"
+                    ? t("profile.shipper")
+                    : t("profile.individual")
                 }
                 disabled
                 className="mt-1 bg-gray-100"
               />
               <p className="text-sm text-gray-500 mt-1">
-                Le type d'utilisateur ne peut pas être modifié
+                {t("profile.user_type_note")}
               </p>
             </div>
 
@@ -197,14 +199,14 @@ const Profile = () => {
                 className="bg-retourgo-orange hover:bg-retourgo-orange/90"
                 disabled={isLoading}
               >
-                {isLoading ? "Enregistrement..." : "Enregistrer les modifications"}
+                {isLoading ? t("profile.saving") : t("profile.save_changes")}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate("/dashboard")}
               >
-                Retour au tableau de bord
+                {t("profile.back_dashboard")}
               </Button>
             </div>
           </form>
@@ -215,16 +217,16 @@ const Profile = () => {
             <div className="flex flex-col space-y-4">
               <div className="flex items-center space-x-2">
                 <Truck className="h-5 w-5 text-retourgo-orange" />
-                <h2 className="text-xl font-semibold text-gray-900">Gestion des véhicules</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{t("profile.vehicle_management")}</h2>
               </div>
               <p className="text-gray-600">
-                En tant que transporteur, vous pouvez enregistrer vos véhicules pour proposer vos services.
+                {t("profile.transporter_message")}
               </p>
               <Button 
                 onClick={navigateToVehicleRegistration}
                 className="bg-retourgo-orange hover:bg-retourgo-orange/90 w-full sm:w-auto"
               >
-                <Truck className="mr-2 h-5 w-5" /> Ajouter un véhicule
+                <Truck className="mr-2 h-5 w-5" /> {t("profile.add_vehicle")}
               </Button>
             </div>
           </Card>

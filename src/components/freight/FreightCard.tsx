@@ -5,6 +5,7 @@ import { MapPin, Calendar, TruckIcon, Package, ArrowDown } from "lucide-react";
 import { formatDistance } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface Freight {
   id: string;
@@ -37,6 +38,7 @@ const FreightCard = ({
   originalPrice
 }: FreightCardProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const handleViewDetails = () => {
     navigate(`/freight/${freight.id}`);
@@ -51,7 +53,7 @@ const FreightCard = ({
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl font-bold text-gray-800">{freight.title}</CardTitle>
           <Badge variant={freight.status === "available" ? "success" : "secondary"}>
-            {freight.status === "available" ? "Disponible" : "Attribuée"}
+            {freight.status === "available" ? t("status.available") : t("status.assigned")}
           </Badge>
         </div>
       </CardHeader>
@@ -68,8 +70,8 @@ const FreightCard = ({
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Calendar className="h-4 w-4 text-retourgo-orange" />
             <div className="flex flex-col">
-              <span>Chargement: {new Date(freight.pickup_date).toLocaleDateString()}</span>
-              <span>Livraison: {new Date(freight.delivery_date).toLocaleDateString()}</span>
+              <span>{t("freight.loading_date")}: {new Date(freight.pickup_date).toLocaleDateString()}</span>
+              <span>{t("freight.delivery_date")}: {new Date(freight.delivery_date).toLocaleDateString()}</span>
             </div>
           </div>
           
@@ -92,27 +94,19 @@ const FreightCard = ({
               {showReturnDiscount && originalPrice && (
                 <div className="flex items-center text-xs text-retourgo-green">
                   <ArrowDown className="h-3 w-3 mr-1" />
-                  <span className="font-medium">-{discountPercentage}% Retour à vide</span>
+                  <span className="font-medium">-{discountPercentage}% {t("freight.empty_return")}</span>
                 </div>
               )}
             </div>
             {showActions && (
               <Button 
                 onClick={handleViewDetails}
-                className="bg-retourgo-green hover:bg-retourgo-green/90"
+                className="bg-retourgo-orange hover:bg-retourgo-orange/90"
               >
-                Détails
+                {t("freight.view_details")}
               </Button>
             )}
           </div>
-          
-          {showReturnDiscount && (
-            <div className="bg-green-50 p-2 rounded-md border border-green-100 text-center">
-              <span className="text-xs font-medium text-retourgo-green">
-                Opportunité retour à vide – tarif réduit
-              </span>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

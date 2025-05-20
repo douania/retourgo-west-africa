@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useTranslation } from "@/hooks/useTranslation";
 
 // Custom hook and component imports
 import { useFreightFormSubmission } from "./freight-form/useFreightFormSubmission";
@@ -32,6 +33,7 @@ const FreightForm = () => {
     }
   });
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   // Form submission hook
   const { handleSubmit: submitForm, isSubmitting } = useFreightFormSubmission();
@@ -66,9 +68,9 @@ const FreightForm = () => {
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Publier une nouvelle marchandise</CardTitle>
+        <CardTitle>{t("freight.publish_new_merchandise")}</CardTitle>
         <CardDescription>
-          Remplissez les détails de votre marchandise pour la publier sur RetourGo
+          {t("freight.fill_merchandise_details")}
         </CardDescription>
       </CardHeader>
       
@@ -108,14 +110,14 @@ const FreightForm = () => {
 
         <CardFooter className="flex justify-between">
           <Button variant="outline" type="button" onClick={() => navigate(-1)}>
-            Annuler
+            {t("freight.cancel")}
           </Button>
           <Button 
             type="submit" 
             className="bg-retourgo-orange hover:bg-retourgo-orange/90"
             disabled={isSubmitting || !!pricingError}
           >
-            {isSubmitting ? "Publication en cours..." : "Publier la marchandise"}
+            {isSubmitting ? t("freight.publishing") : t("freight.publish_merchandise")}
           </Button>
         </CardFooter>
       </form>

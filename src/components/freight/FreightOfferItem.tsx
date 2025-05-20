@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { formatDate, getStatusLabel } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export interface TransporterProfile {
   first_name: string | null;
@@ -33,12 +34,14 @@ export const FreightOfferItem = ({
   onAccept,
   isProcessing
 }: FreightOfferItemProps) => {
+  const { t } = useTranslation();
+  
   // Fix for the error: compare with the string "available" instead of boolean
   const canAccept = isAvailable && offer.status === "pending";
   
   const transporterName = offer.transporter ? 
     `${offer.transporter.first_name || ''} ${offer.transporter.last_name || ''}`.trim() : 
-    'Transporteur inconnu';
+    t("freight.unknown_transporter");
   
   const transporterRating = offer.transporter?.rating || 0;
   
@@ -70,10 +73,10 @@ export const FreightOfferItem = ({
       </div>
       
       <div className="w-1/4 text-center">
-        <p className="font-bold text-lg">{offer.price_offered} €</p>
+        <p className="font-bold text-lg">{offer.price_offered} FCFA</p>
         {offer.status !== "pending" && (
           <Badge variant={offer.status === "accepted" ? "success" : "destructive"} className="mt-1">
-            {getStatusLabel(offer.status)}
+            {getStatusLabel(offer.status, t)}
           </Badge>
         )}
       </div>
@@ -86,10 +89,10 @@ export const FreightOfferItem = ({
             className={`${isProcessing ? "bg-gray-400" : "bg-retourgo-green hover:bg-retourgo-green/90"}`}
           >
             {isProcessing ? (
-              "En cours..."
+              t("freight.processing")
             ) : (
               <>
-                <Check className="mr-2 h-4 w-4" /> Accepter
+                <Check className="mr-2 h-4 w-4" /> {t("freight.accept")}
               </>
             )}
           </Button>

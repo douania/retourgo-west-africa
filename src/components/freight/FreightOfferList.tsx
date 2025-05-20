@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import { TransportOffer, FreightOfferItem } from "./FreightOfferItem";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface FreightOfferListProps {
   offers: TransportOffer[];
@@ -22,6 +23,7 @@ export const FreightOfferList = ({
 }: FreightOfferListProps) => {
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const { t } = useTranslation();
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -50,9 +52,9 @@ export const FreightOfferList = ({
   if (offers.length === 0) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-xl font-semibold text-gray-700">Aucune offre</h3>
+        <h3 className="text-xl font-semibold text-gray-700">{t("freight.no_offers")}</h3>
         <p className="text-gray-500 mt-2">
-          Votre fret n'a pas encore reçu d'offres de transporteurs.
+          {t("freight.no_offers_received")}
         </p>
       </div>
     );
@@ -68,7 +70,7 @@ export const FreightOfferList = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center pb-2 border-b text-sm font-medium text-gray-500">
-        <div className="w-1/4">Transporteur</div>
+        <div className="w-1/4">{t("freight.transporter")}</div>
         <div className="w-1/4 text-center">
           <Button 
             variant="ghost" 
@@ -76,7 +78,7 @@ export const FreightOfferList = ({
             className="flex items-center justify-center p-0 h-auto font-medium"
             onClick={() => handleSort("date")}
           >
-            Date de l'offre
+            {t("freight.offer_date")}
             {renderSortIcon("date")}
           </Button>
         </div>
@@ -87,7 +89,7 @@ export const FreightOfferList = ({
             className="flex items-center justify-center p-0 h-auto font-medium"
             onClick={() => handleSort("price")}
           >
-            Prix offert
+            {t("freight.offered_price")}
             {renderSortIcon("price")}
           </Button>
         </div>
