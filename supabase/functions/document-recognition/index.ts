@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { corsHeaders } from "./cors.ts";
@@ -36,12 +37,12 @@ serve(async (req) => {
     let confidenceScore = 0;
     
     // Determine which OCR service to try first
-    const preferredOcr = options?.preferredOcr || "auto";
+    const preferredOcr = options?.preferredOcr || "googleVision"; // Default to Google Vision
     
     try {
       // Try Google Vision API first if specified or auto
       if (preferredOcr === "googleVision" || preferredOcr === "auto") {
-        console.log("Attempting to use Google Cloud Vision API");
+        console.log("Using Google Cloud Vision API as primary OCR service");
         
         try {
           const googleResult = await processWithGoogleVision(documentBase64, documentType, options);

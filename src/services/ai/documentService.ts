@@ -10,6 +10,7 @@ export async function analyzeDocument(
   console.log("Calling document analysis with userId:", userId);
   console.log("Document content length:", documentBase64.length);
   console.log("Document type:", documentType);
+  console.log("Using Google Cloud Vision API for OCR");
   
   // Send additional parameters to help with processing
   const { data, error } = await supabase.functions.invoke('document-recognition', {
@@ -18,10 +19,12 @@ export async function analyzeDocument(
       documentType, 
       userId,
       options: {
-        preferredOcr: "googleVision", // Request Google Vision API as preferred OCR
+        preferredOcr: "googleVision", // Force using Google Vision API
         tryAllOrientations: true,     // Try all possible orientations
         enhanceImage: true,           // Request image enhancement if needed
-        documentCountry: "senegal"    // Specify the document's country
+        documentCountry: "senegal",   // Specify the document's country
+        useHighResolution: true,      // Request high resolution processing
+        detectFormats: ["TEXT_DETECTION", "DOCUMENT_TEXT_DETECTION"] // Use both detection types
       }
     }
   });
@@ -32,5 +35,10 @@ export async function analyzeDocument(
   }
   
   console.log("Document analysis completed successfully");
+  if (data) {
+    console.log("OCR service used:", data.source || "unknown");
+    console.log("Confidence score:", data.confidenceScore || "unknown");
+  }
+  
   return data as DocumentRecognitionResponse;
 }

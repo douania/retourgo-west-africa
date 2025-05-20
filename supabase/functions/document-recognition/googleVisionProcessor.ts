@@ -14,6 +14,14 @@ export async function processWithGoogleVision(base64Image: string, documentType:
       throw new Error("Google Cloud API key not configured");
     }
     
+    // Log the document type and options for better debugging
+    console.log(`Document type: ${documentType}`);
+    console.log("OCR options:", JSON.stringify({
+      documentCountry: options.documentCountry || "senegal",
+      enhanceImage: options.enhanceImage || false,
+      tryAllOrientations: options.tryAllOrientations || false
+    }));
+    
     // Prepare request to Google Cloud Vision API
     const requestBody = {
       requests: [
@@ -23,15 +31,21 @@ export async function processWithGoogleVision(base64Image: string, documentType:
           },
           features: [
             {
-              type: "DOCUMENT_TEXT_DETECTION" // Specialized for documents
+              type: "DOCUMENT_TEXT_DETECTION", // Specialized for documents
+              maxResults: 10
             }
           ],
           imageContext: {
-            languageHints: ["fr", "en"] // French and English for Senegalese documents
+            languageHints: ["fr", "en"], // French and English for Senegalese documents
+            cropHintsParams: {
+              aspectRatios: [1.0, 1.5] // Common aspect ratios for ID documents
+            }
           }
         }
       ]
     };
+    
+    console.log("Sending request to Google Cloud Vision API");
     
     // Call the Vision API
     const response = await fetch(
@@ -47,6 +61,8 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("Google API error status:", response.status);
+      console.error("Google API error response:", JSON.stringify(errorData));
       throw new Error(`Google Cloud Vision API error: ${errorData.error?.message || response.statusText}`);
     }
     
@@ -55,14 +71,17 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     
     // Check if we received valid results
     if (!result.responses || result.responses.length === 0 || !result.responses[0].fullTextAnnotation) {
+      console.error("No text detected in the image");
       throw new Error("No text detected in the image");
     }
     
     // Extract the full text from the response
     const detectedText = result.responses[0].fullTextAnnotation.text;
     console.log("Text detected by Google Vision API");
+    console.log("Text length:", detectedText.length);
     
     if (!detectedText || detectedText.length < 10) {
+      console.error("Insufficient text detected in the document");
       throw new Error("Insufficient text detected in the document");
     }
     
@@ -80,6 +99,7 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     }
     
     const avgConfidence = annotationCount > 0 ? totalConfidence / annotationCount : 0.7;
+    console.log("Average confidence score:", avgConfidence.toFixed(2));
     
     // Use our parser to extract structured data from the detected text
     const documentCountry = options?.documentCountry || "senegal";
