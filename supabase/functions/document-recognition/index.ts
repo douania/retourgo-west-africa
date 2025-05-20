@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { corsHeaders } from "./cors.ts";
@@ -6,21 +7,45 @@ import { processWithHuggingFace } from "./ocrProcessor.ts";
 import { processWithGoogleVision } from "./googleVisionProcessor.ts";
 
 serve(async (req) => {
+  console.log("Document recognition function called");
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log("Handling CORS preflight request");
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { documentBase64, documentType, userId, options = {} } = await req.json();
+    console.log("Parsing request body");
+    let requestBody;
+    try {
+      requestBody = await req.json();
+      console.log("Request body parsed successfully");
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError);
+      return new Response(
+        JSON.stringify({ error: "Invalid request format" }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
     
-    // Validate input
+    const { documentBase64, documentType, userId, options = {} } = requestBody;
+    
+    // Validate input with detailed logging
     if (!documentBase64) {
-      throw new Error('Document data is required');
+      console.error("Missing required field: documentBase64");
+      return new Response(
+        JSON.stringify({ error: 'Document data is required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
     
     if (!documentType) {
-      throw new Error('Document type is required');
+      console.error("Missing required field: documentType");
+      return new Response(
+        JSON.stringify({ error: 'Document type is required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
 
     // Allow demo mode without userId
@@ -28,12 +53,16 @@ serve(async (req) => {
       console.log("No userId provided, using demo mode");
     }
 
-    console.log("Processing document:", documentType);
+    console.log(`Processing document: ${documentType}`);
     console.log("Processing options:", JSON.stringify(options));
     
     let extractedData = {};
     let ocrService = "unknown";
     let confidenceScore = 0;
+    
+    // Log API key availability (securely)
+    const googleApiKey = Deno.env.get("GOOGLE_CLOUD_API_KEY");
+    console.log("Google Cloud API Key available:", googleApiKey ? "Yes" : "No");
     
     // Determine which OCR service to try first
     const preferredOcr = options?.preferredOcr || "googleVision"; // Default to Google Vision
@@ -44,13 +73,32 @@ serve(async (req) => {
         console.log("Using Google Cloud Vision API as primary OCR service");
         
         try {
+          if (!googleApiKey) {
+            console.error("Google Cloud API Key is not configured");
+            throw new Error("Google Cloud API Key is not configured");
+          }
+          
+          // Check if documentBase64 is in the correct format (not containing data:image prefix)
+          if (documentBase64.startsWith('data:')) {
+            console.error("DocumentBase64 should not include data:image prefix");
+            throw new Error("DocumentBase64 format is incorrect");
+          }
+          
           const googleResult = await processWithGoogleVision(documentBase64, documentType, options);
+          console.log("Google Vision API returned result");
+          
+          if (!googleResult || !googleResult.data) {
+            console.error("Google Vision API returned empty result");
+            throw new Error("Empty result from Google Vision API");
+          }
+          
           extractedData = googleResult.data;
           confidenceScore = googleResult.confidence || 0.8;
           ocrService = "google_vision";
           console.log("Successfully extracted data with Google Vision API");
         } catch (googleError) {
           console.error("Google Vision API error:", googleError.message);
+          console.error("Error details:", googleError);
           
           // Only throw if Google was explicitly requested
           if (preferredOcr === "googleVision") {

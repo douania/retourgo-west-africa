@@ -11,10 +11,10 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     const apiKey = Deno.env.get("GOOGLE_CLOUD_API_KEY");
     
     if (!apiKey) {
+      console.error("Google Cloud API key not configured");
       throw new Error("Google Cloud API key not configured");
     }
     
-    // Log the document type and options for better debugging
     console.log(`Document type: ${documentType}`);
     console.log("OCR options:", JSON.stringify({
       documentCountry: options.documentCountry || "senegal",
@@ -22,12 +22,15 @@ export async function processWithGoogleVision(base64Image: string, documentType:
       tryAllOrientations: options.tryAllOrientations || false
     }));
     
+    // Ensure base64Image doesn't already include data:image prefix
+    const cleanBase64 = base64Image.replace(/^data:image\/[a-z]+;base64,/, "");
+    
     // Prepare request to Google Cloud Vision API
     const requestBody = {
       requests: [
         {
           image: {
-            content: base64Image
+            content: cleanBase64
           },
           features: [
             {
@@ -112,6 +115,7 @@ export async function processWithGoogleVision(base64Image: string, documentType:
     });
     
     console.log("Successfully parsed data from Google Vision OCR result");
+    console.log("Parsed data:", JSON.stringify(parsedData));
     
     return {
       data: parsedData,

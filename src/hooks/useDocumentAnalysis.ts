@@ -59,12 +59,15 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       console.log("Converting file to base64:", file.name);
       const base64 = await fileToBase64(file);
       console.log("File converted to base64 successfully");
+      console.log("Base64 length:", base64.length);
       
-      // Extract the Base64 content without the prefix
+      // Log the first 50 characters of the base64 string to check format
+      console.log("Base64 format check (first 50 chars):", base64.substring(0, 50));
+      
+      // Extract the Base64 content
       console.log("Extracting base64 content from data URL");
-      const base64Content = extractBase64Content(base64);
+      const base64Content = base64;  // We'll let the analyzeDocument function handle the cleaning
       console.log("Base64 content extracted successfully");
-      console.log("Base64 conversion complete, content length:", base64Content.length);
 
       console.log("Sending document for OCR analysis with enhanced parameters");
 
@@ -72,6 +75,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       setRetryCount(prev => prev + 1);
 
       // Call the Edge Function with enhanced OCR options
+      console.log("Calling document analysis service with userId:", userId);
       const result = await analyzeDocument(base64Content, docType, userId);
       
       if (!result) {
@@ -189,7 +193,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
         toast({
           title: "Extraction limitée",
           description: "L'orientation ou la qualité de l'image peut être un problème. Essayez une photo plus claire et bien cadrée.",
-          variant: "default"
+          variant: "destructive"
         });
         
         if (onError) {

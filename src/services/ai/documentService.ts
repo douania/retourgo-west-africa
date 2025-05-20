@@ -14,11 +14,18 @@ export async function analyzeDocument(
     throw new Error("Document data is missing");
   }
   
+  // Ensure we're only passing the base64 content without the data:image prefix
+  const cleanedBase64 = documentBase64.replace(/^data:image\/[a-z]+;base64,/, "");
+  console.log("Base64 content length:", cleanedBase64.length);
+  
   try {
+    console.log(`Calling document recognition edge function for ${documentType}`);
+    console.log(`Using userId: ${userId || "demo-user"}`);
+    
     // Send additional parameters to help with processing
     const { data, error } = await supabase.functions.invoke('document-recognition', {
       body: { 
-        documentBase64, 
+        documentBase64: cleanedBase64, 
         documentType, 
         userId,
         options: {
@@ -37,11 +44,15 @@ export async function analyzeDocument(
       throw new Error(`Error analyzing document: ${error.message}`);
     }
     
-    console.log("Document analysis completed successfully");
-    if (data) {
-      console.log("OCR service used:", data.source || "unknown");
-      console.log("Confidence score:", data.confidenceScore || "unknown");
+    if (!data) {
+      console.error("No data returned from document-recognition function");
+      throw new Error("No data returned from document analysis");
     }
+    
+    console.log("Document analysis completed successfully");
+    console.log("OCR service used:", data.source || "unknown");
+    console.log("Confidence score:", data.confidenceScore || "unknown");
+    console.log("Extracted data:", JSON.stringify(data.extractedData || {}));
     
     return data as DocumentRecognitionResponse;
   } catch (err) {
