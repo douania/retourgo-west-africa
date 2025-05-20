@@ -11,6 +11,8 @@ import { VerificationStatus } from "@/types/supabase-extensions";
 import DocumentHeader from "./DocumentHeader";
 import DocumentScanContent from "./DocumentScanContent";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RefreshCw } from "lucide-react";
 
 interface DocumentScannerProps {
   onDocumentCaptured: (file: File, extractedData?: any) => void;
@@ -34,6 +36,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
   verificationStatus
 }) => {
   const { user } = useAuth();
+  const [retryCount, setRetryCount] = useState(0);
 
   // Log the authentication status
   useEffect(() => {
@@ -45,6 +48,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
   
   const { 
     isProcessing, 
+    processingError,
     processDocument, 
     handleFileUpload, 
     currentSide, 
@@ -68,11 +72,19 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
   // Handle document processing with better debugging
   const handleProcessDocument = async () => {
     console.log("DocumentScanner - handleProcessDocument called");
+    setRetryCount(prev => prev + 1);
     try {
       await processDocument();
     } catch (error) {
       console.error("Error in DocumentScanner processDocument:", error);
     }
+  };
+
+  // Handle retry when there's an error
+  const handleRetry = () => {
+    console.log("Retrying document processing");
+    setRetryCount(0);
+    resetCapture();
   };
 
   return (
@@ -85,6 +97,20 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
         />
       </CardHeader>
       <CardContent>
+        {processingError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription className="flex items-center justify-between">
+              <span>{processingError}</span>
+              <button 
+                onClick={handleRetry}
+                className="flex items-center text-xs text-primary hover:underline"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" /> Réessayer
+              </button>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <DocumentScanContent 
           isProcessing={isProcessing}
           documentType={documentType}
@@ -99,6 +125,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
           onFileUpload={handleFileUpload}
           onDocumentRemove={onDocumentRemove}
           resetCapture={resetCapture}
+          retryCount={retryCount}
         />
       </CardContent>
     </Card>

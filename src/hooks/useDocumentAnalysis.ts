@@ -12,6 +12,7 @@ interface UseDocumentAnalysisProps {
 
 export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisProps = {}) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [lastError, setLastError] = useState<Error | null>(null);
   const { toast } = useToast();
   const { analyzeDocument } = useAIServices();
 
@@ -25,6 +26,9 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
   const extractDocumentData = async (file: File, docType: DocumentType, userId?: string): Promise<any> => {
     console.log("extractDocumentData called with:", file.name, docType, userId || "no userId");
 
+    // Clear previous errors
+    setLastError(null);
+
     // For demonstration purposes, allow document analysis even without authentication
     // In production, you would want to enforce authentication
     if (!userId) {
@@ -36,6 +40,21 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
     console.log("Started processing document");
 
     try {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        const error = new Error("Le fichier doit être une image (JPG, PNG)");
+        setLastError(error);
+        throw error;
+      }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        const error = new Error("Le fichier est trop volumineux (max 5MB)");
+        setLastError(error);
+        throw error;
+      }
+
       // Convert the file to Base64
       console.log("Converting file to base64");
       console.log("Converting file to base64:", file.name);
@@ -81,29 +100,39 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       } else {
         console.log("No data could be extracted or result is invalid:", result);
         
+        const error = new Error("Aucune donnée n'a pu être extraite. Veuillez essayer avec une image plus claire.");
+        setLastError(error);
+        
         toast({
           title: "Extraction limitée",
           description: "Veuillez essayer avec une image plus claire ou saisir les données manuellement.",
           variant: "default"
         });
-      }
-      
-      console.log("No data could be extracted");
-      return null;
-    } catch (error) {
-      console.error("Error during OCR extraction:", error);
-      if (error instanceof Error) {
-        toast({
-          title: "Erreur d'analyse",
-          description: error.message || "Une erreur est survenue lors de l'analyse du document.",
-          variant: "destructive"
-        });
         
         if (onError) {
-          console.log("Calling onError callback");
           onError(error);
         }
+        
+        throw error;
       }
+    } catch (error) {
+      console.error("Error during OCR extraction:", error);
+      
+      // Store the error for later reference
+      const processedError = error instanceof Error ? error : new Error("Une erreur inconnue est survenue");
+      setLastError(processedError);
+      
+      toast({
+        title: "Erreur d'analyse",
+        description: processedError.message || "Une erreur est survenue lors de l'analyse du document.",
+        variant: "destructive"
+      });
+      
+      if (onError) {
+        console.log("Calling onError callback");
+        onError(processedError);
+      }
+      
       return null;
     } finally {
       console.log("Document processing completed");
@@ -113,6 +142,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
 
   return {
     isProcessing,
+    lastError,
     extractDocumentData
   };
 }

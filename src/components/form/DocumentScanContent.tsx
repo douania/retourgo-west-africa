@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { Button } from "@/components/ui/button";
-import { ScanSearch } from "lucide-react";
+import { ScanSearch, RefreshCw } from "lucide-react";
 import DocumentProcessingIndicator from "./DocumentProcessingIndicator";
 import DocumentTips from "./DocumentTips";
 import { DocumentType } from "@/utils/document-utils";
@@ -21,6 +21,7 @@ interface DocumentScanContentProps {
   onFileUpload: (file: File) => void;
   onDocumentRemove?: () => void;
   resetCapture: () => void;
+  retryCount?: number;
 }
 
 const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
@@ -36,7 +37,8 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
   onProcessDocument,
   onFileUpload,
   onDocumentRemove,
-  resetCapture
+  resetCapture,
+  retryCount = 0
 }) => {
   // Local state for preview
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
@@ -82,7 +84,7 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
   };
 
   const handleProcessDocument = () => {
-    console.log("Analyze Document button clicked - handleProcessDocument function");
+    console.log("Analyze Document button clicked - handleProcessDocument function, retry count:", retryCount);
     if (onProcessDocument) {
       console.log("Calling onProcessDocument");
       onProcessDocument();
@@ -120,6 +122,7 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
               className="w-full"
               onClick={resetCapture}
             >
+              <RefreshCw className="mr-2 h-4 w-4" />
               Recommencer la capture
             </Button>
           )}
