@@ -1,7 +1,7 @@
 
-import fr from './fr';
-import en from './en';
-import wo from './wo';
+import fr from './fr/index';
+import en from './en/index';
+import wo from './wo/index';
 
 const translations = {
   fr,
