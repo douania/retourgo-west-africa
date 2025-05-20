@@ -35,7 +35,14 @@ export function useDocumentProcessor({
   const { 
     isProcessing, 
     extractDocumentData 
-  } = useDocumentAnalysis();
+  } = useDocumentAnalysis({
+    onSuccess: (data) => {
+      console.log("Document analysis successful:", data);
+    },
+    onError: (error) => {
+      console.error("Document analysis error:", error);
+    }
+  });
 
   // Fonction pour gérer le téléchargement initial du document
   const handleFileUpload = (file: File) => {
@@ -64,8 +71,10 @@ export function useDocumentProcessor({
 
   // Fonction pour traiter le document via OCR
   const processDocument = async () => {
-    console.log("processDocument called, currentFile:", currentFile?.name || "null");
+    console.log("processDocument called in useDocumentProcessor, currentFile:", currentFile?.name || "null");
+    
     if (!currentFile) {
+      console.log("No document file found");
       toast({
         title: "Aucun document",
         description: "Veuillez d'abord télécharger un document.",
@@ -75,6 +84,7 @@ export function useDocumentProcessor({
     }
 
     if (!user) {
+      console.log("No authenticated user found");
       toast({
         title: "Utilisateur non identifié",
         description: "Vous devez être connecté pour analyser des documents.",

@@ -25,6 +25,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
   const extractDocumentData = async (file: File, docType: DocumentType, userId: string): Promise<any> => {
     console.log("extractDocumentData called with:", file.name, docType, userId);
     if (!userId) {
+      console.log("No userId provided");
       toast({
         title: "Utilisateur non identifié",
         description: "Vous devez être connecté pour analyser des documents.",
@@ -43,6 +44,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       
       // Extract the Base64 content without the prefix
       const base64Content = extractBase64Content(base64);
+      console.log("Base64 conversion complete, content length:", base64Content.length);
 
       console.log("Sending document for OCR analysis to AI service");
 

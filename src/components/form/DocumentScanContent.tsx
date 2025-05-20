@@ -76,9 +76,8 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
     setLocalPreviewUrl(null);
   };
 
-  const handleProcessDocument = (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log("Analyze Document button clicked");
+  const handleProcessDocument = () => {
+    console.log("Analyze Document button clicked - handleProcessDocument function");
     onProcessDocument();
   };
 
@@ -120,6 +119,6 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
       <DocumentTips documentType={documentType} />
     </>
   );
-}
+};
 
 export default DocumentScanContent;

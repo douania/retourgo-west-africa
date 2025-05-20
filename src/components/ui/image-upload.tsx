@@ -75,10 +75,6 @@ export function ImageUpload({
     setLocalFile(null);
   };
 
-  useEffect(() => {
-    console.log("ImageUpload previewUrl changed:", previewUrl);
-  }, [previewUrl]);
-
   return (
     <div className="w-full">
       {!previewUrl && !isCapturing ? (
