@@ -11,8 +11,19 @@ export async function analyzeDocument(
   console.log("Document content length:", documentBase64.length);
   console.log("Document type:", documentType);
   
+  // Send additional parameters to help with processing
   const { data, error } = await supabase.functions.invoke('document-recognition', {
-    body: { documentBase64, documentType, userId }
+    body: { 
+      documentBase64, 
+      documentType, 
+      userId,
+      options: {
+        preferredOcr: "googleVision", // Request Google Vision API as preferred OCR
+        tryAllOrientations: true,     // Try all possible orientations
+        enhanceImage: true,           // Request image enhancement if needed
+        documentCountry: "senegal"    // Specify the document's country
+      }
+    }
   });
   
   if (error) {

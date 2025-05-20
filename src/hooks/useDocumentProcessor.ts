@@ -21,6 +21,7 @@ export function useDocumentProcessor({
   const { toast } = useToast();
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [processingError, setProcessingError] = useState<string | null>(null);
+  const [processingAttempts, setProcessingAttempts] = useState(0);
   
   const { currentSide, moveToBackSide: goToNextSide, resetToFrontSide: resetSides } = useDocumentSides({
     showBothSides
@@ -39,16 +40,29 @@ export function useDocumentProcessor({
         
         // Reset the current file after processing
         setCurrentFile(null);
+        
+        // Reset the processing attempts counter on success
+        setProcessingAttempts(0);
       }
     },
     onError: (error) => {
       console.error("Document processing error:", error);
       setProcessingError(error.message);
       
+      // Increment the processing attempts counter
+      setProcessingAttempts(prev => prev + 1);
+      
+      // Show different message based on number of attempts
+      let description = error.message;
+      
+      if (processingAttempts >= 2) {
+        description += " Essayez avec une photo prise en pleine lumière et assurez-vous que le document est bien visible.";
+      }
+      
       // Show error toast
       toast({
         title: "Erreur d'analyse",
-        description: error.message || "Une erreur s'est produite lors de l'analyse du document",
+        description: description || "Une erreur s'est produite lors de l'analyse du document",
         variant: "destructive"
       });
     }
@@ -71,6 +85,7 @@ export function useDocumentProcessor({
     console.log("Processing document:", currentFile.name);
     console.log("Document type:", documentType);
     console.log("Current side:", currentSide);
+    console.log("Processing attempt:", processingAttempts + 1);
     
     try {
       // Get the user ID if available
@@ -92,6 +107,7 @@ export function useDocumentProcessor({
   const resetCapture = () => {
     setCurrentFile(null);
     setProcessingError(null);
+    setProcessingAttempts(0);
     resetSides();
   };
 
@@ -100,6 +116,7 @@ export function useDocumentProcessor({
     processingError,
     currentFile,
     currentSide,
+    processingAttempts,
     processDocument,
     handleFileUpload,
     resetCapture

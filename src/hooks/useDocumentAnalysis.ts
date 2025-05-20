@@ -65,12 +65,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       const base64Content = extractBase64Content(base64);
       console.log("Base64 conversion complete, content length:", base64Content.length);
 
-      console.log("Sending document for OCR analysis to AI service");
+      console.log("Sending document for OCR analysis with enhanced parameters");
 
       // Increment retry count to track attempts - can help with debugging
       setRetryCount(prev => prev + 1);
 
-      // Call the Edge Function Supabase via the AI service
+      // Call the Edge Function with enhanced OCR options
       const result = await analyzeDocument(base64Content, docType, userId);
 
       console.log('Document analysis result received:', result);
@@ -78,10 +78,10 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       if (result && result.extractedData) {
         const extractedData = result.extractedData;
         
-        // Vérifier si des données utiles ont réellement été extraites
+        // Check if useful data was extracted
         const hasRealData = Object.keys(extractedData).some(
           key => !key.startsWith('possible_') && 
-                 !['extraction_quality', 'source', 'confidence'].includes(key) &&
+                 !['extraction_quality', 'source', 'confidence', 'ocr_service'].includes(key) &&
                  extractedData[key] !== null && 
                  extractedData[key] !== ''
         );
@@ -93,8 +93,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
         if (hasRealData) {
           console.log("Data successfully extracted:", extractedData);
           
-          // Check if the data is coming from mock source, safely accessing the source property
-          if (result.source && result.source.includes('mock')) {
+          // Check which OCR service was used
+          const ocrService = extractedData.ocr_service || result.source || 'unknown';
+          console.log("OCR service used:", ocrService);
+          
+          // Check if the data is coming from mock source
+          if (ocrService.includes('mock')) {
             console.log("Warning: Using mock data instead of real OCR results");
             toast({
               title: "Mode démo activé",
@@ -105,7 +109,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
             // Success with real data
             toast({
               title: "Document analysé",
-              description: "Les informations ont été extraites avec succès du document.",
+              description: `Les informations ont été extraites avec succès (service: ${ocrService}).`,
             });
           }
           
@@ -116,7 +120,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
           
           return extractedData;
         } else if (hasPartialData) {
-          // Des données probables ont été extraites mais pas très fiables
+          // Partial data was extracted but not very reliable
           console.log("Only probable data could be extracted:", extractedData);
           
           toast({
@@ -125,12 +129,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
             variant: "default"
           });
           
-          // Créer un nouvel objet sans les préfixes "possible_"
+          // Create a new object without the "possible_" prefixes
           const cleanData = Object.entries(extractedData).reduce((acc, [key, value]) => {
             if (key.startsWith('possible_')) {
               const cleanKey = key.replace('possible_', '');
               acc[cleanKey] = value;
-            } else if (!['extraction_quality', 'source', 'confidence'].includes(key)) {
+            } else if (!['extraction_quality', 'source', 'confidence', 'ocr_service'].includes(key)) {
               acc[key] = value;
             }
             return acc;
@@ -145,17 +149,18 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
         } else {
           console.log("No useful data could be extracted:", extractedData);
           
-          // Suggestions variables
+          // Suggestions based on potential issues
           let suggestions = "";
           const quality = parseFloat(extractedData.extraction_quality || "0");
+          const ocrService = extractedData.ocr_service || result.source || 'unknown';
           
           if (quality < 20) {
-            suggestions = "L'image est peut-être de mauvaise qualité. Essayez avec une photo plus claire et bien cadrée.";
+            suggestions = "L'image semble être de mauvaise qualité. Essayez avec une photo plus claire, bien cadrée et avec un bon éclairage.";
           } else {
-            suggestions = "L'image est peut-être tournée. Essayez de la faire pivoter pour que le texte soit bien droit, puis réessayez.";
+            suggestions = "L'image pourrait être mal orientée ou trop floue. Essayez de la faire pivoter et prenez une photo bien éclairée.";
           }
           
-          const error = new Error(suggestions);
+          const error = new Error(`${suggestions} (Service OCR: ${ocrService})`);
           setLastError(error);
           
           toast({
@@ -173,7 +178,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       } else {
         console.log("No data could be extracted or result is invalid:", result);
         
-        const error = new Error("L'orientation ou la qualité de l'image peut être un problème. Essayez de prendre une photo en mode portrait avec un bon éclairage.");
+        const error = new Error("L'OCR n'a pas pu lire le document. Essayez une photo plus claire, bien cadrée et avec un bon contraste.");
         setLastError(error);
         
         toast({

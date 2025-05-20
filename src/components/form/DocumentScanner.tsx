@@ -53,6 +53,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
     handleFileUpload, 
     currentSide, 
     currentFile,
+    processingAttempts,
     resetCapture 
   } = useDocumentProcessor({
     documentType,
@@ -87,6 +88,23 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
     resetCapture();
   };
 
+  // Get enhanced error message based on attempts
+  const getEnhancedErrorMessage = () => {
+    if (!processingError) return "";
+    
+    let message = processingError;
+    
+    if (processingAttempts >= 2) {
+      message += "\n\nAstuces pour améliorer la reconnaissance:";
+      message += "\n• Assurez-vous que l'image est bien éclairée";
+      message += "\n• Évitez les reflets et les ombres";
+      message += "\n• Placez le document sur un fond contrasté";
+      message += "\n• Positionnez le document bien à plat et cadré";
+    }
+    
+    return message;
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -99,14 +117,28 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
       <CardContent>
         {processingError && (
           <Alert variant="destructive" className="mb-4">
-            <AlertDescription className="flex items-center justify-between">
-              <span>{processingError}</span>
-              <button 
-                onClick={handleRetry}
-                className="flex items-center text-xs text-primary hover:underline"
-              >
-                <RefreshCw className="h-3 w-3 mr-1" /> Réessayer
-              </button>
+            <AlertDescription className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span>{processingError}</span>
+                <button 
+                  onClick={handleRetry}
+                  className="flex items-center text-xs text-primary hover:underline"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" /> Réessayer
+                </button>
+              </div>
+              
+              {processingAttempts >= 2 && (
+                <div className="text-xs mt-2 space-y-1">
+                  <p className="font-semibold">Astuces pour améliorer la reconnaissance:</p>
+                  <ul className="list-disc list-inside">
+                    <li>Assurez-vous que l'image est bien éclairée</li>
+                    <li>Évitez les reflets et les ombres</li>
+                    <li>Placez le document sur un fond contrasté</li>
+                    <li>Positionnez le document bien à plat et cadré</li>
+                  </ul>
+                </div>
+              )}
             </AlertDescription>
           </Alert>
         )}
