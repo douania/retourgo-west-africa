@@ -43,6 +43,7 @@ function App() {
           <Route path="/user-type" element={<UserTypeSelection />} />
           <Route path="/register/individual" element={<IndividualRegistration />} />
           <Route path="/register/company" element={<CompanyRegistration />} />
+          <Route path="/company-registration" element={<CompanyRegistration />} />
           <Route path="/freight" element={<FreightMarketplace />} />
           {/* Redirect from /marketplace to /freight */}
           <Route path="/marketplace" element={<Navigate to="/freight" replace />} />

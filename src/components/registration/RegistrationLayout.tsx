@@ -19,6 +19,9 @@ interface RegistrationLayoutProps {
   isSubmitting?: boolean;
   icon?: LucideIcon;
   isLastStep?: boolean;
+  nextButtonText?: string;
+  previousButtonText?: string;
+  submitButtonText?: string;
 }
 
 const RegistrationLayout = ({
@@ -33,7 +36,10 @@ const RegistrationLayout = ({
   onSubmit,
   isSubmitting = false,
   icon: Icon,
-  isLastStep = false
+  isLastStep = false,
+  nextButtonText = "Next",
+  previousButtonText = "Previous",
+  submitButtonText = "Finish Registration"
 }: RegistrationLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50 py-12 pb-20">
@@ -45,7 +51,7 @@ const RegistrationLayout = ({
               <CardTitle>{title}</CardTitle>
             </div>
             <CardDescription>
-              Étape {currentStep}/{totalSteps} - {description || "Informations personnelles"}
+              {description || "Personal information"}
             </CardDescription>
             
             <RegistrationProgress 
@@ -67,7 +73,7 @@ const RegistrationLayout = ({
                   variant="outline"
                   onClick={onPrevious}
                 >
-                  Précédent
+                  {previousButtonText}
                 </Button>
               )}
               
@@ -77,7 +83,7 @@ const RegistrationLayout = ({
                   className="bg-retourgo-orange hover:bg-retourgo-orange/90"
                   onClick={onNext}
                 >
-                  Suivant
+                  {nextButtonText}
                 </Button>
               ) : (
                 <Button
@@ -85,7 +91,7 @@ const RegistrationLayout = ({
                   className="bg-retourgo-orange hover:bg-retourgo-orange/90"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Enregistrement..." : "Terminer l'inscription"}
+                  {submitButtonText}
                 </Button>
               )}
             </CardFooter>
