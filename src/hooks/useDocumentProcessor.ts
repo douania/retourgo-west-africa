@@ -19,43 +19,91 @@ export function useDocumentProcessor({
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentSide, setCurrentSide] = useState<'front' | 'back'>('front');
   const [frontFile, setFrontFile] = useState<File | null>(null);
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
   const { toast } = useToast();
   const { analyzeDocument } = useAIServices();
   const { user } = useAuth();
 
-  const processDocument = async (file: File) => {
+  // Fonction pour gérer le téléchargement initial du document
+  const handleFileUpload = (file: File) => {
+    if (showBothSides && currentSide === 'front') {
+      setFrontFile(file);
+      setCurrentFile(file);
+      
+      toast({
+        title: "Recto enregistré",
+        description: "Cliquez sur 'Analyser' pour extraire les informations ou photographiez le verso.",
+        variant: "default"
+      });
+      
+      return null;
+    } else if (showBothSides && currentSide === 'back') {
+      setCurrentFile(file);
+      
+      toast({
+        title: "Verso enregistré",
+        description: "Cliquez sur 'Analyser' pour extraire les informations des deux faces du document.",
+        variant: "default"
+      });
+      
+      return null;
+    } else {
+      setCurrentFile(file);
+      
+      toast({
+        title: "Document enregistré",
+        description: "Cliquez sur 'Analyser' pour extraire les informations automatiquement.",
+        variant: "default"
+      });
+      
+      return null;
+    }
+  };
+
+  // Fonction pour traiter le document via OCR
+  const processDocument = async () => {
+    if (!currentFile) {
+      toast({
+        title: "Aucun document",
+        description: "Veuillez d'abord télécharger un document.",
+        variant: "destructive"
+      });
+      return null;
+    }
+
     setIsProcessing(true);
     
     try {
-      // Traitement différent selon si on attend les deux faces ou non
       if (showBothSides) {
         if (currentSide === 'front') {
-          // Enregistrer le fichier du recto
-          setFrontFile(file);
+          // Traiter le recto
+          const extractedData = await extractDocumentData(currentFile, documentType);
           
-          // Message pour le recto
+          // Passer au verso après analyse du recto
+          setCurrentSide('back');
+          
           toast({
-            title: "Recto enregistré",
-            description: "Veuillez maintenant photographier le verso du document.",
+            title: "Recto analysé",
+            description: extractedData 
+              ? "Informations extraites. Veuillez maintenant photographier le verso."
+              : "L'extraction automatique n'a pas fonctionné. Veuillez photographier le verso.",
           });
           
-          // Passer au verso
-          setCurrentSide('back');
           setIsProcessing(false);
-          return null;
+          return extractedData;
         } else {
-          // Nous avons maintenant les deux faces, réaliser l'OCR avec la face arrière
-          const extractedData = await extractDocumentData(file, documentType);
+          // Analyser le verso
+          const extractedData = await extractDocumentData(currentFile, documentType);
           
           // Passer les deux fichiers + données extraites au composant parent
-          // Dans un cas réel, on pourrait fusionner les données des deux faces
           if (frontFile) {
-            onDocumentCaptured(file, extractedData);
+            onDocumentCaptured(frontFile, extractedData);
           }
           
           // Réinitialiser pour la prochaine capture
           setCurrentSide('front');
           setFrontFile(null);
+          setCurrentFile(null);
           
           // Afficher le toast de succès
           if (extractedData) {
@@ -75,11 +123,14 @@ export function useDocumentProcessor({
           return extractedData;
         }
       } else {
-        // Comportement normal pour un seul côté - appliquer l'OCR
-        const extractedData = await extractDocumentData(file, documentType);
+        // Analyser un seul côté
+        const extractedData = await extractDocumentData(currentFile, documentType);
         
         // Passer le fichier et les données extraites au composant parent
-        onDocumentCaptured(file, extractedData);
+        onDocumentCaptured(currentFile, extractedData);
+        
+        // Réinitialiser le fichier courant
+        setCurrentFile(null);
         
         // Afficher un toast adapté au résultat de l'extraction
         if (extractedData) {
@@ -107,8 +158,12 @@ export function useDocumentProcessor({
       });
       
       // Réinitialiser l'état
-      setCurrentSide('front');
-      setFrontFile(null);
+      setCurrentFile(null);
+      
+      if (showBothSides) {
+        setCurrentSide('front');
+        setFrontFile(null);
+      }
       
       setIsProcessing(false);
       return null;
@@ -125,6 +180,8 @@ export function useDocumentProcessor({
 
       // Extraire le contenu Base64 sans le préfixe data:image/...
       const base64Content = base64.split(',')[1];
+
+      console.log("Envoi du document pour analyse OCR...");
 
       // Appeler l'Edge Function Supabase via le service AI
       const result = await analyzeDocument(base64Content, docType, user.id);
@@ -155,10 +212,13 @@ export function useDocumentProcessor({
   return {
     isProcessing,
     processDocument,
+    handleFileUpload,
     currentSide,
+    currentFile,
     resetCapture: () => {
       setCurrentSide('front');
       setFrontFile(null);
+      setCurrentFile(null);
     }
   };
 }

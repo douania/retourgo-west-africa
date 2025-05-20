@@ -2,6 +2,7 @@
 import React from "react";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { Button } from "@/components/ui/button";
+import { ScanSearch } from "lucide-react";
 import DocumentProcessingIndicator from "./DocumentProcessingIndicator";
 import DocumentTips from "./DocumentTips";
 import { DocumentType } from "@/utils/document-utils";
@@ -15,7 +16,9 @@ interface DocumentScanContentProps {
   sideLabel: string;
   showBothSides: boolean;
   currentSide: 'front' | 'back';
-  onProcessDocument: (file: File) => void;
+  currentFile: File | null;
+  onProcessDocument: () => void;
+  onFileUpload: (file: File) => void;
   onDocumentRemove?: () => void;
   resetCapture: () => void;
 }
@@ -29,7 +32,9 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
   sideLabel,
   showBothSides,
   currentSide,
+  currentFile,
   onProcessDocument,
+  onFileUpload,
   onDocumentRemove,
   resetCapture
 }) => {
@@ -37,10 +42,12 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
     return <DocumentProcessingIndicator />;
   }
 
+  const hasFile = previewUrl || currentFile;
+
   return (
     <>
       <ImageUpload
-        onImageCapture={onProcessDocument}
+        onImageCapture={onFileUpload}
         onImageRemove={onDocumentRemove || resetCapture}
         previewUrl={previewUrl}
         allowCapture={true}
@@ -48,15 +55,28 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
         description={description + (showBothSides ? ` (${currentSide === 'front' ? 'Recto' : 'Verso'})` : '')}
       />
       
-      {showBothSides && currentSide === 'back' && (
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="mt-2 w-full"
-          onClick={resetCapture}
-        >
-          Recommencer la capture
-        </Button>
+      {hasFile && (
+        <div className="mt-4 space-y-2">
+          <Button 
+            type="button" 
+            className="w-full"
+            onClick={onProcessDocument}
+          >
+            <ScanSearch className="mr-2 h-4 w-4" />
+            Analyser le document
+          </Button>
+          
+          {showBothSides && currentSide === 'back' && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={resetCapture}
+            >
+              Recommencer la capture
+            </Button>
+          )}
+        </div>
       )}
 
       <DocumentTips documentType={documentType} />

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { 
   DocumentType, 
@@ -32,7 +32,14 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
   showBothSides = true,
   verificationStatus
 }) => {
-  const { isProcessing, processDocument, currentSide, resetCapture } = useDocumentProcessor({
+  const { 
+    isProcessing, 
+    processDocument, 
+    handleFileUpload, 
+    currentSide, 
+    currentFile,
+    resetCapture 
+  } = useDocumentProcessor({
     documentType,
     onDocumentCaptured,
     showBothSides
@@ -66,7 +73,9 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
           sideLabel={getSideLabel()}
           showBothSides={showBothSides}
           currentSide={currentSide}
+          currentFile={currentFile}
           onProcessDocument={processDocument}
+          onFileUpload={handleFileUpload}
           onDocumentRemove={onDocumentRemove}
           resetCapture={resetCapture}
         />
