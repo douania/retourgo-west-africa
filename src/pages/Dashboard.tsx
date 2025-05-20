@@ -12,6 +12,7 @@ import ShipperDashboard from "@/components/dashboard/ShipperDashboard";
 import { Freight, TransportOffer } from "@/types/freight";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import { Truck, Package, QrCode, Bell, History } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -23,6 +24,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string | null>(null);
   const { themeClass, primaryColor, iconColor, userType: themeUserType } = useUserTheme();
+  const { t } = useTranslation();
 
   // Icon based on user type
   const UserIcon = themeUserType === 'transporter' ? Truck : Package;
@@ -86,8 +88,8 @@ const Dashboard = () => {
         }
       } catch (error: any) {
         toast({
-          title: "Erreur",
-          description: "Impossible de charger vos données",
+          title: t("profile.error"),
+          description: t("profile.load_error"),
           variant: "destructive",
         });
         console.error("Error fetching user data:", error);
@@ -97,7 +99,7 @@ const Dashboard = () => {
     };
 
     fetchUserData();
-  }, [user, navigate, toast]);
+  }, [user, navigate, toast, t]);
 
   if (!user) return null;
 
@@ -110,8 +112,8 @@ const Dashboard = () => {
             <div className="bg-gradient-to-r from-transporter to-transporter/80 rounded-xl p-6 mb-6 text-white shadow-lg">
               <div className="flex justify-between items-center">
                 <div className="text-left">
-                  <h1 className="text-2xl font-bold">Bonjour, {user?.user_metadata?.name || 'Transporteur'}</h1>
-                  <p className="opacity-90">Transporteur RetourGo</p>
+                  <h1 className="text-2xl font-bold">{t("profile.greeting")}, {user?.user_metadata?.name || t("profile.transporter")}</h1>
+                  <p className="opacity-90">{t("profile.transporter")} RetourGo</p>
                 </div>
                 <div className="bg-white/20 p-2 rounded-full">
                   <UserIcon className="h-10 w-10" />
@@ -123,7 +125,7 @@ const Dashboard = () => {
                   onClick={() => navigate("/profile")}
                 >
                   <QrCode className="h-8 w-8" />
-                  <span className="text-sm font-medium">Voir mon QR Code</span>
+                  <span className="text-sm font-medium">{t("dashboard.view_qrcode")}</span>
                 </div>
               </div>
             </div>
@@ -131,8 +133,8 @@ const Dashboard = () => {
             <div className="bg-gradient-to-r from-shipper to-shipper/80 rounded-xl p-6 mb-6 text-white shadow-lg">
               <div className="flex justify-between items-center">
                 <div className="text-left">
-                  <h1 className="text-2xl font-bold">Bonjour, {user?.user_metadata?.name || 'Expéditeur'}</h1>
-                  <p className="opacity-90">Expéditeur RetourGo</p>
+                  <h1 className="text-2xl font-bold">{t("profile.greeting")}, {user?.user_metadata?.name || t("profile.shipper")}</h1>
+                  <p className="opacity-90">{t("profile.shipper")} RetourGo</p>
                 </div>
                 <div className="bg-white/20 p-2 rounded-full">
                   <UserIcon className="h-10 w-10" />
@@ -144,7 +146,7 @@ const Dashboard = () => {
                   onClick={() => navigate("/profile")}
                 >
                   <QrCode className="h-8 w-8" />
-                  <span className="text-sm font-medium">Voir mon QR Code</span>
+                  <span className="text-sm font-medium">{t("dashboard.view_qrcode")}</span>
                 </div>
               </div>
             </div>
@@ -161,7 +163,7 @@ const Dashboard = () => {
               <div className="bg-blue-100 p-3 rounded-full mb-2">
                 <Package className="h-6 w-6 text-blue-600" />
               </div>
-              <h3 className="text-sm font-medium">Trouver un fret</h3>
+              <h3 className="text-sm font-medium">{t("dashboard.find_freight")}</h3>
             </div>
           </Card>
           
@@ -173,7 +175,7 @@ const Dashboard = () => {
               <div className="bg-green-100 p-3 rounded-full mb-2">
                 <Truck className="h-6 w-6 text-green-600" />
               </div>
-              <h3 className="text-sm font-medium">Publier un fret</h3>
+              <h3 className="text-sm font-medium">{t("dashboard.publish_freight")}</h3>
             </div>
           </Card>
           
@@ -185,7 +187,7 @@ const Dashboard = () => {
               <div className="bg-amber-100 p-3 rounded-full mb-2">
                 <History className="h-6 w-6 text-amber-600" />
               </div>
-              <h3 className="text-sm font-medium">Historique</h3>
+              <h3 className="text-sm font-medium">{t("dashboard.history")}</h3>
             </div>
           </Card>
           
@@ -197,14 +199,14 @@ const Dashboard = () => {
               <div className="bg-purple-100 p-3 rounded-full mb-2">
                 <Bell className="h-6 w-6 text-purple-600" />
               </div>
-              <h3 className="text-sm font-medium">Notifications</h3>
+              <h3 className="text-sm font-medium">{t("dashboard.notifications")}</h3>
             </div>
           </Card>
         </div>
 
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Chargement de votre tableau de bord...</p>
+            <p className="text-gray-600">{t("freight.loading_data")}</p>
           </div>
         ) : userType ? (
           <>
@@ -221,10 +223,10 @@ const Dashboard = () => {
           </>
         ) : (
           <Card className="p-8 text-center">
-            <h3 className="text-xl font-bold mb-4">Type d'utilisateur non défini</h3>
-            <p className="mb-6">Votre profil utilisateur n'est pas correctement configuré.</p>
+            <h3 className="text-xl font-bold mb-4">{t("dashboard.user_type_undefined")}</h3>
+            <p className="mb-6">{t("dashboard.profile_not_configured")}</p>
             <Button onClick={() => navigate("/profile")}>
-              Configurer mon profil
+              {t("dashboard.setup_profile")}
             </Button>
           </Card>
         )}

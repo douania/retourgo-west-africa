@@ -3,10 +3,12 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, Truck, User, History, Package, MapPin } from "lucide-react";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const BottomNavigation = () => {
   const location = useLocation();
   const { iconColor, userType } = useUserTheme();
+  const { t } = useTranslation();
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -21,7 +23,7 @@ const BottomNavigation = () => {
         )}
       >
         <Home className="h-6 w-6" style={{ color: isActive("/") ? iconColor : undefined }} />
-        <span className="text-xs mt-1">Accueil</span>
+        <span className="text-xs mt-1">{t("nav.home")}</span>
       </Link>
       
       {userType === 'transporter' ? (
@@ -34,7 +36,7 @@ const BottomNavigation = () => {
             )}
           >
             <Package className="h-6 w-6" style={{ color: isActive("/marketplace") ? iconColor : undefined }} />
-            <span className="text-xs mt-1">Marchandises</span>
+            <span className="text-xs mt-1">{t("dashboard.merchandise")}</span>
           </Link>
           
           <Link 
@@ -44,7 +46,7 @@ const BottomNavigation = () => {
             <div className="bg-gradient-to-r from-transporter to-transporter-light rounded-full p-3 -mt-8 shadow-lg">
               <Truck className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xs mt-1 text-gray-600">Véhicules</span>
+            <span className="text-xs mt-1 text-gray-600">{t("dashboard.vehicles")}</span>
           </Link>
           
           <Link 
@@ -54,7 +56,7 @@ const BottomNavigation = () => {
             )}
           >
             <MapPin className="h-6 w-6" style={{ color: isActive("/map") ? iconColor : undefined }} />
-            <span className="text-xs mt-1">Carte</span>
+            <span className="text-xs mt-1">{t("dashboard.map")}</span>
           </Link>
         </>
       ) : (
@@ -67,7 +69,7 @@ const BottomNavigation = () => {
             )}
           >
             <Truck className="h-6 w-6" style={{ color: isActive("/marketplace") ? iconColor : undefined }} />
-            <span className="text-xs mt-1">Transporteurs</span>
+            <span className="text-xs mt-1">{t("dashboard.transporters")}</span>
           </Link>
           
           <Link 
@@ -77,7 +79,7 @@ const BottomNavigation = () => {
             <div className="bg-gradient-to-r from-shipper to-shipper-light rounded-full p-3 -mt-8 shadow-lg">
               <Package className="h-6 w-6 text-white" />
             </div>
-            <span className="text-xs mt-1 text-gray-600">Expédier</span>
+            <span className="text-xs mt-1 text-gray-600">{t("dashboard.ship")}</span>
           </Link>
           
           <Link 
@@ -87,7 +89,7 @@ const BottomNavigation = () => {
             )}
           >
             <History className="h-6 w-6" style={{ color: isActive("/history") ? iconColor : undefined }} />
-            <span className="text-xs mt-1">Historique</span>
+            <span className="text-xs mt-1">{t("nav.history")}</span>
           </Link>
         </>
       )}
@@ -99,7 +101,7 @@ const BottomNavigation = () => {
         )}
       >
         <User className="h-6 w-6" style={{ color: isActive("/profile") ? iconColor : undefined }} />
-        <span className="text-xs mt-1">Profil</span>
+        <span className="text-xs mt-1">{t("dashboard.profile")}</span>
       </Link>
     </div>
   );
