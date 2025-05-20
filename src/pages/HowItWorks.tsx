@@ -3,8 +3,11 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import HowItWorksSection from "../components/HowItWorksSection";
 import CtaSection from "../components/CtaSection";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const HowItWorks = () => {
+  const { t } = useTranslation();
+
   return (
     <div>
       <Navbar />
@@ -13,12 +16,10 @@ const HowItWorks = () => {
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl text-center">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                Comment RetourGo fonctionne
+                {t("how_it_works.title")}
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                Optimisez vos trajets retour et augmentez vos revenus grâce à
-                notre plateforme facile à utiliser qui connecte les transporteurs
-                aux expéditeurs en Afrique de l'Ouest.
+                {t("how_it_works.subtitle")}
               </p>
             </div>
           </div>
@@ -30,10 +31,10 @@ const HowItWorks = () => {
           <div className="mx-auto max-w-7xl px-6 lg:px-8">
             <div className="mx-auto max-w-2xl lg:text-center">
               <h2 className="text-base font-semibold leading-7 text-retourgo-orange">
-                Avantages pour tous
+                {t("how_it_works.advantages_title")}
               </h2>
               <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                Pourquoi choisir RetourGo?
+                {t("how_it_works.advantages_subtitle")}
               </p>
             </div>
 
@@ -56,11 +57,10 @@ const HowItWorks = () => {
                       />
                     </svg>
                   </div>
-                  Augmentez vos revenus
+                  {t("how_it_works.advantage1_title")}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-gray-600">
-                  Les transporteurs peuvent augmenter leurs revenus jusqu'à 40%
-                  en évitant les retours à vide.
+                  {t("how_it_works.advantage1_description")}
                 </dd>
               </div>
 
@@ -82,11 +82,10 @@ const HowItWorks = () => {
                       />
                     </svg>
                   </div>
-                  Gagnez du temps
+                  {t("how_it_works.advantage2_title")}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-gray-600">
-                  Trouvez du fret ou un transporteur en quelques minutes grâce à
-                  notre système de géolocalisation en temps réel.
+                  {t("how_it_works.advantage2_description")}
                 </dd>
               </div>
 
@@ -108,11 +107,10 @@ const HowItWorks = () => {
                       />
                     </svg>
                   </div>
-                  Sécurité et fiabilité
+                  {t("how_it_works.advantage3_title")}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-gray-600">
-                  Système de notation pour garantir la qualité et la fiabilité
-                  des services de transport.
+                  {t("how_it_works.advantage3_description")}
                 </dd>
               </div>
 
@@ -134,11 +132,10 @@ const HowItWorks = () => {
                       />
                     </svg>
                   </div>
-                  Réduisez l'empreinte carbone
+                  {t("how_it_works.advantage4_title")}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-gray-600">
-                  Contribuez à la réduction des émissions de CO2 en optimisant
-                  les trajets et en évitant les parcours à vide.
+                  {t("how_it_works.advantage4_description")}
                 </dd>
               </div>
 
@@ -160,11 +157,10 @@ const HowItWorks = () => {
                       />
                     </svg>
                   </div>
-                  Application mobile
+                  {t("how_it_works.advantage5_title")}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-gray-600">
-                  Accédez à RetourGo n'importe où, avec notre application mobile
-                  conçue pour fonctionner même dans les zones à faible connectivité.
+                  {t("how_it_works.advantage5_description")}
                 </dd>
               </div>
 
@@ -186,11 +182,10 @@ const HowItWorks = () => {
                       />
                     </svg>
                   </div>
-                  Paiements sécurisés
+                  {t("how_it_works.advantage6_title")}
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-gray-600">
-                  Transactions sécurisées via Wave, Orange Money ou Stripe avec
-                  libération des fonds uniquement après confirmation de livraison.
+                  {t("how_it_works.advantage6_description")}
                 </dd>
               </div>
             </div>
