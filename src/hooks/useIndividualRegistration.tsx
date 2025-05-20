@@ -88,6 +88,24 @@ export const useIndividualRegistration = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Vérifier si l'utilisateur est authentifié avant de continuer
+    if (!user) {
+      toast({
+        title: "Erreur d'authentification",
+        description: "Vous devez être connecté pour terminer votre inscription.",
+        variant: "destructive"
+      });
+      
+      // Rediriger vers la page de connexion
+      navigate("/login", { 
+        state: { 
+          returnUrl: location.pathname,
+          userType: isTransporter ? "individual_transporter" : "individual_shipper"
+        } 
+      });
+      return;
+    }
+    
     // Validation
     if (!personalInfo.full_name || !personalInfo.id_number) {
       toast({
@@ -101,8 +119,6 @@ export const useIndividualRegistration = () => {
     setIsSubmitting(true);
     
     try {
-      if (!user) throw new Error("User not authenticated");
-      
       // Upload ID card if available
       if (idCardFile) {
         await uploadDocument(user.id, idCardFile, 'id_card');
