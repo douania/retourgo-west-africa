@@ -37,20 +37,23 @@ export function ImageDropzone({
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      console.log("File dropped:", e.dataTransfer.files[0].name);
-      onFileDrop(e.dataTransfer.files[0]);
+      const file = e.dataTransfer.files[0];
+      console.log("File dropped:", file.name);
+      onFileDrop(file);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      console.log("File selected:", e.target.files[0].name);
-      onFileDrop(e.target.files[0]);
+      const file = e.target.files[0];
+      console.log("File selected:", file.name);
+      onFileDrop(file);
     }
   };
 
   const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation(); // Prevent event bubbling
     inputRef.current?.click();
   };

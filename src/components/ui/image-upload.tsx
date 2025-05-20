@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ImageDropzone } from "@/components/ui/image-dropzone";
@@ -24,6 +24,7 @@ export function ImageUpload({
   description = "Formats acceptés: JPG, PNG, WebP. Max 5MB."
 }: ImageUploadProps) {
   const [isCapturing, setIsCapturing] = useState(false);
+  const [localFile, setLocalFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const handleFile = (file: File) => {
@@ -51,6 +52,7 @@ export function ImageUpload({
       return;
     }
 
+    setLocalFile(file);
     onImageCapture(file);
   };
 
@@ -60,6 +62,13 @@ export function ImageUpload({
 
   const handleCancelCapture = () => {
     setIsCapturing(false);
+  };
+
+  const handleRemove = () => {
+    if (onImageRemove) {
+      onImageRemove();
+    }
+    setLocalFile(null);
   };
 
   return (
@@ -80,7 +89,7 @@ export function ImageUpload({
       ) : (
         <ImagePreview
           imageUrl={previewUrl || ''}
-          onRemove={onImageRemove}
+          onRemove={handleRemove}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { Button } from "@/components/ui/button";
 import { ScanSearch } from "lucide-react";
@@ -38,23 +38,49 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
   onDocumentRemove,
   resetCapture
 }) => {
+  // Local state for preview
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+
+  // Update local preview when a file is uploaded
+  useEffect(() => {
+    if (currentFile) {
+      const objectUrl = URL.createObjectURL(currentFile);
+      setLocalPreviewUrl(objectUrl);
+      
+      // Clean up the URL when component unmounts or file changes
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [currentFile]);
+  
+  // Use provided previewUrl or local preview
+  const displayPreviewUrl = previewUrl || localPreviewUrl;
+
   if (isProcessing) {
     return <DocumentProcessingIndicator />;
   }
 
-  const hasFile = Boolean(previewUrl || currentFile);
+  const hasFile = Boolean(displayPreviewUrl || currentFile);
   
   const handleImageCapture = (file: File) => {
     console.log("Document captured:", file.name);
     onFileUpload(file);
   };
 
+  const handleImageRemove = () => {
+    if (onDocumentRemove) {
+      onDocumentRemove();
+    } else {
+      resetCapture();
+    }
+    setLocalPreviewUrl(null);
+  };
+
   return (
     <>
       <ImageUpload
         onImageCapture={handleImageCapture}
-        onImageRemove={onDocumentRemove || resetCapture}
-        previewUrl={previewUrl}
+        onImageRemove={handleImageRemove}
+        previewUrl={displayPreviewUrl}
         allowCapture={true}
         label={`${title}${sideLabel}`}
         description={description + (showBothSides ? ` (${currentSide === 'front' ? 'Recto' : 'Verso'})` : '')}
