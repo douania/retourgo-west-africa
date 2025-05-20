@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Truck, Package, ArrowDown, ArrowUp } from "lucide-react";
 import { useUserTheme } from "@/hooks/useUserTheme";
 import { Freight, TransportOffer } from "@/types/freight";
+import { FreightDetailsHeader } from "@/components/freight/FreightDetailsHeader";
 
 const History = () => {
   const { user } = useAuth();
@@ -18,6 +19,10 @@ const History = () => {
   const [loading, setLoading] = useState(true);
   const [completedFreights, setCompletedFreights] = useState<Freight[]>([]);
   const [completedOffers, setCompletedOffers] = useState<TransportOffer[]>([]);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   useEffect(() => {
     if (!user) {
@@ -74,6 +79,8 @@ const History = () => {
 
   return (
     <div className="min-h-screen pt-20 pb-20 px-4 sm:px-6 lg:px-8">
+      <FreightDetailsHeader onBack={handleBack} title="" />
+      
       <div className={`${gradientClass} text-white p-6 rounded-xl mb-6`}>
         <h1 className="text-2xl font-bold">Historique de mes activités</h1>
         <p className="text-white/80">Consultez l'historique de vos marchandises et transports</p>
