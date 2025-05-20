@@ -46,6 +46,12 @@ export function useDocumentSides({ showBothSides = true }: UseDocumentSidesProps
     });
   };
 
+  // Alias for moveToBackSide for backward compatibility
+  const goToNextSide = moveToBackSide;
+  
+  // Alias for resetToFrontSide for backward compatibility
+  const resetSides = resetToFrontSide;
+
   return {
     currentSide,
     frontFile,
@@ -53,6 +59,8 @@ export function useDocumentSides({ showBothSides = true }: UseDocumentSidesProps
     moveToBackSide,
     resetToFrontSide,
     handleFrontFile,
+    goToNextSide,
+    resetSides,
     isShowingFront: currentSide === 'front',
     isShowingBack: currentSide === 'back'
   };

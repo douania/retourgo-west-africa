@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -61,7 +60,7 @@ export function useAIServices() {
   };
 
   // Route optimization service
-  const optimizeRoute = async (
+  const getRouteOptimization = async (
     origin: string, 
     destination: string, 
     userId: string
@@ -91,7 +90,7 @@ export function useAIServices() {
   };
 
   // Price estimation service
-  const estimatePrice = async (
+  const getPriceEstimation = async (
     origin: string, 
     destination: string, 
     weight: number, 
@@ -132,7 +131,7 @@ export function useAIServices() {
   };
 
   // Document analysis service
-  const analyzeDocumentService = async (
+  const analyzeDocument = async (
     documentBase64: string, 
     documentType: string, 
     userId: string
@@ -180,7 +179,7 @@ export function useAIServices() {
   };
 
   // Demand prediction service
-  const predictDemand = async (
+  const getDemandPrediction = async (
     region: string, 
     timeframe: string, 
     transportType?: string
@@ -213,9 +212,13 @@ export function useAIServices() {
   return {
     loading,
     getAssistantResponse: getAIAssistantResponse,
-    optimizeRoute,
-    estimatePrice,
-    analyzeDocument: analyzeDocumentService,
-    predictDemand
+    getRouteOptimization,
+    getPriceEstimation,
+    analyzeDocument,
+    getDemandPrediction,
+    // Keep backward compatibility with old names
+    optimizeRoute: getRouteOptimization,
+    estimatePrice: getPriceEstimation,
+    predictDemand: getDemandPrediction
   };
 }

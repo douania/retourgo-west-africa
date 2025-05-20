@@ -23,7 +23,7 @@ export function useDocumentProcessor({
   const [processingError, setProcessingError] = useState<string | null>(null);
   
   const { currentSide, goToNextSide, resetSides } = useDocumentSides({
-    enabled: showBothSides
+    showBothSides
   });
   
   const { isProcessing, extractDocumentData } = useDocumentAnalysis({
