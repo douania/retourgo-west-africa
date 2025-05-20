@@ -17,8 +17,17 @@ serve(async (req) => {
     const { documentBase64, documentType, userId } = await req.json();
     
     // Validate input
-    if (!documentBase64 || !documentType || !userId) {
-      throw new Error('Document data, type, and userId are required');
+    if (!documentBase64) {
+      throw new Error('Document data is required');
+    }
+    
+    if (!documentType) {
+      throw new Error('Document type is required');
+    }
+
+    // Allow demo mode without userId
+    if (!userId) {
+      console.log("No userId provided, using demo mode");
     }
 
     // Create a client for OpenAI

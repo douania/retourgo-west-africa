@@ -22,16 +22,21 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
    * @param userId The user ID for AI service authorization
    * @returns The extracted data or null if extraction failed
    */
-  const extractDocumentData = async (file: File, docType: DocumentType, userId: string): Promise<any> => {
-    console.log("extractDocumentData called with:", file.name, docType, userId);
+  const extractDocumentData = async (file: File, docType: DocumentType, userId?: string): Promise<any> => {
+    console.log("extractDocumentData called with:", file.name, docType, userId || "no userId");
+
+    // For demonstration purposes, allow document analysis even without authentication
+    // In production, you would want to enforce authentication
     if (!userId) {
-      console.log("No userId provided");
+      console.log("No userId provided, using demo mode");
       toast({
-        title: "Utilisateur non identifié",
-        description: "Vous devez être connecté pour analyser des documents.",
-        variant: "destructive"
+        title: "Mode démo activé",
+        description: "Pour sauvegarder vos données, veuillez vous connecter.",
+        variant: "default"
       });
-      return null;
+      
+      // Use a demo user ID for testing
+      userId = "demo-user";
     }
 
     setIsProcessing(true);
@@ -56,12 +61,25 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       if (result && result.extractedData) {
         console.log("Data successfully extracted:", result.extractedData);
         if (onSuccess) {
-          console.log("Calling onSuccess callback");
+          console.log("Calling onSuccess callback with data:", result.extractedData);
           onSuccess(result.extractedData);
         }
+        
+        // Show success toast
+        toast({
+          title: "Document analysé",
+          description: "Les informations ont été extraites avec succès.",
+        });
+        
         return result.extractedData;
       } else {
         console.log("No data could be extracted or result is invalid:", result);
+        
+        toast({
+          title: "Extraction limitée",
+          description: "Certaines informations n'ont pas pu être extraites. Veuillez vérifier les données.",
+          variant: "default"
+        });
       }
       
       console.log("No data could be extracted");
@@ -69,6 +87,12 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
     } catch (error) {
       console.error("Error during OCR extraction:", error);
       if (error instanceof Error) {
+        toast({
+          title: "Erreur d'analyse",
+          description: error.message || "Une erreur est survenue lors de l'analyse du document.",
+          variant: "destructive"
+        });
+        
         if (onError) {
           console.log("Calling onError callback");
           onError(error);

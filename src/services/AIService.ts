@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -155,7 +154,7 @@ export const AIService = {
   }
 };
 
-// Hook pour utiliser les services IA avec des toasts pour le feedback
+// Hook for using the services IA with toasts for feedback
 export function useAIServices() {
   const { toast } = useToast();
   
@@ -203,8 +202,22 @@ export function useAIServices() {
     
     analyzeDocument: async (documentBase64: string, documentType: string, userId: string) => {
       try {
+        console.log("useAIServices.analyzeDocument called with:", {
+          documentType,
+          userId,
+          documentBase64Length: documentBase64.length
+        });
+        
+        // For demo purposes, allow document analysis without authentication
+        if (!userId || userId === "demo-user") {
+          console.log("Using demo mode for document analysis");
+          // We'll still make the API call but with a demo tag
+          userId = "demo-user";
+        }
+        
         return await AIService.analyzeDocument(documentBase64, documentType, userId);
       } catch (error) {
+        console.error("Error in analyzeDocument:", error);
         return handleError(error, "Impossible d'analyser le document");
       }
     },

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { DocumentType } from "@/utils/document-utils";
@@ -38,9 +37,18 @@ export function useDocumentProcessor({
   } = useDocumentAnalysis({
     onSuccess: (data) => {
       console.log("Document analysis successful:", data);
+      // Keep existing functionality but add the document capture part here too
+      // to ensure data is passed to parent component even if user is not logged in
+      if (currentFile) {
+        onDocumentCaptured(currentFile, data);
+      }
     },
     onError: (error) => {
       console.error("Document analysis error:", error);
+      // We'll still capture the document even if analysis failed
+      if (currentFile) {
+        onDocumentCaptured(currentFile, null);
+      }
     }
   });
 
@@ -84,24 +92,13 @@ export function useDocumentProcessor({
       return null;
     }
 
-    // Check for authentication
-    if (!user || !user.id) {
-      console.log("No authenticated user found");
-      toast({
-        title: "Utilisateur non identifié",
-        description: "Vous devez être connecté pour analyser des documents.",
-        variant: "destructive"
-      });
-      return null;
-    }
-
     try {
       console.log("Starting document processing...");
       if (showBothSides) {
         if (isShowingFront) {
           console.log("Processing front side");
           // Traiter le recto
-          const extractedData = await extractDocumentData(currentFile, documentType, user.id);
+          const extractedData = await extractDocumentData(currentFile, documentType, user?.id);
           
           // Passer au verso après analyse du recto
           moveToBackSide();
@@ -115,7 +112,7 @@ export function useDocumentProcessor({
         } else {
           console.log("Processing back side");
           // Analyser le verso
-          const extractedData = await extractDocumentData(currentFile, documentType, user.id);
+          const extractedData = await extractDocumentData(currentFile, documentType, user?.id);
           
           // Passer les deux fichiers + données extraites au composant parent
           if (frontFile) {
@@ -146,7 +143,7 @@ export function useDocumentProcessor({
       } else {
         console.log("Processing single-sided document");
         // Analyser un seul côté
-        const extractedData = await extractDocumentData(currentFile, documentType, user.id);
+        const extractedData = await extractDocumentData(currentFile, documentType, user?.id);
         
         // Passer le fichier et les données extraites au composant parent
         console.log("Calling onDocumentCaptured with file and data for single-sided doc");
