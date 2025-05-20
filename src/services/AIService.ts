@@ -74,21 +74,29 @@ export interface DemandPredictionResponse {
 export const AIService = {
   // Assistant IA
   async getAssistantResponse(messages: { role: string; content: string }[], userId: string): Promise<AIAssistantResponse> {
+    console.log("Calling AI assistant with userId:", userId);
     const { data, error } = await supabase.functions.invoke('ai-assistant', {
       body: { messages, userId }
     });
     
-    if (error) throw new Error(`Error getting AI assistant response: ${error.message}`);
+    if (error) {
+      console.error("AI assistant error:", error);
+      throw new Error(`Error getting AI assistant response: ${error.message}`);
+    }
     return data as AIAssistantResponse;
   },
   
   // Optimisation d'itinéraire
   async getRouteOptimization(origin: string, destination: string, userId: string): Promise<RouteOptimizationResponse> {
+    console.log("Calling route optimization with userId:", userId);
     const { data, error } = await supabase.functions.invoke('route-optimization', {
       body: { origin, destination, userId }
     });
     
-    if (error) throw new Error(`Error getting route optimization: ${error.message}`);
+    if (error) {
+      console.error("Route optimization error:", error);
+      throw new Error(`Error getting route optimization: ${error.message}`);
+    }
     return data as RouteOptimizationResponse;
   },
   
@@ -101,31 +109,48 @@ export const AIService = {
     volume?: number,
     specialRequirements?: string
   ): Promise<PriceEstimationResponse> {
+    console.log("Calling price estimation");
     const { data, error } = await supabase.functions.invoke('price-estimation', {
       body: { origin, destination, weight, volume, vehicleType, specialRequirements }
     });
     
-    if (error) throw new Error(`Error getting price estimation: ${error.message}`);
+    if (error) {
+      console.error("Price estimation error:", error);
+      throw new Error(`Error getting price estimation: ${error.message}`);
+    }
     return data as PriceEstimationResponse;
   },
   
   // Reconnaissance de documents
   async analyzeDocument(documentBase64: string, documentType: string, userId: string): Promise<DocumentRecognitionResponse> {
+    console.log("Calling document analysis with userId:", userId);
+    console.log("Document content length:", documentBase64.length);
+    console.log("Document type:", documentType);
+    
     const { data, error } = await supabase.functions.invoke('document-recognition', {
       body: { documentBase64, documentType, userId }
     });
     
-    if (error) throw new Error(`Error analyzing document: ${error.message}`);
+    if (error) {
+      console.error("Document analysis error:", error);
+      throw new Error(`Error analyzing document: ${error.message}`);
+    }
+    
+    console.log("Document analysis completed successfully");
     return data as DocumentRecognitionResponse;
   },
   
   // Prédiction de demande
   async getDemandPrediction(region: string, timeframe: string, transportType?: string): Promise<DemandPredictionResponse> {
+    console.log("Calling demand prediction");
     const { data, error } = await supabase.functions.invoke('demand-prediction', {
       body: { region, timeframe, transportType }
     });
     
-    if (error) throw new Error(`Error getting demand prediction: ${error.message}`);
+    if (error) {
+      console.error("Demand prediction error:", error);
+      throw new Error(`Error getting demand prediction: ${error.message}`);
+    }
     return data as DemandPredictionResponse;
   }
 };

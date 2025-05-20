@@ -72,6 +72,7 @@ export function useDocumentProcessor({
   // Fonction pour traiter le document via OCR
   const processDocument = async () => {
     console.log("processDocument called in useDocumentProcessor, currentFile:", currentFile?.name || "null");
+    console.log("Current user:", user?.id || "not authenticated");
     
     if (!currentFile) {
       console.log("No document file found");
@@ -83,7 +84,8 @@ export function useDocumentProcessor({
       return null;
     }
 
-    if (!user) {
+    // Check for authentication
+    if (!user || !user.id) {
       console.log("No authenticated user found");
       toast({
         title: "Utilisateur non identifié",
@@ -103,6 +105,11 @@ export function useDocumentProcessor({
           
           // Passer au verso après analyse du recto
           moveToBackSide();
+          
+          toast({
+            title: "Recto analysé",
+            description: "Veuillez maintenant photographier le verso.",
+          });
           
           return extractedData;
         } else {
@@ -142,7 +149,7 @@ export function useDocumentProcessor({
         const extractedData = await extractDocumentData(currentFile, documentType, user.id);
         
         // Passer le fichier et les données extraites au composant parent
-        console.log("Calling onDocumentCaptured with file and data");
+        console.log("Calling onDocumentCaptured with file and data for single-sided doc");
         onDocumentCaptured(currentFile, extractedData);
         
         // Réinitialiser le fichier courant

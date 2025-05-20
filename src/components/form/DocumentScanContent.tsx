@@ -44,6 +44,7 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
   // Update local preview when a file is uploaded
   useEffect(() => {
     if (currentFile) {
+      console.log("Creating object URL for file:", currentFile.name);
       const objectUrl = URL.createObjectURL(currentFile);
       setLocalPreviewUrl(objectUrl);
       
@@ -54,6 +55,10 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
   
   // Use provided previewUrl or local preview
   const displayPreviewUrl = previewUrl || localPreviewUrl;
+
+  useEffect(() => {
+    console.log("displayPreviewUrl:", displayPreviewUrl);
+  }, [displayPreviewUrl]);
 
   if (isProcessing) {
     return <DocumentProcessingIndicator />;
@@ -78,7 +83,12 @@ const DocumentScanContent: React.FC<DocumentScanContentProps> = ({
 
   const handleProcessDocument = () => {
     console.log("Analyze Document button clicked - handleProcessDocument function");
-    onProcessDocument();
+    if (onProcessDocument) {
+      console.log("Calling onProcessDocument");
+      onProcessDocument();
+    } else {
+      console.error("onProcessDocument function is not defined");
+    }
   };
 
   return (

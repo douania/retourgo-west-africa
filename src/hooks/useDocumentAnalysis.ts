@@ -55,8 +55,13 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       
       if (result && result.extractedData) {
         console.log("Data successfully extracted:", result.extractedData);
-        onSuccess?.(result.extractedData);
+        if (onSuccess) {
+          console.log("Calling onSuccess callback");
+          onSuccess(result.extractedData);
+        }
         return result.extractedData;
+      } else {
+        console.log("No data could be extracted or result is invalid:", result);
       }
       
       console.log("No data could be extracted");
@@ -64,7 +69,10 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
     } catch (error) {
       console.error("Error during OCR extraction:", error);
       if (error instanceof Error) {
-        onError?.(error);
+        if (onError) {
+          console.log("Calling onError callback");
+          onError(error);
+        }
       }
       return null;
     } finally {

@@ -10,6 +10,7 @@ import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
 import { VerificationStatus } from "@/types/supabase-extensions";
 import DocumentHeader from "./DocumentHeader";
 import DocumentScanContent from "./DocumentScanContent";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DocumentScannerProps {
   onDocumentCaptured: (file: File, extractedData?: any) => void;
@@ -32,6 +33,16 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
   showBothSides = true,
   verificationStatus
 }) => {
+  const { user } = useAuth();
+
+  // Log the authentication status
+  useEffect(() => {
+    console.log("DocumentScanner - Auth state:", user ? "Authenticated" : "Not authenticated");
+    if (user) {
+      console.log("User ID:", user.id);
+    }
+  }, [user]);
+  
   const { 
     isProcessing, 
     processDocument, 
@@ -54,6 +65,16 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
     return currentSide === 'front' ? " - Recto" : " - Verso";
   };
 
+  // Handle document processing with better debugging
+  const handleProcessDocument = async () => {
+    console.log("DocumentScanner - handleProcessDocument called");
+    try {
+      await processDocument();
+    } catch (error) {
+      console.error("Error in DocumentScanner processDocument:", error);
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -74,7 +95,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = ({
           showBothSides={showBothSides}
           currentSide={currentSide}
           currentFile={currentFile}
-          onProcessDocument={processDocument}
+          onProcessDocument={handleProcessDocument}
           onFileUpload={handleFileUpload}
           onDocumentRemove={onDocumentRemove}
           resetCapture={resetCapture}
