@@ -26,7 +26,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Rejoignez RetourGo dès aujourd'hui</h2>
           <p className="text-lg mb-6">Découvrez notre parcours d'inscription simplifié et personnalisé</p>
-          <Link to="/user-type-selection">
+          <Link to="/user-type">
             <Button className="bg-retourgo-orange hover:bg-retourgo-orange/90 text-lg py-6 px-8">
               Commencer l'inscription
             </Button>
@@ -52,7 +52,7 @@ const Index = () => {
           {user ? (
             <div className="flex flex-wrap justify-center gap-4">
               {userType === 'transporter' ? (
-                <Link to="/marketplace">
+                <Link to="/freight">
                   <Button className="bg-transporter hover:bg-transporter/90 text-lg py-6 px-8">
                     Voir les marchandises disponibles
                   </Button>
@@ -64,7 +64,7 @@ const Index = () => {
                       Publier une marchandise
                     </Button>
                   </Link>
-                  <Link to="/marketplace">
+                  <Link to="/freight">
                     <Button variant="outline" className="text-lg py-6 px-8 border-2">
                       Trouver un transporteur
                     </Button>

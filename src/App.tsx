@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import Index from './pages/Index';
@@ -44,6 +44,8 @@ function App() {
           <Route path="/register/individual" element={<IndividualRegistration />} />
           <Route path="/register/company" element={<CompanyRegistration />} />
           <Route path="/freight" element={<FreightMarketplace />} />
+          {/* Redirect from /marketplace to /freight */}
+          <Route path="/marketplace" element={<Navigate to="/freight" replace />} />
           <Route path="/vehicle-type" element={<VehicleTypeSelection />} />
           <Route path="/vehicle-registration" element={<VehicleRegistration />} />
           <Route path="/driver-registration" element={<DriverRegistration />} />
@@ -51,6 +53,8 @@ function App() {
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/ai-assistant" element={<AIAssistant />} />
+          {/* Redirect from /ai to /ai-assistant */}
+          <Route path="/ai" element={<Navigate to="/ai-assistant" replace />} />
           <Route path="/new-freight" element={<NewFreight />} />
           <Route path="/freight/:id" element={<FreightDetails />} />
           <Route path="/freight/:id/offers" element={<FreightOffers />} />
