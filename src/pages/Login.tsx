@@ -1,12 +1,13 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,21 +15,47 @@ const Login = () => {
   const { signIn, isLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-
+  const location = useLocation();
+  
+  // Get return URL and user type from location state
+  const returnUrl = (location.state as { returnUrl?: string })?.returnUrl || "/dashboard";
+  const userType = (location.state as { userType?: string })?.userType;
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       await signIn(email, password);
-      navigate("/dashboard");
+      // Navigate to the return URL if available, otherwise to dashboard
+      navigate(returnUrl);
     } catch (error) {
       console.error("Login error:", error);
     }
   };
 
+  // If user is coming from registration and has a userType, display a helpful message
+  useEffect(() => {
+    if (userType) {
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous pour continuer votre inscription.",
+      });
+    }
+  }, [userType, toast]);
+
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {returnUrl !== "/dashboard" && (
+          <button 
+            onClick={() => navigate(-1)} 
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-4 mx-auto"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Retour
+          </button>
+        )}
+        
         <Link to="/" className="flex justify-center">
           <span className="text-retourgo-orange font-bold text-3xl">
             Retour<span className="text-retourgo-green">Go</span>
@@ -41,6 +68,7 @@ const Login = () => {
           Ou{" "}
           <Link
             to="/register"
+            state={{ userType }} // Pass the userType to registration if available
             className="font-medium text-retourgo-orange hover:text-retourgo-orange/80"
           >
             créez un compte
@@ -116,6 +144,22 @@ const Login = () => {
                 {isLoading ? "Connexion en cours..." : "Se connecter"}
               </Button>
             </div>
+            
+            {/* Emphasize registration option especially if user was redirected from registration */}
+            {userType && (
+              <div className="mt-4">
+                <p className="text-center text-sm">
+                  Vous êtes nouveau sur RetourGo?
+                </p>
+                <Link
+                  to="/register"
+                  state={{ userType }}
+                  className="w-full mt-2 flex justify-center py-2 px-4 border border-retourgo-orange rounded-md shadow-sm text-sm font-medium text-retourgo-orange hover:bg-orange-50 focus:outline-none"
+                >
+                  Créer un compte
+                </Link>
+              </div>
+            )}
           </form>
 
           <div className="mt-6">
