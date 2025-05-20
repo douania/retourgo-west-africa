@@ -29,13 +29,6 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
     // In production, you would want to enforce authentication
     if (!userId) {
       console.log("No userId provided, using demo mode");
-      toast({
-        title: "Mode démo activé",
-        description: "Pour sauvegarder vos données, veuillez vous connecter.",
-        variant: "default"
-      });
-      
-      // Use a demo user ID for testing
       userId = "demo-user";
     }
 
@@ -45,9 +38,11 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
     try {
       // Convert the file to Base64
       console.log("Converting file to base64");
+      console.log("Converting file to base64:", file.name);
       const base64 = await fileToBase64(file);
       
       // Extract the Base64 content without the prefix
+      console.log("Extracting base64 content from data URL");
       const base64Content = extractBase64Content(base64);
       console.log("Base64 conversion complete, content length:", base64Content.length);
 
@@ -60,16 +55,27 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
       
       if (result && result.extractedData) {
         console.log("Data successfully extracted:", result.extractedData);
+        
+        // Check if the data is coming from mock source
+        if (result.source && result.source.includes('mock')) {
+          console.log("Warning: Using mock data instead of real OCR results");
+          toast({
+            title: "Mode démo activé",
+            description: "Des données fictives sont utilisées pour la démonstration. Pour utiliser la reconnaissance réelle, réessayez avec une image plus claire.",
+            variant: "default"
+          });
+        } else {
+          // Success with real data
+          toast({
+            title: "Document analysé",
+            description: "Les informations ont été extraites avec succès du document.",
+          });
+        }
+        
         if (onSuccess) {
           console.log("Calling onSuccess callback with data:", result.extractedData);
           onSuccess(result.extractedData);
         }
-        
-        // Show success toast
-        toast({
-          title: "Document analysé",
-          description: "Les informations ont été extraites avec succès.",
-        });
         
         return result.extractedData;
       } else {
@@ -77,7 +83,7 @@ export function useDocumentAnalysis({ onSuccess, onError }: UseDocumentAnalysisP
         
         toast({
           title: "Extraction limitée",
-          description: "Certaines informations n'ont pas pu être extraites. Veuillez vérifier les données.",
+          description: "Veuillez essayer avec une image plus claire ou saisir les données manuellement.",
           variant: "default"
         });
       }
