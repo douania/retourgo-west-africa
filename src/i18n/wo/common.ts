@@ -9,4 +9,5 @@ export default {
   "registration.previous": "Dellu ginaw",
   "registration.finish": "Jeexal bindal bi",
   "registration.submitting": "Mingi bind...",
+  "registration.go_back": "Dellu",
 };

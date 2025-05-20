@@ -9,4 +9,5 @@ export default {
   "registration.previous": "Previous",
   "registration.finish": "Finish Registration",
   "registration.submitting": "Registering...",
+  "registration.go_back": "Go back",
 };

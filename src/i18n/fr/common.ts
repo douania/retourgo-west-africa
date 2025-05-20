@@ -9,4 +9,5 @@ export default {
   "registration.previous": "Précédent",
   "registration.finish": "Terminer l'inscription",
   "registration.submitting": "Enregistrement...",
+  "registration.go_back": "Retour",
 };
