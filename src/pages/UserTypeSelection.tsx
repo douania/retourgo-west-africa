@@ -4,33 +4,35 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Truck, User, Building, Package } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const UserTypeSelection = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
   const userTypes = [
     {
       id: "individual_transporter",
-      title: "Particulier - Transporteur",
+      title: t("profile.transporter") + " - " + t("profile.individual"),
       description: "Vous êtes un particulier qui propose des services de transport",
       icon: <Truck className="h-8 w-8 text-retourgo-orange" />
     },
     {
       id: "individual_shipper",
-      title: "Particulier - Expéditeur",
+      title: t("profile.shipper") + " - " + t("profile.individual"),
       description: "Vous êtes un particulier qui souhaite expédier des marchandises",
       icon: <User className="h-8 w-8 text-retourgo-orange" />
     },
     {
       id: "company_transporter",
-      title: "Société de transport",
+      title: t("profile.transporter") + " - " + t("registration.company"),
       description: "Vous représentez une entreprise qui offre des services de transport",
       icon: <Building className="h-8 w-8 text-retourgo-orange" />
     },
     {
       id: "company_shipper",
-      title: "Société expéditrice",
+      title: t("profile.shipper") + " - " + t("registration.company"),
       description: "Vous représentez une entreprise qui expédie régulièrement des marchandises",
       icon: <Package className="h-8 w-8 text-retourgo-orange" />
     }
@@ -50,7 +52,7 @@ const UserTypeSelection = () => {
         navigate("/company-registration", { state: { userType: selectedType } });
         break;
       default:
-        navigate("/register");
+        navigate("/register", { state: { userType: selectedType } });
     }
   };
 
@@ -102,7 +104,7 @@ const UserTypeSelection = () => {
               className="w-full bg-retourgo-orange hover:bg-retourgo-orange/90"
               disabled={!selectedType}
             >
-              Continuer
+              {t("registration.next")}
             </Button>
           </CardFooter>
         </Card>

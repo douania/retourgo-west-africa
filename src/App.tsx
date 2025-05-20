@@ -40,7 +40,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/user-type" element={<UserTypeSelection />} />
+          <Route path="/user-type-selection" element={<UserTypeSelection />} />
+          {/* Redirect from old route to new route */}
+          <Route path="/user-type" element={<Navigate to="/user-type-selection" replace />} />
           <Route path="/register/individual" element={<IndividualRegistration />} />
           <Route path="/register/company" element={<CompanyRegistration />} />
           <Route path="/individual-registration" element={<IndividualRegistration />} />
