@@ -1,6 +1,6 @@
 
 export default {
-  "page.not_found": "Oops! Page not found",
+  "page.not_found": "Oops! The page you are looking for does not exist",
   "page.return_home": "Return to Home",
   "registration.company": "Company Registration",
   "registration.company.description": "Information about your company",

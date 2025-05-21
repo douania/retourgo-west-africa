@@ -60,6 +60,8 @@ function App() {
           <Route path="/driver-registration" element={<DriverRegistration />} />
           <Route path="/profiles" element={<Profiles />} />
           <Route path="/profile/:id" element={<Profile />} />
+          {/* Add new route for profile without ID that redirects to the user's profile */}
+          <Route path="/profile" element={<Navigate to="/profile/me" replace />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/ai-assistant" element={<AIAssistant />} />
           {/* Redirect from /ai to /ai-assistant */}
