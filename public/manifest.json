@@ -1,0 +1,63 @@
+{
+  "name": "RetourGo - Transport Intelligent",
+  "short_name": "RetourGo",
+  "description": "Plateforme de transport et fret avec intelligence artificielle pour l'Afrique de l'Ouest",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6b35",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["transport", "logistics", "business"],
+  "shortcuts": [
+    {
+      "name": "Nouveau Fret",
+      "short_name": "Fret",
+      "description": "Publier un nouveau fret",
+      "url": "/new-freight",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Marketplace",
+      "short_name": "Market",
+      "description": "Voir les frets disponibles",
+      "url": "/freight-marketplace",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Assistant IA",
+      "short_name": "IA",
+      "description": "Chat avec l'assistant IA",
+      "url": "/ai-assistant",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}

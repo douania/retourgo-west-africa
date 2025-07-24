@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetourGo - Mode Hors-ligne</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            padding: 2rem;
+        }
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .retry-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .retry-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .features {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        .feature {
+            margin: 0.5rem 0;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>Mode Hors-ligne</h1>
+        <p>Vous êtes actuellement hors-ligne. Certaines fonctionnalités restent disponibles :</p>
+        
+        <div class="features">
+            <div class="feature">✓ Consultation des frets récents</div>
+            <div class="feature">✓ Historique des trajets</div>
+            <div class="feature">✓ Données de profil</div>
+            <div class="feature">✓ Cartes hors-ligne</div>
+        </div>
+        
+        <button class="retry-btn" onclick="window.location.reload()">
+            Réessayer la connexion
+        </button>
+    </div>
+
+    <script>
+        // Auto-retry when back online
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+        
+        // Show connection status
+        if (navigator.onLine) {
+            document.querySelector('p').textContent = 'Reconnexion en cours...';
+            setTimeout(() => window.location.reload(), 2000);
+        }
+    </script>
+</body>
+</html>
