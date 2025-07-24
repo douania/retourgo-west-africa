@@ -184,7 +184,7 @@ export function useRealtimeLocation(options: RealtimeLocationOptions = {}) {
         .update({
           current_latitude: location.latitude,
           current_longitude: location.longitude,
-          location_updated_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           is_available: true
         })
         .eq('id', user.id);
@@ -255,11 +255,11 @@ export function useRealtimeLocation(options: RealtimeLocationOptions = {}) {
       const userLocation: UserLocation = {
         user_id: newRecord.id,
         user_name: `${newRecord.first_name || ''} ${newRecord.last_name || ''}`.trim(),
-        user_type: newRecord.user_type,
+        user_type: (newRecord.user_type as 'shipper' | 'transporter' | 'individual') || 'individual',
         latitude: newRecord.current_latitude,
         longitude: newRecord.current_longitude,
         is_available: newRecord.is_available,
-        timestamp: new Date(newRecord.location_updated_at || new Date())
+        timestamp: new Date(newRecord.updated_at || new Date())
       };
 
       // Filter nearby users (within 50km radius)
@@ -279,7 +279,7 @@ export function useRealtimeLocation(options: RealtimeLocationOptions = {}) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, user_type, current_latitude, current_longitude, is_available, location_updated_at')
+        .select('id, first_name, last_name, user_type, current_latitude, current_longitude, is_available, updated_at')
         .eq('is_available', true)
         .neq('id', user.id)
         .not('current_latitude', 'is', null)
@@ -291,15 +291,15 @@ export function useRealtimeLocation(options: RealtimeLocationOptions = {}) {
       }
 
       const nearby = data
-        ?.map(profile => ({
-          user_id: profile.id,
-          user_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
-          user_type: profile.user_type,
-          latitude: profile.current_latitude!,
-          longitude: profile.current_longitude!,
-          is_available: profile.is_available,
-          timestamp: new Date(profile.location_updated_at || new Date())
-        }))
+         ?.map(profile => ({
+           user_id: profile.id,
+           user_name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
+           user_type: (profile.user_type as 'shipper' | 'transporter' | 'individual') || 'individual',
+           latitude: profile.current_latitude!,
+           longitude: profile.current_longitude!,
+           is_available: profile.is_available,
+           timestamp: new Date(profile.updated_at || new Date())
+         }))
         .filter(userLoc => calculateDistance(currentLocation, userLoc) <= 50) || [];
 
       setNearbyUsers(nearby);

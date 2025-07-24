@@ -158,7 +158,7 @@ export function usePushNotifications() {
     return 'BEl62iUYgUivxIkv69yViEuiBIa40HI80NM-2CqAwWqPowWAk5Zap1_LQN2OU1R3H3g7u5HjsEyGOz1O0wF8aII';
   };
 
-  // Save subscription to Supabase
+  // Save subscription to Supabase (temporarily disabled until migration is approved)
   const saveSubscriptionToDatabase = async (subscription: PushSubscription) => {
     const subscriptionData: NotificationSubscription = {
       endpoint: subscription.endpoint,
@@ -168,6 +168,9 @@ export function usePushNotifications() {
       }
     };
 
+    // TODO: Enable after push_subscriptions table migration is approved
+    console.log('Push subscription would be saved:', subscriptionData);
+    /*
     const { error } = await supabase
       .from('push_subscriptions')
       .upsert({
@@ -180,10 +183,14 @@ export function usePushNotifications() {
     if (error) {
       throw error;
     }
+    */
   };
 
-  // Remove subscription from database
+  // Remove subscription from database (temporarily disabled until migration is approved)
   const removeSubscriptionFromDatabase = async () => {
+    // TODO: Enable after push_subscriptions table migration is approved
+    console.log('Push subscription would be removed for user:', user!.id);
+    /*
     const { error } = await supabase
       .from('push_subscriptions')
       .delete()
@@ -192,6 +199,7 @@ export function usePushNotifications() {
     if (error) {
       throw error;
     }
+    */
   };
 
   // Send a test notification
