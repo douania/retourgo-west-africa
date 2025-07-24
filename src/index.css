@@ -139,7 +139,8 @@
   input[type="submit"], 
   input[type="button"], 
   a[role="button"] {
-    @apply min-h-[44px] touch-action-manipulation;
+    @apply min-h-[44px];
+    touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
 
