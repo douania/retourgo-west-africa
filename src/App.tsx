@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import { PageSkeleton } from './components/ui/page-skeleton';
+import { MobileNavigation } from './components/navigation/MobileNavigation';
 import './App.css';
 
 // Pages critiques chargées immédiatement
@@ -40,9 +41,10 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Toaster richColors position="top-center" />
-        <Suspense fallback={<PageSkeleton />}>
-          <Routes>
+        <div className="relative min-h-screen">
+          <Toaster richColors position="top-center" />
+          <Suspense fallback={<PageSkeleton />}>
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -80,8 +82,12 @@ function App() {
             <Route path="/history" element={<History />} />
             <Route path="/map" element={<Map />} />
             <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+            </Routes>
+          </Suspense>
+          
+          {/* Navigation mobile bottom fixe */}
+          <MobileNavigation />
+        </div>
       </Router>
     </AuthProvider>
   );
